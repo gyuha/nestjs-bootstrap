@@ -1,0 +1,82 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-bootstrap-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_NAME: nestjs-bootstrap
+      APP_DESCRIPTION: NestJS DDD bootstrap foundation
+      APP_VERSION: 0.1.0
+      APP_CORS_ORIGIN: http://localhost:3000
+      DB_DRIVER: postgres
+      DATABASE_URL: ''
+      SQLITE_PATH: ''
+      DATABASE_MIGRATIONS_DIR: ''
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ''
+      REDIS_DB: 0
+      REDIS_KEY_PREFIX: nestjs-bootstrap:
+      HEALTH_CACHE_KEY: health:example
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl --fail --silent http://127.0.0.1:3000/api/v1/health/details > /dev/null || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./data:/app/data
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nestjs-bootstrap-postgres
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d app']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: nestjs-bootstrap-redis
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgres-data:
+  redis-data:

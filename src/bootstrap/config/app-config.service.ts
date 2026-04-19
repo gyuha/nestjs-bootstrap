@@ -30,4 +30,64 @@ export class AppConfigService {
   get appCorsOrigin() {
     return this.configService.get('APP_CORS_ORIGIN', { infer: true });
   }
+
+  get databaseDriver() {
+    return this.configService.get('DB_DRIVER', { infer: true });
+  }
+
+  get databaseUrl() {
+    return this.configService.get('DATABASE_URL', { infer: true });
+  }
+
+  get postgresHost() {
+    return this.configService.get('POSTGRES_HOST', { infer: true });
+  }
+
+  get postgresPort() {
+    return this.configService.get('POSTGRES_PORT', { infer: true });
+  }
+
+  get postgresUser() {
+    return this.configService.get('POSTGRES_USER', { infer: true });
+  }
+
+  get postgresPassword() {
+    return this.configService.get('POSTGRES_PASSWORD', { infer: true });
+  }
+
+  get postgresDb() {
+    return this.configService.get('POSTGRES_DB', { infer: true });
+  }
+
+  get sqlitePath() {
+    return this.configService.get('SQLITE_PATH', { infer: true });
+  }
+
+  get databaseMigrationsDir() {
+    return this.configService.get('DATABASE_MIGRATIONS_DIR', { infer: true });
+  }
+
+  get redisHost() {
+    return this.configService.get('REDIS_HOST', { infer: true });
+  }
+
+  get redisPort() {
+    return this.configService.get('REDIS_PORT', { infer: true });
+  }
+
+  get redisPassword() {
+    return this.configService.get('REDIS_PASSWORD', { infer: true });
+  }
+
+  get redisDb() {
+    return this.configService.get('REDIS_DB', { infer: true });
+  }
+
+  get redisKeyPrefix() {
+    return this.configService.get('REDIS_KEY_PREFIX', { infer: true });
+  }
+
+  get healthCacheKey() {
+    return this.configService.get('HEALTH_CACHE_KEY', { infer: true });
+  }
 }

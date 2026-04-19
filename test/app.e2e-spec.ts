@@ -4,6 +4,8 @@ import * as request from 'supertest';
 
 import { AppModule } from '../src/app.module';
 import { bootstrapApplication } from '../src/bootstrap/bootstrap-application';
+import { CacheHealthService } from '../src/shared/infrastructure/cache/cache-health.service';
+import { DatabaseHealthService } from '../src/shared/infrastructure/database/database-health.service';
 
 const validEnvironment = {
   NODE_ENV: 'test',
@@ -20,9 +22,13 @@ const validEnvironment = {
   POSTGRES_PASSWORD: 'postgres',
   POSTGRES_DB: 'app',
   SQLITE_PATH: './data/test.sqlite',
+  DATABASE_MIGRATIONS_DIR: './drizzle',
   REDIS_HOST: 'localhost',
   REDIS_PORT: '6379',
   REDIS_PASSWORD: '',
+  REDIS_DB: '2',
+  REDIS_KEY_PREFIX: 'nestjs-bootstrap:test:',
+  HEALTH_CACHE_KEY: 'health:check',
 } as const;
 
 function applyValidEnvironment() {
@@ -35,6 +41,32 @@ async function createTestApp() {
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
   }).compile();
+
+  const app = moduleRef.createNestApplication();
+  await bootstrapApplication(app);
+  await app.init();
+
+  return app;
+}
+
+async function createTestAppWithDependencyHealth(options: {
+  cache: boolean;
+  database: boolean;
+}) {
+  applyValidEnvironment();
+
+  const moduleRef = await Test.createTestingModule({
+    imports: [AppModule],
+  })
+    .overrideProvider(CacheHealthService)
+    .useValue({
+      isHealthy: jest.fn().mockResolvedValue(options.cache),
+    })
+    .overrideProvider(DatabaseHealthService)
+    .useValue({
+      isHealthy: jest.fn().mockResolvedValue(options.database),
+    })
+    .compile();
 
   const app = moduleRef.createNestApplication();
   await bootstrapApplication(app);
@@ -135,6 +167,102 @@ describe('Phase 1 foundation (e2e)', () => {
       expect(throttledResponse.body).toEqual({
         success: false,
         error: 'ThrottlerException: Too Many Requests',
+        meta: {
+          traceId: expect.any(String),
+        },
+      });
+    } finally {
+      await isolatedApp.close();
+    }
+  });
+
+  it('returns detailed health information for infrastructure dependencies', async () => {
+    const isolatedApp = await createTestAppWithDependencyHealth({
+      cache: true,
+      database: true,
+    });
+
+    try {
+      const response = await request(isolatedApp.getHttpServer()).get(
+        '/api/v1/health/details',
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.headers['x-trace-id']).toBeDefined();
+      expect(response.body).toEqual({
+        success: true,
+        data: {
+          cache: true,
+          database: true,
+        },
+        meta: {
+          traceId: expect.any(String),
+        },
+      });
+    } finally {
+      await isolatedApp.close();
+    }
+  });
+
+  it('returns a non-200 readiness response when a dependency is unhealthy', async () => {
+    const isolatedApp = await createTestAppWithDependencyHealth({
+      cache: false,
+      database: true,
+    });
+
+    try {
+      const response = await request(isolatedApp.getHttpServer()).get(
+        '/api/v1/health/details',
+      );
+
+      expect(response.status).toBe(503);
+      expect(response.headers['x-trace-id']).toBeDefined();
+      expect(response.body).toEqual({
+        success: false,
+        error: 'Readiness check failed',
+        meta: {
+          traceId: expect.any(String),
+        },
+      });
+    } finally {
+      await isolatedApp.close();
+    }
+  });
+
+  it('returns a versioned health status response', async () => {
+    const response = await request(app.getHttpServer()).get('/api/v1/health');
+
+    expect(response.status).toBe(200);
+    expect(response.headers['x-trace-id']).toBeDefined();
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        status: 'ok',
+      },
+      meta: {
+        traceId: expect.any(String),
+      },
+    });
+  });
+
+  it('keeps the base liveness endpoint fast and successful when readiness fails', async () => {
+    const isolatedApp = await createTestAppWithDependencyHealth({
+      cache: false,
+      database: true,
+    });
+
+    try {
+      const response = await request(isolatedApp.getHttpServer()).get(
+        '/api/v1/health',
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.headers['x-trace-id']).toBeDefined();
+      expect(response.body).toEqual({
+        success: true,
+        data: {
+          status: 'ok',
+        },
         meta: {
           traceId: expect.any(String),
         },
