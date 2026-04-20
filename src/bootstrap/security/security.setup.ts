@@ -7,7 +7,10 @@ export function setupSecurity(app: INestApplication): void {
 
   const config = app.get(ConfigService);
   const rawOrigins = config.get<string>('ALLOWED_ORIGINS', 'http://localhost:3000');
-  const allowedOrigins = rawOrigins.split(',').map((o) => o.trim());
+  const allowedOrigins = rawOrigins
+    .split(',')
+    .map((o) => o.trim())
+    .filter((o) => o.length > 0);
 
   app.enableCors({
     origin: allowedOrigins,
