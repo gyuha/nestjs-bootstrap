@@ -9,7 +9,8 @@ import {
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
-import type { HealthService } from './health.service';
+// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
+import { HealthService } from './health.service';
 
 interface HealthResult {
   status: 'ok' | 'degraded';

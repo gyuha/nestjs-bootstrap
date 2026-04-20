@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { INestApplication, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
@@ -28,14 +29,18 @@ describe('HealthController (e2e)', () => {
     await app.close();
   });
 
-  it('GET /health returns 200 with success response', () => {
+  it('GET /health returns 200 with db and cache status', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
       .expect((res) => {
         expect(res.body).toEqual({
           success: true,
-          data: { status: 'ok' },
+          data: {
+            status: 'ok',
+            db: 'ok',
+            cache: 'ok',
+          },
         });
       });
   });

@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
+// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import { CacheService } from '../../shared/infrastructure/cache/cache.service';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 
