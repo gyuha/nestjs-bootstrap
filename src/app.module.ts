@@ -11,6 +11,7 @@ import { pinoConfig } from './bootstrap/logging/pino.config';
 import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { HealthModule } from './modules/health/health.module';
+import { UsersModule } from './modules/users/users.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 
@@ -26,6 +27,7 @@ import { DatabaseModule } from './shared/infrastructure/database/database.module
     DatabaseModule,
     AppCacheModule,
     HealthModule,
+    UsersModule,
   ],
 })
 export class AppModule implements NestModule {
