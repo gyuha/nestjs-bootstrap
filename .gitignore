@@ -38,11 +38,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .env.test
 .env.production
 
-# build
-dist/
-node_modules/
-coverage/
-
 # local db
 *.db
 *.db-journal
