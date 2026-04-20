@@ -15,7 +15,7 @@ import { CacheService } from './cache.service';
             ttl: 60,
           };
         }
-        return { ttl: 60 };
+        return { ttl: 60_000 };
       },
       inject: [ConfigService],
     }),
