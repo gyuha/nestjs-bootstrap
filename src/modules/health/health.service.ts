@@ -17,7 +17,7 @@ export class HealthService {
 
   async checkDb(): Promise<HealthStatus> {
     try {
-      this.db.run(sql`SELECT 1`);
+      await this.db.run(sql`SELECT 1`);
       return 'ok';
     } catch (err) {
       this.logger.error('DB health check failed', err);
