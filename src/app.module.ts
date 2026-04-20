@@ -11,6 +11,7 @@ import { pinoConfig } from './bootstrap/logging/pino.config';
 import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { HealthModule } from './modules/health/health.module';
+import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { DatabaseModule } from './shared/infrastructure/database/database.module
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     LoggerModule.forRoot(pinoConfig),
     DatabaseModule,
+    AppCacheModule,
     HealthModule,
   ],
 })
