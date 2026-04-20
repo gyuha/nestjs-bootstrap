@@ -1,4 +1,8 @@
-import { traceStore, TraceMiddleware } from './trace.middleware';
+import type { NextFunction, Request, Response } from 'express';
+import { TraceMiddleware, traceStore } from './trace.middleware';
+
+type MockRequest = Partial<Request> & { headers: Record<string, string> };
+type MockResponse = Partial<Response> & { setHeader: jest.Mock };
 
 describe('TraceMiddleware', () => {
   let middleware: TraceMiddleware;
@@ -9,11 +13,17 @@ describe('TraceMiddleware', () => {
 
   it('passes through the X-Trace-Id header value if present', () => {
     const setHeader = jest.fn();
-    const req = { headers: { 'x-trace-id': 'existing-trace-abc' } } as any;
-    const res = { setHeader } as any;
+    const req: MockRequest = {
+      headers: { 'x-trace-id': 'existing-trace-abc' },
+    };
+    const res: MockResponse = { setHeader };
     const next = jest.fn();
 
-    middleware.use(req, res, next);
+    middleware.use(
+      req as Request,
+      res as unknown as Response,
+      next as NextFunction,
+    );
 
     expect(setHeader).toHaveBeenCalledWith('X-Trace-Id', 'existing-trace-abc');
     expect(next).toHaveBeenCalled();
@@ -21,11 +31,15 @@ describe('TraceMiddleware', () => {
 
   it('generates a UUID v4 when X-Trace-Id header is absent', () => {
     const setHeader = jest.fn();
-    const req = { headers: {} } as any;
-    const res = { setHeader } as any;
+    const req: MockRequest = { headers: {} };
+    const res: MockResponse = { setHeader };
     const next = jest.fn();
 
-    middleware.use(req, res, next);
+    middleware.use(
+      req as Request,
+      res as unknown as Response,
+      next as NextFunction,
+    );
 
     const [[headerName, traceId]] = setHeader.mock.calls;
     expect(headerName).toBe('X-Trace-Id');
@@ -37,23 +51,31 @@ describe('TraceMiddleware', () => {
 
   it('calls next() in both cases', () => {
     const next = jest.fn();
-    const req = { headers: {} } as any;
-    const res = { setHeader: jest.fn() } as any;
+    const req: MockRequest = { headers: {} };
+    const res: MockResponse = { setHeader: jest.fn() };
 
-    middleware.use(req, res, next);
+    middleware.use(
+      req as Request,
+      res as unknown as Response,
+      next as NextFunction,
+    );
 
     expect(next).toHaveBeenCalledTimes(1);
   });
 
   it('runs next() inside the traceStore context with the correct traceId', () => {
-    const req = { headers: { 'x-trace-id': 'context-test-id' } } as any;
-    const res = { setHeader: jest.fn() } as any;
+    const req: MockRequest = { headers: { 'x-trace-id': 'context-test-id' } };
+    const res: MockResponse = { setHeader: jest.fn() };
     let capturedStore: { traceId: string } | undefined;
     const next = jest.fn().mockImplementation(() => {
       capturedStore = traceStore.getStore();
     });
 
-    middleware.use(req, res, next);
+    middleware.use(
+      req as Request,
+      res as unknown as Response,
+      next as NextFunction,
+    );
 
     expect(capturedStore).toEqual({ traceId: 'context-test-id' });
   });

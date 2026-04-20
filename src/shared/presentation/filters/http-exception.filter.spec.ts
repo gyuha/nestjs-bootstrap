@@ -1,3 +1,4 @@
+import type { ArgumentsHost } from '@nestjs/common';
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exception.filter';
 
@@ -5,7 +6,7 @@ describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
   let mockJson: jest.Mock;
   let mockStatus: jest.Mock;
-  let mockHost: any;
+  let mockHost: ArgumentsHost;
 
   beforeEach(() => {
     filter = new HttpExceptionFilter();
@@ -14,15 +15,19 @@ describe('HttpExceptionFilter', () => {
     mockHost = {
       switchToHttp: () => ({
         getResponse: () => ({ status: mockStatus }),
+        getRequest: () => ({}),
+        getNext: () => ({}),
       }),
-    };
+      getArgs: () => [],
+      getArgByIndex: () => undefined,
+      switchToRpc: () => ({ getData: () => ({}), getContext: () => ({}) }),
+      switchToWs: () => ({ getData: () => ({}), getClient: () => ({}) }),
+      getType: () => 'http' as const,
+    } as unknown as ArgumentsHost;
   });
 
   it('formats HttpException with correct HTTP status', () => {
-    filter.catch(
-      new NotFoundException('Resource not found'),
-      mockHost,
-    );
+    filter.catch(new NotFoundException('Resource not found'), mockHost);
 
     expect(mockStatus).toHaveBeenCalledWith(404);
     expect(mockJson).toHaveBeenCalledWith({
@@ -37,13 +42,19 @@ describe('HttpExceptionFilter', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       success: false,
-      error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' },
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
     });
   });
 
   it('extracts message from HttpException object response', () => {
     filter.catch(
-      new HttpException({ message: 'Validation failed' }, HttpStatus.BAD_REQUEST),
+      new HttpException(
+        { message: 'Validation failed' },
+        HttpStatus.BAD_REQUEST,
+      ),
       mockHost,
     );
 

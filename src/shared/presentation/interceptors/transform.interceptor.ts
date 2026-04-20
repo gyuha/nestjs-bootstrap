@@ -1,12 +1,12 @@
 import {
-  CallHandler,
-  ExecutionContext,
+  type CallHandler,
+  type ExecutionContext,
   Injectable,
-  NestInterceptor,
+  type NestInterceptor,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ApiSuccessResponse } from '../dto/api-response.dto';
+import type { ApiSuccessResponse } from '../dto/api-response.dto';
 
 @Injectable()
 export class TransformInterceptor<T>
@@ -16,6 +16,8 @@ export class TransformInterceptor<T>
     _context: ExecutionContext,
     next: CallHandler<T>,
   ): Observable<ApiSuccessResponse<T>> {
-    return next.handle().pipe(map((data) => ({ success: true as const, data })));
+    return next
+      .handle()
+      .pipe(map((data) => ({ success: true as const, data })));
   }
 }

@@ -1,6 +1,6 @@
 import { Controller, Get, VERSION_NEUTRAL, Version } from '@nestjs/common';
-import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('health')
 @Controller('health')

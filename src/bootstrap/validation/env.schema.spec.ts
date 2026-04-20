@@ -28,9 +28,9 @@ describe('validateEnv', () => {
   });
 
   it('throws when JWT_SECRET is shorter than 32 characters', () => {
-    expect(() =>
-      validateEnv({ ...validEnv, JWT_SECRET: 'too-short' }),
-    ).toThrow('Environment validation failed');
+    expect(() => validateEnv({ ...validEnv, JWT_SECRET: 'too-short' })).toThrow(
+      'Environment validation failed',
+    );
   });
 
   it('throws when DATABASE_URL is missing', () => {
@@ -39,9 +39,9 @@ describe('validateEnv', () => {
   });
 
   it('throws when NODE_ENV is not one of the allowed values', () => {
-    expect(() =>
-      validateEnv({ ...validEnv, NODE_ENV: 'staging' }),
-    ).toThrow('Environment validation failed');
+    expect(() => validateEnv({ ...validEnv, NODE_ENV: 'staging' })).toThrow(
+      'Environment validation failed',
+    );
   });
 
   it('applies default ALLOWED_ORIGINS when omitted', () => {
@@ -51,13 +51,16 @@ describe('validateEnv', () => {
   });
 
   it('accepts a valid REDIS_URL when provided', () => {
-    const result = validateEnv({ ...validEnv, REDIS_URL: 'redis://localhost:6379' });
+    const result = validateEnv({
+      ...validEnv,
+      REDIS_URL: 'redis://localhost:6379',
+    });
     expect(result.REDIS_URL).toBe('redis://localhost:6379');
   });
 
   it('throws when REDIS_URL is provided but not a valid URL', () => {
-    expect(() =>
-      validateEnv({ ...validEnv, REDIS_URL: 'not-a-url' }),
-    ).toThrow('Environment validation failed');
+    expect(() => validateEnv({ ...validEnv, REDIS_URL: 'not-a-url' })).toThrow(
+      'Environment validation failed',
+    );
   });
 });
