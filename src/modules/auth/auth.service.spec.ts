@@ -3,11 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
 
 describe('AuthService', () => {
   let service: AuthService;
   let mockUsersService: { findByEmail: jest.Mock; create: jest.Mock };
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
+  let mockRedis: { get: jest.Mock; setex: jest.Mock; del: jest.Mock; keys: jest.Mock };
 
   beforeEach(async () => {
     mockUsersService = {
@@ -17,6 +19,12 @@ describe('AuthService', () => {
     mockJwtService = {
       sign: jest.fn().mockReturnValue('mock-token'),
       verify: jest.fn(),
+    };
+    mockRedis = {
+      get: jest.fn().mockResolvedValue(null),
+      setex: jest.fn().mockResolvedValue('OK'),
+      del: jest.fn().mockResolvedValue(1),
+      keys: jest.fn().mockResolvedValue([]),
     };
 
     const module = await Test.createTestingModule({
@@ -31,6 +39,7 @@ describe('AuthService', () => {
             getOrThrow: jest.fn().mockReturnValue('test-secret'),
           },
         },
+        { provide: REDIS_CLIENT, useValue: mockRedis },
       ],
     }).compile();
 
@@ -60,6 +69,7 @@ describe('AuthService', () => {
   describe('refreshTokens()', () => {
     it('issues new tokens for valid refresh token', async () => {
       mockJwtService.verify.mockReturnValue({ sub: 'uuid', email: 'test@example.com' });
+      mockRedis.get.mockResolvedValue('valid-refresh-token');
 
       const result = await service.refreshTokens('valid-refresh-token');
 

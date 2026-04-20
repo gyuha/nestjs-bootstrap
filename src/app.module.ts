@@ -12,6 +12,8 @@ import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { HealthModule } from './modules/health/health.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { SocialModule } from './modules/social/social.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
@@ -30,6 +32,8 @@ import { RedisModule } from './shared/infrastructure/redis/redis.module';
     AppCacheModule,
     HealthModule,
     UsersModule,
+    AuthModule,
+    SocialModule,
   ],
 })
 export class AppModule implements NestModule {

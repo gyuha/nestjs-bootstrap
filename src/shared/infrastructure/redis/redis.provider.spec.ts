@@ -9,7 +9,10 @@ describe('RedisProvider', () => {
         RedisProvider,
         {
           provide: ConfigService,
-          useValue: { getOrThrow: jest.fn().mockReturnValue('redis://localhost:6379') },
+          useValue: {
+            get: jest.fn().mockReturnValue(undefined),
+            getOrThrow: jest.fn().mockReturnValue('redis://localhost:6379'),
+          },
         },
       ],
     }).compile();

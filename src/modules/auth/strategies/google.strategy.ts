@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
@@ -8,12 +8,19 @@ import { SocialService } from '../../social/social.service';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     private readonly socialService: SocialService,
-    private readonly config: ConfigService,
+    @Optional() private readonly config: ConfigService,
   ) {
+    const clientID = config?.get<string>('GOOGLE_CLIENT_ID') ?? 'dummy';
+    const clientSecret = config?.get<string>('GOOGLE_CLIENT_SECRET') ?? 'dummy';
+    const apiBaseUrl = config?.get<string>('API_BASE_URL') ?? 'http://localhost';
+    const callbackURL = clientID === 'dummy'
+      ? 'http://localhost/auth/google/callback'
+      : `${apiBaseUrl}/auth/google/callback`;
+
     super({
-      clientID: config.getOrThrow<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: config.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: `${config.getOrThrow<string>('API_BASE_URL')}/auth/google/callback`,
+      clientID,
+      clientSecret,
+      callbackURL,
       scope: ['email', 'profile'],
     });
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-github2';
 import { ConfigService } from '@nestjs/config';
@@ -8,12 +8,19 @@ import { SocialService } from '../../social/social.service';
 export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
   constructor(
     private readonly socialService: SocialService,
-    config: ConfigService,
+    @Optional() private readonly config: ConfigService,
   ) {
+    const clientID = config?.get<string>('GITHUB_CLIENT_ID') ?? 'dummy';
+    const clientSecret = config?.get<string>('GITHUB_CLIENT_SECRET') ?? 'dummy';
+    const apiBaseUrl = config?.get<string>('API_BASE_URL') ?? 'http://localhost';
+    const callbackURL = clientID === 'dummy'
+      ? 'http://localhost/auth/github/callback'
+      : `${apiBaseUrl}/auth/github/callback`;
+
     super({
-      clientID: config.getOrThrow<string>('GITHUB_CLIENT_ID'),
-      clientSecret: config.getOrThrow<string>('GITHUB_CLIENT_SECRET'),
-      callbackURL: `${config.getOrThrow<string>('API_BASE_URL')}/auth/github/callback`,
+      clientID,
+      clientSecret,
+      callbackURL,
       scope: ['user:email'],
     });
   }
