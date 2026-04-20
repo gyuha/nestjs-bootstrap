@@ -12,7 +12,7 @@ describe('TransformInterceptor', () => {
   it('wraps object data in success format', (done) => {
     const next = { handle: () => of({ id: 1, name: 'test' }) };
 
-    interceptor.intercept({} as ExecutionContext, next).subscribe((result) => {
+    interceptor.intercept({} as ExecutionContext, next).subscribe((result: unknown) => {
       expect(result).toEqual({ success: true, data: { id: 1, name: 'test' } });
       done();
     });
@@ -21,7 +21,7 @@ describe('TransformInterceptor', () => {
   it('wraps null data in success format', (done) => {
     const next = { handle: () => of(null) };
 
-    interceptor.intercept({} as ExecutionContext, next).subscribe((result) => {
+    interceptor.intercept({} as ExecutionContext, next).subscribe((result: unknown) => {
       expect(result).toEqual({ success: true, data: null });
       done();
     });
@@ -30,7 +30,7 @@ describe('TransformInterceptor', () => {
   it('wraps array data in success format', (done) => {
     const next = { handle: () => of([1, 2, 3]) };
 
-    interceptor.intercept({} as ExecutionContext, next).subscribe((result) => {
+    interceptor.intercept({} as ExecutionContext, next).subscribe((result: unknown) => {
       expect(result).toEqual({ success: true, data: [1, 2, 3] });
       done();
     });
