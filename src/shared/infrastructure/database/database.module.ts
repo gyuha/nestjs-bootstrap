@@ -25,8 +25,11 @@ export class DatabaseModule implements OnModuleInit {
           migrationsFolder: './src/shared/infrastructure/database/migrations',
         });
         this.logger.log('SQLite migrations applied');
-      } catch {
-        this.logger.warn('No migrations to apply or migrations folder missing');
+      } catch (error) {
+        this.logger.warn(
+          'No migrations to apply or migrations folder missing:',
+          error instanceof Error ? error.message : String(error),
+        );
       }
     }
   }
