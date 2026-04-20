@@ -1,4 +1,4 @@
-import { TraceMiddleware } from './trace.middleware';
+import { traceStore, TraceMiddleware } from './trace.middleware';
 
 describe('TraceMiddleware', () => {
   let middleware: TraceMiddleware;
@@ -43,5 +43,18 @@ describe('TraceMiddleware', () => {
     middleware.use(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs next() inside the traceStore context with the correct traceId', () => {
+    const req = { headers: { 'x-trace-id': 'context-test-id' } } as any;
+    const res = { setHeader: jest.fn() } as any;
+    let capturedStore: { traceId: string } | undefined;
+    const next = jest.fn().mockImplementation(() => {
+      capturedStore = traceStore.getStore();
+    });
+
+    middleware.use(req, res, next);
+
+    expect(capturedStore).toEqual({ traceId: 'context-test-id' });
   });
 });

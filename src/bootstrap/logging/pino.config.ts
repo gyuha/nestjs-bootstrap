@@ -10,7 +10,7 @@ export const pinoConfig: Params = {
       process.env['NODE_ENV'] !== 'production'
         ? {
             target: 'pino-pretty',
-            options: { colorize: true, singleLine: false },
+            options: { colorize: true, singleLine: true },
           }
         : undefined,
     autoLogging: true,
