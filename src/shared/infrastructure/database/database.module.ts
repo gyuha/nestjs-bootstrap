@@ -21,7 +21,7 @@ export class DatabaseModule implements OnModuleInit {
     if (env !== 'production') {
       try {
         const { migrate } = await import('drizzle-orm/better-sqlite3/migrator');
-        await migrate(this.db, {
+        migrate(this.db, {
           migrationsFolder: './src/shared/infrastructure/database/migrations',
         });
         this.logger.log('SQLite migrations applied');
