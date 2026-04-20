@@ -49,4 +49,15 @@ describe('validateEnv', () => {
     const result = validateEnv(rest);
     expect(result.ALLOWED_ORIGINS).toBe('http://localhost:3000');
   });
+
+  it('accepts a valid REDIS_URL when provided', () => {
+    const result = validateEnv({ ...validEnv, REDIS_URL: 'redis://localhost:6379' });
+    expect(result.REDIS_URL).toBe('redis://localhost:6379');
+  });
+
+  it('throws when REDIS_URL is provided but not a valid URL', () => {
+    expect(() =>
+      validateEnv({ ...validEnv, REDIS_URL: 'not-a-url' }),
+    ).toThrow('Environment validation failed');
+  });
 });
