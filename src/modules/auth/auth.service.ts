@@ -2,7 +2,7 @@ import { Inject, Injectable, UnauthorizedException, ConflictException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
-import { REDIS_CLIENT } from '../../../shared/infrastructure/redis/redis.provider';
+import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
 import type Redis from 'ioredis';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
