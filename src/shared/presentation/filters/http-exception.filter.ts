@@ -28,7 +28,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exceptionResponse !== null
       ) {
         const resp = exceptionResponse as Record<string, unknown>;
-        message = (resp['message'] as string | undefined) ?? message;
+        const raw = resp['message'];
+        if (typeof raw === 'string') {
+          message = raw;
+        } else if (Array.isArray(raw)) {
+          message = (raw as string[]).join('; ');
+        }
       }
       code = exception.constructor.name
         .replace(/Exception$/, '')
