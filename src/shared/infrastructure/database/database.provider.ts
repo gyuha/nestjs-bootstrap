@@ -7,7 +7,7 @@ export const DatabaseProvider: Provider = {
   useFactory: async (config: ConfigService) => {
     const url = config.getOrThrow<string>('DATABASE_URL');
 
-    if (config.get<string>('NODE_ENV') === 'production') {
+    if (config.getOrThrow<string>('NODE_ENV') === 'production') {
       const { drizzle } = await import('drizzle-orm/postgres-js');
       const { default: postgres } = await import('postgres');
       return drizzle(postgres(url));
