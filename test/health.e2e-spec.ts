@@ -9,7 +9,6 @@ describe('HealthController (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    process.env['NODE_ENV'] = 'test';
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
