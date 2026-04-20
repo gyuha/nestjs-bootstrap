@@ -14,6 +14,7 @@ import { HealthModule } from './modules/health/health.module';
 import { UsersModule } from './modules/users/users.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
+import { RedisModule } from './shared/infrastructure/redis/redis.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DatabaseModule } from './shared/infrastructure/database/database.module
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     LoggerModule.forRoot(pinoConfig),
     DatabaseModule,
+    RedisModule,
     AppCacheModule,
     HealthModule,
     UsersModule,

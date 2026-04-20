@@ -30,6 +30,13 @@ export class AuthController {
     return this.authService.login(_dto, user);
   }
 
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async logout(@CurrentUser('userId') userId: string) {
+    await this.authService.logout(userId);
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: { userId: string; email: string }) {

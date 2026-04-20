@@ -1,17 +1,24 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
+import { REDIS_CLIENT } from '../../../shared/infrastructure/redis/redis.provider';
+import type Redis from 'ioredis';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly refreshTokenTtl: number;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
-  ) {}
+    @Inject(REDIS_CLIENT) private readonly redis: Redis,
+  ) {
+    this.refreshTokenTtl = this.config.get<number>('JWT_REFRESH_TTL') ?? 604800;
+  }
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
@@ -24,17 +31,38 @@ export class AuthService {
     return this.generateTokens(user.userId, user.email);
   }
 
-  async refreshTokens(refreshToken: string) {
-    // Task 4 will implement Redis validation
-    // For now, just decode and issue new tokens
+  async logout(userId: string) {
+    const pattern = `refresh:${userId}:*`;
+    const keys = await this.redis.keys(pattern);
+    if (keys.length > 0) {
+      await this.redis.del(...keys);
+    }
+  }
+
+  async refreshTokens(oldRefreshToken: string) {
+    let payload: { sub: string; email: string };
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      payload = this.jwtService.verify(oldRefreshToken, {
         secret: this.config.getOrThrow<string>('JWT_SECRET'),
       });
-      return this.generateTokens(payload.sub, payload.email);
     } catch {
-      throw new ConflictException('Invalid refresh token');
+      throw new UnauthorizedException('Invalid refresh token');
     }
+
+    const storedToken = await this.redis.get(`refresh:${payload.sub}:token`);
+    if (storedToken !== oldRefreshToken) {
+      throw new UnauthorizedException('Refresh token reuse detected');
+    }
+
+    // Rotation: delete old, issue new
+    await this.redis.del(`refresh:${payload.sub}:token`);
+    const tokens = this.generateTokens(payload.sub, payload.email);
+    await this.redis.setex(
+      `refresh:${payload.sub}:token`,
+      this.refreshTokenTtl,
+      tokens.refreshToken,
+    );
+    return tokens;
   }
 
   generateTokensForUser(userId: string, email: string) {
@@ -50,7 +78,7 @@ export class AuthService {
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.config.get<number>('JWT_REFRESH_TTL') ?? 604800,
+      expiresIn: this.refreshTokenTtl,
       algorithm: 'HS512',
     });
 
