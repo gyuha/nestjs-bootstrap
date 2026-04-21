@@ -28,6 +28,8 @@ export const EnvSchema = z.object({
   AWS_ACCESS_KEY_ID: z.string().optional(),
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
   AWS_S3_PUBLIC_URL: z.string().optional(),
+
+  BULL_BOARD_ENABLED: z.string().default('false').transform(v => v === 'true'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
