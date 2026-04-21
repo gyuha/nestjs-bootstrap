@@ -17,6 +17,7 @@ import { SocialModule } from './modules/social/social.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
+import { EmailModule } from './shared/infrastructure/email/email.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RedisModule } from './shared/infrastructure/redis/redis.module';
     LoggerModule.forRoot(pinoConfig),
     DatabaseModule,
     RedisModule,
+    EmailModule,
     AppCacheModule,
     HealthModule,
     UsersModule,
