@@ -3,6 +3,8 @@ import {
   Post,
   Get,
   Body,
+  Query,
+  Req,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -13,6 +15,9 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import type { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -26,8 +31,14 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  login(@Body() _dto: LoginDto, @CurrentUser() user: { userId: string; email: string }) {
-    return this.authService.login(_dto, user);
+  login(
+    @Body() dto: LoginDto,
+    @CurrentUser() user: { userId: string; email: string },
+    @Req() req: Request,
+  ) {
+    const ip = req.ip ?? 'unknown';
+    const userAgent = req.headers['user-agent'] ?? 'unknown';
+    return this.authService.login(dto, user, ip, userAgent);
   }
 
   @Post('logout')
@@ -35,6 +46,23 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async logout(@CurrentUser('userId') userId: string) {
     await this.authService.logout(userId);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.newPassword);
+  }
+
+  @Get('verify-email')
+  verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
   }
 
   @Get('me')
