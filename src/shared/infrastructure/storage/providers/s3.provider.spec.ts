@@ -32,6 +32,18 @@ describe('S3Provider', () => {
               };
               return values[key];
             }),
+            getOrThrow: jest.fn().mockImplementation((key: string) => {
+              const values: Record<string, string> = {
+                AWS_S3_BUCKET: 'test-bucket',
+                AWS_S3_REGION: 'ap-northeast-2',
+                AWS_ACCESS_KEY_ID: 'key',
+                AWS_SECRET_ACCESS_KEY: 'secret',
+              };
+              if (values[key] === undefined) {
+                throw new Error(`Config key "${key}" not found`);
+              }
+              return values[key];
+            }),
           },
         },
       ],
