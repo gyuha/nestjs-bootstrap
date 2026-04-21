@@ -2,6 +2,7 @@ import { randomBytes } from 'crypto';
 import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as argon2 from 'argon2';
 import { UsersService } from '../users/users.service';
 import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly config: ConfigService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly queueService: QueueService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     this.refreshTokenTtl = this.config.get<number>('JWT_REFRESH_TTL') ?? 604800;
   }
@@ -40,6 +42,7 @@ export class AuthService {
 
   async login(_dto: LoginDto, user: { userId: string; email: string }, ip: string, userAgent: string) {
     void this.queueService.addJob('email', { type: 'login-alert', to: user.email, ip, userAgent });
+    this.eventEmitter.emit('auth.login', { userId: user.userId, ip, userAgent });
     return this.generateTokens(user.userId, user.email);
   }
 
@@ -49,6 +52,7 @@ export class AuthService {
     if (keys.length > 0) {
       await this.redis.del(...keys);
     }
+    this.eventEmitter.emit('auth.logout', { userId });
   }
 
   async forgotPassword(email: string): Promise<void> {
@@ -67,6 +71,7 @@ export class AuthService {
     const passwordHash = await argon2.hash(newPassword);
     await this.usersService.updatePassword(userId, passwordHash);
     await this.redis.del(`email:password-reset:${token}`);
+    this.eventEmitter.emit('auth.password-changed', { userId });
   }
 
   async verifyEmail(token: string): Promise<void> {
@@ -123,7 +128,6 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token reuse detected');
     }
 
-    // Rotation: delete old, issue new
     await this.redis.del(`refresh:${payload.sub}:token`);
     const tokens = this.generateTokens(payload.sub, payload.email);
     await this.redis.setex(

@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
@@ -17,6 +18,7 @@ describe('AuthService', () => {
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
   let mockRedis: { get: jest.Mock; setex: jest.Mock; del: jest.Mock; keys: jest.Mock };
   let mockQueueService: { addJob: jest.Mock };
+  let mockEventEmitter: { emit: jest.Mock };
 
   beforeEach(async () => {
     mockUsersService = {
@@ -38,6 +40,9 @@ describe('AuthService', () => {
     mockQueueService = {
       addJob: jest.fn().mockResolvedValue(undefined),
     };
+    mockEventEmitter = {
+      emit: jest.fn(),
+    };
 
     const module = await Test.createTestingModule({
       providers: [
@@ -57,6 +62,7 @@ describe('AuthService', () => {
         },
         { provide: REDIS_CLIENT, useValue: mockRedis },
         { provide: QueueService, useValue: mockQueueService },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
 
@@ -94,6 +100,32 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBe('mock-token');
     });
+
+    it('emits auth.login event', async () => {
+      await service.login(
+        { email: 'test@example.com', password: 'password123' },
+        { userId: 'uuid', email: 'test@example.com' },
+        '127.0.0.1',
+        'Mozilla/5.0',
+      );
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.login', {
+        userId: 'uuid',
+        ip: '127.0.0.1',
+        userAgent: 'Mozilla/5.0',
+      });
+    });
+  });
+
+  describe('logout()', () => {
+    it('clears refresh tokens and emits auth.logout event', async () => {
+      mockRedis.keys.mockResolvedValue(['refresh:uuid:token']);
+
+      await service.logout('uuid');
+
+      expect(mockRedis.del).toHaveBeenCalledWith('refresh:uuid:token');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.logout', { userId: 'uuid' });
+    });
   });
 
   describe('forgotPassword()', () => {
@@ -125,13 +157,16 @@ describe('AuthService', () => {
         .rejects.toThrow('Invalid or expired token');
     });
 
-    it('updates password for valid token', async () => {
+    it('updates password and emits auth.password-changed event', async () => {
       mockRedis.get.mockResolvedValue('user-uuid');
 
       await service.resetPassword('valid-token', 'newpassword123');
 
       expect(mockUsersService.updatePassword).toHaveBeenCalledWith('user-uuid', expect.any(String));
       expect(mockRedis.del).toHaveBeenCalledWith('email:password-reset:valid-token');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.password-changed', {
+        userId: 'user-uuid',
+      });
     });
   });
 
