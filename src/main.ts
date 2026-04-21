@@ -1,6 +1,8 @@
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { setupSecurity } from './bootstrap/security/security.setup';
 import { setupSwagger } from './bootstrap/swagger/swagger.setup';
@@ -11,7 +13,7 @@ import { TransformInterceptor } from './shared/presentation/interceptors/transfo
 async function bootstrap(): Promise<void> {
   const env = validateEnv(process.env as Record<string, unknown>);
 
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(Logger));
 
@@ -29,6 +31,8 @@ async function bootstrap(): Promise<void> {
   if (env.NODE_ENV !== 'production') {
     setupSwagger(app);
   }
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
 
   await app.listen(env.PORT);
 }
