@@ -31,4 +31,15 @@ describe('LogProvider', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('truncates html longer than 200 characters in log output', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    const longHtml = '<p>' + 'a'.repeat(300) + '</p>';
+
+    await provider.send({ to: 'x@example.com', subject: 'Long', html: longHtml });
+
+    const logged = (consoleSpy.mock.calls[0] as [string, { html: string }])[1];
+    expect(logged.html.endsWith('...')).toBe(true);
+    consoleSpy.mockRestore();
+  });
 });
