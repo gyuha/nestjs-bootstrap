@@ -18,6 +18,7 @@ import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { EmailModule } from './shared/infrastructure/email/email.module';
+import { QueueModule } from './shared/infrastructure/queue/queue.module';
 import { StorageModule } from './shared/infrastructure/storage/storage.module';
 import { ImageModule } from './shared/infrastructure/image/image.module';
 import { FilesModule } from './modules/files/files.module';
@@ -33,6 +34,7 @@ import { FilesModule } from './modules/files/files.module';
     LoggerModule.forRoot(pinoConfig),
     DatabaseModule,
     RedisModule,
+    QueueModule,
     EmailModule,
     StorageModule,
     ImageModule,
