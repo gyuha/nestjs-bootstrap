@@ -194,4 +194,11 @@ export class UsersService {
       .set({ isMarketingSubscribed: value, updatedAt: new Date() })
       .where(eq(schema.users.id, id));
   }
+
+  async setAvatarUrl(id: string, avatarUrl: string | null): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ avatarUrl, updatedAt: new Date() })
+      .where(eq(schema.users.id, id));
+  }
 }
