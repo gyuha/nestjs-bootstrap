@@ -16,6 +16,8 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }
