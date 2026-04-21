@@ -5,6 +5,8 @@ export const users = pgTable('users', {
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash'),
   isActive: boolean('is_active').notNull().default(true),
+  isEmailVerified: boolean('is_email_verified').notNull().default(false),
+  isMarketingSubscribed: boolean('is_marketing_subscribed').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
