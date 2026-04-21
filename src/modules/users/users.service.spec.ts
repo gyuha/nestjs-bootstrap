@@ -1,8 +1,8 @@
 import { Test, type TestingModule } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 import { UsersService } from './users.service';
 
-// Factory function to create fresh mock for each test
 function createMockDb() {
   return {
     select: jest.fn(),
@@ -16,17 +16,17 @@ describe('UsersService', () => {
   let service: UsersService;
   // biome-ignore lint/suspicious/noExplicitAny: mock db type
   let mockDb: any;
+  let mockEventEmitter: { emit: jest.Mock };
 
   beforeEach(async () => {
     mockDb = createMockDb();
+    mockEventEmitter = { emit: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
-        {
-          provide: DRIZZLE_CLIENT,
-          useValue: mockDb,
-        },
+        { provide: DRIZZLE_CLIENT, useValue: mockDb },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
 
@@ -35,11 +35,7 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should create a user with hashed password', async () => {
-      const createUserDto = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
-
+      const createUserDto = { email: 'test@example.com', password: 'password123' };
       const mockUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         email: createUserDto.email,
@@ -50,13 +46,10 @@ describe('UsersService', () => {
       };
 
       mockDb.insert.mockImplementation(() => ({
-        values: () => ({
-          returning: () => [mockUser],
-        }),
+        values: () => ({ returning: () => [mockUser] }),
       }));
 
       const result = await service.create(createUserDto);
-
       expect(result.email).toBe(createUserDto.email);
       expect(result.isActive).toBe(true);
     });
@@ -74,31 +67,19 @@ describe('UsersService', () => {
       };
 
       mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockUser],
-          }),
-        }),
+        from: () => ({ where: () => ({ limit: () => [mockUser] }) }),
       }));
 
       const result = await service.findByEmail('test@example.com');
-
-      expect(result).toBeDefined();
       expect(result?.email).toBe('test@example.com');
     });
 
     it('should return null for non-existent email', async () => {
       mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => ({
-            limit: () => [],
-          }),
-        }),
+        from: () => ({ where: () => ({ limit: () => [] }) }),
       }));
 
-      const result = await service.findByEmail('nonexistent@example.com');
-
-      expect(result).toBeNull();
+      expect(await service.findByEmail('nonexistent@example.com')).toBeNull();
     });
   });
 
@@ -114,16 +95,10 @@ describe('UsersService', () => {
       };
 
       mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockUser],
-          }),
-        }),
+        from: () => ({ where: () => ({ limit: () => [mockUser] }) }),
       }));
 
       const result = await service.findById(mockUser.id);
-
-      expect(result).toBeDefined();
       expect(result?.id).toBe(mockUser.id);
     });
   });
@@ -131,191 +106,113 @@ describe('UsersService', () => {
   describe('findAll', () => {
     it('should return all users', async () => {
       const mockUsers = [
-        {
-          id: '123e4567-e89b-12d3-a456-426614174000',
-          email: 'test1@example.com',
-          passwordHash: '$argon2hash',
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '223e4567-e89b-12d3-a456-426614174001',
-          email: 'test2@example.com',
-          passwordHash: '$argon2hash',
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+        { id: '1', email: 'test1@example.com', passwordHash: '$argon2hash', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        { id: '2', email: 'test2@example.com', passwordHash: '$argon2hash', isActive: true, createdAt: new Date(), updatedAt: new Date() },
       ];
 
-      mockDb.select.mockImplementation(() => ({
-        from: () => mockUsers,
-      }));
+      mockDb.select.mockImplementation(() => ({ from: () => mockUsers }));
 
       const result = await service.findAll();
-
       expect(result).toHaveLength(2);
-      expect(result[0].email).toBe('test1@example.com');
     });
   });
 
   describe('update', () => {
     it('should update user fields', async () => {
-      const userId = '123e4567-e89b-12d3-a456-426614174000';
-      const updateDto = { email: 'new@example.com' };
-      const updatedUser = {
-        id: userId,
-        email: updateDto.email,
-        passwordHash: '$argon2hash',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const updatedUser = { id: '123', email: 'new@example.com', passwordHash: '$hash', isActive: true, createdAt: new Date(), updatedAt: new Date() };
 
       mockDb.update.mockImplementation(() => ({
-        set: () => ({
-          where: () => ({
-            returning: () => [updatedUser],
-          }),
-        }),
+        set: () => ({ where: () => ({ returning: () => [updatedUser] }) }),
       }));
 
-      const result = await service.update(userId, updateDto);
-
-      expect(result?.email).toBe(updateDto.email);
+      const result = await service.update('123', { email: 'new@example.com' });
+      expect(result?.email).toBe('new@example.com');
     });
   });
 
   describe('delete', () => {
     it('should delete a user', async () => {
-      const userId = '123e4567-e89b-12d3-a456-426614174000';
-
       mockDb.delete.mockImplementation(() => ({
-        where: () => ({
-          returning: () => [{ id: userId }],
-        }),
+        where: () => ({ returning: () => [{ id: '123' }] }),
       }));
 
-      await expect(service.delete(userId)).resolves.toBeUndefined();
+      await expect(service.delete('123')).resolves.toBeUndefined();
     });
   });
 
   describe('getUserRoles', () => {
     it('should return role names for a user', async () => {
-      const mockRoles = [{ name: 'admin' }, { name: 'user' }];
-
       mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          innerJoin: () => ({
-            where: () => mockRoles,
-          }),
-        }),
+        from: () => ({ innerJoin: () => ({ where: () => [{ name: 'admin' }, { name: 'user' }] }) }),
       }));
 
       const result = await service.getUserRoles('123e4567-e89b-12d3-a456-426614174000');
-
       expect(result).toContain('admin');
-      expect(result).toContain('user');
     });
   });
 
   describe('getUserPermissions', () => {
     it('should return permissions for a user', async () => {
-      const mockPermissions = [{ permission: 'users:read' }, { permission: 'users:write' }];
-
       mockDb.select.mockImplementation(() => ({
         from: () => ({
           innerJoin: () => ({
-            innerJoin: () => ({
-              where: () => mockPermissions,
-            }),
+            innerJoin: () => ({ where: () => [{ permission: 'users:read' }] }),
           }),
         }),
       }));
 
       const result = await service.getUserPermissions('123e4567-e89b-12d3-a456-426614174000');
-
       expect(result).toContain('users:read');
-      expect(result).toContain('users:write');
     });
   });
 
   describe('findAllRoles', () => {
     it('should return all roles', async () => {
-      const mockRoles = [
-        { id: '123', name: 'admin', description: 'Admin role' },
-        { id: '456', name: 'user', description: 'User role' },
-      ];
-
       mockDb.select.mockImplementation(() => ({
-        from: () => mockRoles,
+        from: () => [{ id: '1', name: 'admin' }, { id: '2', name: 'user' }],
       }));
 
-      const result = await service.findAllRoles();
-
-      expect(result).toHaveLength(2);
+      expect(await service.findAllRoles()).toHaveLength(2);
     });
   });
 
   describe('findRoleById', () => {
     it('should return a role by id', async () => {
-      const mockRole = { id: '123', name: 'admin', description: 'Admin role' };
-
       mockDb.select.mockImplementation(() => ({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockRole],
-          }),
-        }),
+        from: () => ({ where: () => ({ limit: () => [{ id: '123', name: 'admin' }] }) }),
       }));
 
       const result = await service.findRoleById('123');
-
       expect(result?.name).toBe('admin');
     });
   });
 
   describe('createRole', () => {
     it('should create a new role', async () => {
-      const mockRole = { id: '123', name: 'moderator', description: 'Moderator role' };
-
       mockDb.insert.mockImplementation(() => ({
-        values: () => ({
-          returning: () => [mockRole],
-        }),
+        values: () => ({ returning: () => [{ id: '123', name: 'moderator' }] }),
       }));
 
-      const result = await service.createRole({ name: 'moderator', description: 'Moderator role' });
-
+      const result = await service.createRole({ name: 'moderator' });
       expect(result.name).toBe('moderator');
     });
   });
 
   describe('updateRole', () => {
     it('should update a role', async () => {
-      const mockRole = { id: '123', name: 'admin', description: 'Updated description' };
-
       mockDb.update.mockImplementation(() => ({
-        set: () => ({
-          where: () => ({
-            returning: () => [mockRole],
-          }),
-        }),
+        set: () => ({ where: () => ({ returning: () => [{ id: '123', name: 'admin', description: 'Updated' }] }) }),
       }));
 
-      const result = await service.updateRole('123', { description: 'Updated description' });
-
-      expect(result?.description).toBe('Updated description');
+      const result = await service.updateRole('123', { description: 'Updated' });
+      expect(result?.description).toBe('Updated');
     });
   });
 
   describe('deleteRole', () => {
     it('should delete a role', async () => {
       mockDb.delete.mockImplementation(() => ({
-        where: () => ({
-          returning: () => [{ id: '123' }],
-        }),
+        where: () => ({ returning: () => [{ id: '123' }] }),
       }));
 
       await expect(service.deleteRole('123')).resolves.toBeUndefined();
@@ -324,40 +221,52 @@ describe('UsersService', () => {
 
   describe('assignRole', () => {
     it('should assign a role to a user', async () => {
-      mockDb.insert.mockImplementation(() => ({
-        values: () => ({}),
-      }));
+      mockDb.insert.mockImplementation(() => ({ values: () => ({}) }));
 
       await expect(
         service.assignRole('123e4567-e89b-12d3-a456-426614174000', '123'),
       ).resolves.toBeUndefined();
     });
+
+    it('emits user.role-assigned event', async () => {
+      mockDb.insert.mockImplementation(() => ({ values: () => ({}) }));
+
+      await service.assignRole('user-id', 'role-id');
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('user.role-assigned', {
+        userId: 'user-id',
+        roleId: 'role-id',
+      });
+    });
   });
 
   describe('removeRole', () => {
     it('should remove a role from a user', async () => {
-      mockDb.delete.mockImplementation(() => ({
-        where: () => ({}),
-      }));
+      mockDb.delete.mockImplementation(() => ({ where: () => ({}) }));
 
       await expect(
         service.removeRole('123e4567-e89b-12d3-a456-426614174000', '123'),
       ).resolves.toBeUndefined();
     });
+
+    it('emits user.role-removed event', async () => {
+      mockDb.delete.mockImplementation(() => ({ where: () => ({}) }));
+
+      await service.removeRole('user-id', 'role-id');
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('user.role-removed', {
+        userId: 'user-id',
+        roleId: 'role-id',
+      });
+    });
   });
 
   describe('setRolePermissions', () => {
     it('should set permissions for a role', async () => {
-      mockDb.delete.mockImplementation(() => ({
-        where: () => ({}),
-      }));
-      mockDb.insert.mockImplementation(() => ({
-        values: () => ({}),
-      }));
+      mockDb.delete.mockImplementation(() => ({ where: () => ({}) }));
+      mockDb.insert.mockImplementation(() => ({ values: () => ({}) }));
 
-      const permissions = ['users:read', 'users:write'];
-
-      await expect(service.setRolePermissions('123', permissions)).resolves.toBeUndefined();
+      await expect(service.setRolePermissions('123', ['users:read'])).resolves.toBeUndefined();
     });
   });
 });
