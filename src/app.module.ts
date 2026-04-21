@@ -24,6 +24,7 @@ import { StorageModule } from './shared/infrastructure/storage/storage.module';
 import { ImageModule } from './shared/infrastructure/image/image.module';
 import { FilesModule } from './modules/files/files.module';
 import { AuditModule } from './shared/infrastructure/audit/audit.module';
+import { GatewayModule } from './shared/infrastructure/gateway/gateway.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AuditModule } from './shared/infrastructure/audit/audit.module';
     LoggerModule.forRoot(pinoConfig),
     EventEmitterModule.forRoot(),
     AuditModule,
+    GatewayModule,
     DatabaseModule,
     RedisModule,
     QueueModule,
