@@ -17,6 +17,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SubscribeDto } from './dto/subscribe.dto';
 import type { Request } from 'express';
 
 @Controller('auth')
@@ -69,5 +70,21 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentUser() user: { userId: string; email: string }) {
     return user;
+  }
+
+  @Post('subscribe')
+  @HttpCode(HttpStatus.OK)
+  subscribe(@Body() dto: SubscribeDto) {
+    return this.authService.subscribeMarketing(dto.email);
+  }
+
+  @Get('subscribe/confirm')
+  confirmSubscription(@Query('token') token: string) {
+    return this.authService.confirmSubscription(token);
+  }
+
+  @Get('unsubscribe')
+  unsubscribe(@Query('token') token: string) {
+    return this.authService.unsubscribeMarketing(token);
   }
 }

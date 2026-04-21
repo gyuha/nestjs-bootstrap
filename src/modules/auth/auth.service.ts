@@ -77,6 +77,37 @@ export class AuthService {
     await this.redis.del(`email:verify:${token}`);
   }
 
+  async subscribeMarketing(email: string): Promise<void> {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) return;
+
+    const token = randomBytes(32).toString('hex');
+    await this.redis.setex(`email:subscribe:${token}`, 172800, user.id);
+    void this.emailService.sendSubscriptionConfirmation(user.email, token);
+  }
+
+  async confirmSubscription(token: string): Promise<void> {
+    const userId = await this.redis.get(`email:subscribe:${token}`);
+    if (!userId) throw new UnauthorizedException('Invalid or expired token');
+
+    await this.usersService.setMarketingSubscribed(userId, true);
+    await this.redis.del(`email:subscribe:${token}`);
+  }
+
+  async unsubscribeMarketing(token: string): Promise<void> {
+    const userId = await this.redis.get(`email:unsubscribe:${token}`);
+    if (!userId) throw new UnauthorizedException('Invalid or expired token');
+
+    await this.usersService.setMarketingSubscribed(userId, false);
+    await this.redis.del(`email:unsubscribe:${token}`);
+  }
+
+  async generateUnsubscribeToken(userId: string): Promise<string> {
+    const token = randomBytes(32).toString('hex');
+    await this.redis.setex(`email:unsubscribe:${token}`, 604800, userId);
+    return token;
+  }
+
   async refreshTokens(oldRefreshToken: string) {
     let payload: { sub: string; email: string };
     try {
