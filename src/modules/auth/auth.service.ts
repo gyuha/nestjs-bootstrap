@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { UsersService } from '../users/users.service';
 import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
-import { EmailService } from '../../shared/infrastructure/email/email.service';
+import { QueueService } from '../../shared/infrastructure/queue/queue.service';
 import type Redis from 'ioredis';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -19,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
-    private readonly emailService: EmailService,
+    private readonly queueService: QueueService,
   ) {
     this.refreshTokenTtl = this.config.get<number>('JWT_REFRESH_TTL') ?? 604800;
   }
@@ -32,14 +32,14 @@ export class AuthService {
     const verifyToken = randomBytes(32).toString('hex');
     await this.redis.setex(`email:verify:${verifyToken}`, 86400, user.id);
 
-    void this.emailService.sendSignupConfirmation(user.email, verifyToken);
-    void this.emailService.sendWelcome(user.email);
+    void this.queueService.addJob('email', { type: 'signup-confirmation', to: user.email, token: verifyToken });
+    void this.queueService.addJob('email', { type: 'welcome', to: user.email });
 
     return this.generateTokens(user.id, user.email);
   }
 
   async login(_dto: LoginDto, user: { userId: string; email: string }, ip: string, userAgent: string) {
-    void this.emailService.sendLoginAlert(user.email, ip, userAgent);
+    void this.queueService.addJob('email', { type: 'login-alert', to: user.email, ip, userAgent });
     return this.generateTokens(user.userId, user.email);
   }
 
@@ -57,7 +57,7 @@ export class AuthService {
 
     const token = randomBytes(32).toString('hex');
     await this.redis.setex(`email:password-reset:${token}`, 3600, user.id);
-    void this.emailService.sendPasswordReset(user.email, token);
+    void this.queueService.addJob('email', { type: 'password-reset', to: user.email, token });
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -83,7 +83,7 @@ export class AuthService {
 
     const token = randomBytes(32).toString('hex');
     await this.redis.setex(`email:subscribe:${token}`, 172800, user.id);
-    void this.emailService.sendSubscriptionConfirmation(user.email, token);
+    void this.queueService.addJob('email', { type: 'subscription-confirm', to: user.email, token });
   }
 
   async confirmSubscription(token: string): Promise<void> {
