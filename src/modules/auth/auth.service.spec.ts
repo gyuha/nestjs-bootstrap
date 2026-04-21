@@ -132,7 +132,7 @@ describe('AuthService', () => {
     it('silently returns for unknown email', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
 
-      await expect(service.forgotPassword('unknown@example.com')).resolves.not.toThrow();
+      await expect(service.forgotPassword('unknown@example.com')).resolves.toBeUndefined();
       expect(mockQueueService.addJob).not.toHaveBeenCalled();
     });
 
