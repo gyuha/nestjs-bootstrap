@@ -12,7 +12,7 @@ export const EnvSchema = z.object({
   API_BASE_URL: z.url().default('http://localhost:3000'),
 
   EMAIL_PROVIDER: z.enum(['resend', 'smtp', 'log']).default('log'),
-  EMAIL_FROM: z.string().email().default('noreply@example.com'),
+  EMAIL_FROM: z.email().default('noreply@example.com'),
 
   RESEND_API_KEY: z.string().optional(),
   SMTP_HOST: z.string().optional(),
