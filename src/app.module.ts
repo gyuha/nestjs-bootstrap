@@ -19,6 +19,7 @@ import { DatabaseModule } from './shared/infrastructure/database/database.module
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { EmailModule } from './shared/infrastructure/email/email.module';
 import { StorageModule } from './shared/infrastructure/storage/storage.module';
+import { ImageModule } from './shared/infrastructure/image/image.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { StorageModule } from './shared/infrastructure/storage/storage.module';
     RedisModule,
     EmailModule,
     StorageModule,
+    ImageModule,
     AppCacheModule,
     HealthModule,
     UsersModule,
