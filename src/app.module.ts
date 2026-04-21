@@ -18,6 +18,7 @@ import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { EmailModule } from './shared/infrastructure/email/email.module';
+import { StorageModule } from './shared/infrastructure/storage/storage.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EmailModule } from './shared/infrastructure/email/email.module';
     DatabaseModule,
     RedisModule,
     EmailModule,
+    StorageModule,
     AppCacheModule,
     HealthModule,
     UsersModule,
