@@ -173,4 +173,25 @@ export class UsersService {
       );
     }
   }
+
+  async setEmailVerified(id: string): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ isEmailVerified: true, updatedAt: new Date() })
+      .where(eq(schema.users.id, id));
+  }
+
+  async updatePassword(id: string, passwordHash: string): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(schema.users.id, id));
+  }
+
+  async setMarketingSubscribed(id: string, value: boolean): Promise<void> {
+    await this.db
+      .update(schema.users)
+      .set({ isMarketingSubscribed: value, updatedAt: new Date() })
+      .where(eq(schema.users.id, id));
+  }
 }
