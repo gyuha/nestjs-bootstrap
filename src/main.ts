@@ -6,6 +6,7 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import { setupSecurity } from './bootstrap/security/security.setup';
 import { setupSwagger } from './bootstrap/swagger/swagger.setup';
+import { setupBullBoard } from './bootstrap/admin/bull-board.setup';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { HttpExceptionFilter } from './shared/presentation/filters/http-exception.filter';
 import { TransformInterceptor } from './shared/presentation/interceptors/transform.interceptor';
@@ -31,6 +32,8 @@ async function bootstrap(): Promise<void> {
   if (env.NODE_ENV !== 'production') {
     setupSwagger(app);
   }
+
+  setupBullBoard(app);
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
 

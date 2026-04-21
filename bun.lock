@@ -7,6 +7,7 @@
       "dependencies": {
         "@aws-sdk/client-s3": "^3.1033.0",
         "@bull-board/api": "^7.0.0",
+        "@bull-board/express": "^7.0.0",
         "@bull-board/nestjs": "^7.0.0",
         "@nestjs/cache-manager": "^3.1.0",
         "@nestjs/common": "^11.1.19",
@@ -252,6 +253,8 @@
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
     "@bull-board/api": ["@bull-board/api@7.0.0", "", { "dependencies": { "redis-info": "^3.1.0" }, "peerDependencies": { "@bull-board/ui": "7.0.0" } }, "sha512-ISNspLHVmUWUSq/eLw+wd1FuBBUnqpLbYP2xUNmehpfKhS+NoZWMbBvqjUYVeE/HLfUkRcR1edzMKpl5n9zlSw=="],
+
+    "@bull-board/express": ["@bull-board/express@7.0.0", "", { "dependencies": { "@bull-board/api": "7.0.0", "@bull-board/ui": "7.0.0", "ejs": "^5.0.2", "express": "^5.2.1" } }, "sha512-3Tc/EyU5PQMTcTzcafFSrmRDiEbJBEU/EaVQ5OVYcuJ7DZCp5Pkvm0/2VtaCe2uywdtwn0ZaynlSIpB27FKX6A=="],
 
     "@bull-board/nestjs": ["@bull-board/nestjs@7.0.0", "", { "peerDependencies": { "@bull-board/api": "^7.0.0", "@nestjs/bull-shared": "^10.0.0 || ^11.0.0", "@nestjs/common": "^9.0.0 || ^10.0.0 || ^11.0.0", "@nestjs/core": "^9.0.0 || ^10.0.0 || ^11.0.0", "reflect-metadata": "^0.1.13 || ^0.2.0", "rxjs": "^7.8.1" } }, "sha512-ypXm0eJHIMQzjN+3fjf84cVxugBg/K4Bpo0eYcV4u/AsteR/dnr6e7F79ICRgg1WWoczqmSMl0JhlmykpyhAMg=="],
 
@@ -1102,6 +1105,8 @@
     "ecdsa-sig-formatter": ["ecdsa-sig-formatter@1.0.11", "", { "dependencies": { "safe-buffer": "^5.0.1" } }, "sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ=="],
 
     "ee-first": ["ee-first@1.1.1", "", {}, "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="],
+
+    "ejs": ["ejs@5.0.2", "", { "bin": { "ejs": "bin/cli.js" } }, "sha512-IpbUaI/CAW86l3f+T8zN0iggSc0LmMZLcIW5eRVStLVNCoTXkE0YlncbbH50fp8Cl6zHIky0sW2uUbhBqGw0Jw=="],
 
     "electron-to-chromium": ["electron-to-chromium@1.5.340", "", {}, "sha512-908qahOGocRMinT2nM3ajCEM99H4iPdv84eagPP3FfZy/1ZGeOy2CZYzjhms81ckOPCXPlW7LkY4XpxD8r1DrA=="],
 
