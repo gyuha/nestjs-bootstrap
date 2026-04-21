@@ -25,6 +25,7 @@ import { ImageModule } from './shared/infrastructure/image/image.module';
 import { FilesModule } from './modules/files/files.module';
 import { AuditModule } from './shared/infrastructure/audit/audit.module';
 import { GatewayModule } from './shared/infrastructure/gateway/gateway.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { GatewayModule } from './shared/infrastructure/gateway/gateway.module';
     EventEmitterModule.forRoot(),
     AuditModule,
     GatewayModule,
+    ChatModule,
     DatabaseModule,
     RedisModule,
     QueueModule,
