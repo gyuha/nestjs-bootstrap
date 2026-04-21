@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
-import { EmailService } from '../../shared/infrastructure/email/email.service';
+import { QueueService } from '../../shared/infrastructure/queue/queue.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,12 +16,7 @@ describe('AuthService', () => {
   };
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
   let mockRedis: { get: jest.Mock; setex: jest.Mock; del: jest.Mock; keys: jest.Mock };
-  let mockEmailService: {
-    sendSignupConfirmation: jest.Mock;
-    sendWelcome: jest.Mock;
-    sendLoginAlert: jest.Mock;
-    sendPasswordReset: jest.Mock;
-  };
+  let mockQueueService: { addJob: jest.Mock };
 
   beforeEach(async () => {
     mockUsersService = {
@@ -40,11 +35,8 @@ describe('AuthService', () => {
       del: jest.fn().mockResolvedValue(1),
       keys: jest.fn().mockResolvedValue([]),
     };
-    mockEmailService = {
-      sendSignupConfirmation: jest.fn().mockResolvedValue(undefined),
-      sendWelcome: jest.fn().mockResolvedValue(undefined),
-      sendLoginAlert: jest.fn().mockResolvedValue(undefined),
-      sendPasswordReset: jest.fn().mockResolvedValue(undefined),
+    mockQueueService = {
+      addJob: jest.fn().mockResolvedValue(undefined),
     };
 
     const module = await Test.createTestingModule({
@@ -64,7 +56,7 @@ describe('AuthService', () => {
           },
         },
         { provide: REDIS_CLIENT, useValue: mockRedis },
-        { provide: EmailService, useValue: mockEmailService },
+        { provide: QueueService, useValue: mockQueueService },
       ],
     }).compile();
 
@@ -109,7 +101,7 @@ describe('AuthService', () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
 
       await expect(service.forgotPassword('unknown@example.com')).resolves.not.toThrow();
-      expect(mockEmailService.sendPasswordReset).not.toHaveBeenCalled();
+      expect(mockQueueService.addJob).not.toHaveBeenCalled();
     });
 
     it('sends reset email for known user', async () => {
