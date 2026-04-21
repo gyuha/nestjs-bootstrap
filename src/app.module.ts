@@ -7,6 +7,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { pinoConfig } from './bootstrap/logging/pino.config';
 import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
 import { validateEnv } from './bootstrap/validation/env.schema';
@@ -32,6 +33,7 @@ import { FilesModule } from './modules/files/files.module';
     }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     LoggerModule.forRoot(pinoConfig),
+    EventEmitterModule.forRoot(),
     DatabaseModule,
     RedisModule,
     QueueModule,
