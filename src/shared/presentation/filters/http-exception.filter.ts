@@ -1,52 +1,58 @@
+// src/shared/presentation/filters/http-exception.filter.ts
 import {
   type ArgumentsHost,
   Catch,
   type ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import type { ApiErrorResponse } from '../dto/api-response.dto';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(HttpExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let code = 'INTERNAL_SERVER_ERROR';
-    let message = 'Internal server error';
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message: string | string[] = 'Internal server error';
+    let details: string[] | undefined;
 
     if (exception instanceof HttpException) {
-      status = exception.getStatus();
-      const exceptionResponse = exception.getResponse();
-      if (typeof exceptionResponse === 'string') {
-        message = exceptionResponse;
-      } else if (
-        typeof exceptionResponse === 'object' &&
-        exceptionResponse !== null
-      ) {
-        const resp = exceptionResponse as Record<string, unknown>;
-        const raw = resp.message;
-        if (typeof raw === 'string') {
-          message = raw;
-        } else if (Array.isArray(raw)) {
-          message = (raw as string[]).join('; ');
+      statusCode = exception.getStatus();
+      const raw = exception.getResponse();
+
+      if (typeof raw === 'string') {
+        message = raw;
+      } else if (typeof raw === 'object' && raw !== null) {
+        const body = raw as Record<string, unknown>;
+        const rawMessage = body.message;
+
+        if (Array.isArray(rawMessage)) {
+          message = 'Validation failed';
+          details = rawMessage as string[];
+        } else if (typeof rawMessage === 'string') {
+          message = rawMessage;
         }
       }
-      code = exception.constructor.name
-        .replace(/Exception$/, '')
-        .replace(/([A-Z])/g, '_$1')
-        .toUpperCase()
-        .replace(/^_/, '');
+    } else {
+      this.logger.error(
+        'Unhandled exception',
+        exception instanceof Error ? exception.stack : String(exception),
+      );
     }
 
-    const errorResponse: ApiErrorResponse = {
+    response.status(statusCode).json({
       success: false,
-      error: { code, message },
-    };
-
-    response.status(status).json(errorResponse);
+      error: {
+        statusCode,
+        message,
+        ...(details && details.length > 0 ? { details } : {}),
+      },
+      timestamp: new Date().toISOString(),
+    });
   }
 }

@@ -1,5 +1,11 @@
+// src/shared/presentation/filters/http-exception.filter.spec.ts
 import type { ArgumentsHost } from '@nestjs/common';
-import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exception.filter';
 
 describe('HttpExceptionFilter', () => {
@@ -26,60 +32,60 @@ describe('HttpExceptionFilter', () => {
     } as unknown as ArgumentsHost;
   });
 
-  it('formats HttpException with correct HTTP status', () => {
+  it('formats NotFoundException with statusCode and timestamp', () => {
     filter.catch(new NotFoundException('Resource not found'), mockHost);
 
     expect(mockStatus).toHaveBeenCalledWith(404);
-    expect(mockJson).toHaveBeenCalledWith({
-      success: false,
-      error: { code: 'NOT_FOUND', message: 'Resource not found' },
-    });
+    const payload = mockJson.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.success).toBe(false);
+    expect((payload.error as Record<string, unknown>).statusCode).toBe(404);
+    expect((payload.error as Record<string, unknown>).message).toBe(
+      'Resource not found',
+    );
+    expect(typeof payload.timestamp).toBe('string');
   });
 
-  it('returns 500 INTERNAL_SERVER_ERROR for non-HTTP exceptions', () => {
+  it('returns 500 for non-HTTP exceptions without exposing details', () => {
     filter.catch(new Error('Unexpected crash'), mockHost);
 
     expect(mockStatus).toHaveBeenCalledWith(500);
-    expect(mockJson).toHaveBeenCalledWith({
-      success: false,
-      error: {
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Internal server error',
-      },
-    });
-  });
-
-  it('extracts message from HttpException object response', () => {
-    filter.catch(
-      new HttpException(
-        { message: 'Validation failed' },
-        HttpStatus.BAD_REQUEST,
-      ),
-      mockHost,
-    );
-
-    expect(mockJson).toHaveBeenCalledWith(
-      expect.objectContaining({
-        error: expect.objectContaining({ message: 'Validation failed' }),
-      }),
+    const payload = mockJson.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.success).toBe(false);
+    expect((payload.error as Record<string, unknown>).statusCode).toBe(500);
+    expect((payload.error as Record<string, unknown>).message).toBe(
+      'Internal server error',
     );
   });
 
-  it('joins array message from ValidationPipe into a single string', () => {
+  it('extracts details[] from ValidationPipe array message', () => {
     filter.catch(
-      new HttpException(
-        { message: ['field must not be empty', 'field must be a string'] },
-        HttpStatus.BAD_REQUEST,
-      ),
+      new BadRequestException({
+        message: ['email must be an email', 'password is too short'],
+        error: 'Bad Request',
+        statusCode: 400,
+      }),
       mockHost,
     );
 
-    expect(mockJson).toHaveBeenCalledWith(
-      expect.objectContaining({
-        error: expect.objectContaining({
-          message: 'field must not be empty; field must be a string',
-        }),
-      }),
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    const payload = mockJson.mock.calls[0][0] as Record<string, unknown>;
+    const error = payload.error as Record<string, unknown>;
+    expect(error.message).toBe('Validation failed');
+    expect(error.details).toEqual([
+      'email must be an email',
+      'password is too short',
+    ]);
+  });
+
+  it('uses string message directly when not an array', () => {
+    filter.catch(
+      new HttpException({ message: 'Conflict' }, HttpStatus.CONFLICT),
+      mockHost,
     );
+
+    const payload = mockJson.mock.calls[0][0] as Record<string, unknown>;
+    const error = payload.error as Record<string, unknown>;
+    expect(error.message).toBe('Conflict');
+    expect(error.details).toBeUndefined();
   });
 });
