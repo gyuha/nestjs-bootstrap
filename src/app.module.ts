@@ -10,13 +10,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { pinoConfig } from './bootstrap/logging/pino.config';
 import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
+import { MetricsModule } from './bootstrap/metrics/metrics.module';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
 import { SocialModule } from './modules/social/social.module';
-import { MetricsModule } from './bootstrap/metrics/metrics.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuditModule } from './shared/infrastructure/audit/audit.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
@@ -24,10 +24,10 @@ import { DatabaseModule } from './shared/infrastructure/database/database.module
 import { EmailModule } from './shared/infrastructure/email/email.module';
 import { GatewayModule } from './shared/infrastructure/gateway/gateway.module';
 import { ImageModule } from './shared/infrastructure/image/image.module';
+import { MonitoringModule } from './shared/infrastructure/monitoring/monitoring.module';
 import { QueueModule } from './shared/infrastructure/queue/queue.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { StorageModule } from './shared/infrastructure/storage/storage.module';
-import { MonitoringModule } from './shared/infrastructure/monitoring/monitoring.module';
 
 @Module({
   imports: [

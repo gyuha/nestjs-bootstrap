@@ -5,8 +5,8 @@ import {
   HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
-import { HttpExceptionFilter } from './http-exception.filter';
 import { ErrorTrackingService } from '../../infrastructure/monitoring/error-tracking.service';
+import { HttpExceptionFilter } from './http-exception.filter';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;

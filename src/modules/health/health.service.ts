@@ -1,13 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import type { Queue as BullQueue } from 'bullmq';
 import { sql } from 'drizzle-orm';
 import type Redis from 'ioredis';
-import type { Queue as BullQueue } from 'bullmq';
 // biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import { CacheService } from '../../shared/infrastructure/cache/cache.service';
-import type { IStorageProvider } from '../../shared/infrastructure/storage/providers/storage-provider.interface';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
-import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
 import { QUEUE_TOKEN } from '../../shared/infrastructure/queue/queue.token';
+import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
+import type { IStorageProvider } from '../../shared/infrastructure/storage/providers/storage-provider.interface';
 import { STORAGE_PROVIDER } from '../../shared/infrastructure/storage/storage.token';
 
 type HealthStatus = 'ok' | 'error';
@@ -48,7 +48,10 @@ export class HealthService {
 
   async checkDb(): Promise<HealthStatus> {
     try {
-      await withTimeout(this.db.run(sql`SELECT 1`) as Promise<unknown>, CHECK_TIMEOUT_MS);
+      await withTimeout(
+        this.db.run(sql`SELECT 1`) as Promise<unknown>,
+        CHECK_TIMEOUT_MS,
+      );
       return 'ok';
     } catch (err) {
       this.logger.error('DB health check failed', err);

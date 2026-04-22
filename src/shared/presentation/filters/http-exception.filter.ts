@@ -54,7 +54,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     const traceId = traceStore.getStore()?.traceId ?? 'unknown';
-    const userId = (request.user as { userId: string } | undefined)?.userId ?? null;
+    const userId =
+      (request.user as { userId: string } | undefined)?.userId ?? null;
 
     this.errorTracking.record({
       traceId,

@@ -1,9 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';

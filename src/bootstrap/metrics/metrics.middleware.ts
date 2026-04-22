@@ -1,4 +1,4 @@
-import { type NestMiddleware, Injectable } from '@nestjs/common';
+import { Injectable, type NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 import { MetricsStore } from './metrics.store';
 
