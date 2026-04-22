@@ -1,24 +1,24 @@
 import {
-  Controller,
-  Post,
-  Get,
   Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
   Query,
   Req,
   UseGuards,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { SubscribeDto } from './dto/subscribe.dto';
 import type { Request } from 'express';
+import type { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
+import type { ForgotPasswordDto } from './dto/forgot-password.dto';
+import type { LoginDto } from './dto/login.dto';
+import type { RegisterDto } from './dto/register.dto';
+import type { ResetPasswordDto } from './dto/reset-password.dto';
+import type { SubscribeDto } from './dto/subscribe.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {

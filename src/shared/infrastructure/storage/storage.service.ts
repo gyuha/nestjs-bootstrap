@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { STORAGE_PROVIDER } from './storage.token';
 import type { IStorageProvider } from './providers/storage-provider.interface';
+import { STORAGE_PROVIDER } from './storage.token';
 
 @Injectable()
 export class StorageService {

@@ -1,6 +1,10 @@
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import type { ConfigService } from '@nestjs/config';
 import type { IStorageProvider } from './storage-provider.interface';
 
 @Injectable()
@@ -19,27 +23,33 @@ export class S3Provider implements IStorageProvider {
       region: this.region,
       credentials: {
         accessKeyId: this.config.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-        secretAccessKey: this.config.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
+        secretAccessKey: this.config.getOrThrow<string>(
+          'AWS_SECRET_ACCESS_KEY',
+        ),
       },
     });
   }
 
   async upload(key: string, buffer: Buffer, mimeType: string): Promise<string> {
-    await this.client.send(new PutObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: mimeType,
-    }));
+    await this.client.send(
+      new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: buffer,
+        ContentType: mimeType,
+      }),
+    );
 
     return this.getUrl(key);
   }
 
   async delete(key: string): Promise<void> {
-    await this.client.send(new DeleteObjectCommand({
-      Bucket: this.bucket,
-      Key: key,
-    }));
+    await this.client.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      }),
+    );
   }
 
   getUrl(key: string): string {

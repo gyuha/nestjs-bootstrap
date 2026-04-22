@@ -7,7 +7,11 @@ export class AuditListener {
   constructor(private readonly auditService: AuditService) {}
 
   @OnEvent('auth.login')
-  async handleLogin(payload: { userId: string; ip: string; userAgent: string }): Promise<void> {
+  async handleLogin(payload: {
+    userId: string;
+    ip: string;
+    userAgent: string;
+  }): Promise<void> {
     await this.auditService.log({
       userId: payload.userId,
       action: 'auth.login',
@@ -33,7 +37,10 @@ export class AuditListener {
   }
 
   @OnEvent('user.role-assigned')
-  async handleRoleAssigned(payload: { userId: string; roleId: string }): Promise<void> {
+  async handleRoleAssigned(payload: {
+    userId: string;
+    roleId: string;
+  }): Promise<void> {
     await this.auditService.log({
       userId: payload.userId,
       action: 'user.role-assigned',
@@ -42,7 +49,10 @@ export class AuditListener {
   }
 
   @OnEvent('user.role-removed')
-  async handleRoleRemoved(payload: { userId: string; roleId: string }): Promise<void> {
+  async handleRoleRemoved(payload: {
+    userId: string;
+    roleId: string;
+  }): Promise<void> {
     await this.auditService.log({
       userId: payload.userId,
       action: 'user.role-removed',

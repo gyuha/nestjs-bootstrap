@@ -1,5 +1,5 @@
-import { Test, type TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 import { UsersService } from './users.service';
 
@@ -35,7 +35,10 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should create a user with hashed password', async () => {
-      const createUserDto = { email: 'test@example.com', password: 'password123' };
+      const createUserDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
       const mockUser = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         email: createUserDto.email,
@@ -106,8 +109,22 @@ describe('UsersService', () => {
   describe('findAll', () => {
     it('should return all users', async () => {
       const mockUsers = [
-        { id: '1', email: 'test1@example.com', passwordHash: '$argon2hash', isActive: true, createdAt: new Date(), updatedAt: new Date() },
-        { id: '2', email: 'test2@example.com', passwordHash: '$argon2hash', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+        {
+          id: '1',
+          email: 'test1@example.com',
+          passwordHash: '$argon2hash',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          email: 'test2@example.com',
+          passwordHash: '$argon2hash',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       ];
 
       mockDb.select.mockImplementation(() => ({ from: () => mockUsers }));
@@ -119,7 +136,14 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update user fields', async () => {
-      const updatedUser = { id: '123', email: 'new@example.com', passwordHash: '$hash', isActive: true, createdAt: new Date(), updatedAt: new Date() };
+      const updatedUser = {
+        id: '123',
+        email: 'new@example.com',
+        passwordHash: '$hash',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       mockDb.update.mockImplementation(() => ({
         set: () => ({ where: () => ({ returning: () => [updatedUser] }) }),
@@ -143,10 +167,16 @@ describe('UsersService', () => {
   describe('getUserRoles', () => {
     it('should return role names for a user', async () => {
       mockDb.select.mockImplementation(() => ({
-        from: () => ({ innerJoin: () => ({ where: () => [{ name: 'admin' }, { name: 'user' }] }) }),
+        from: () => ({
+          innerJoin: () => ({
+            where: () => [{ name: 'admin' }, { name: 'user' }],
+          }),
+        }),
       }));
 
-      const result = await service.getUserRoles('123e4567-e89b-12d3-a456-426614174000');
+      const result = await service.getUserRoles(
+        '123e4567-e89b-12d3-a456-426614174000',
+      );
       expect(result).toContain('admin');
     });
   });
@@ -161,7 +191,9 @@ describe('UsersService', () => {
         }),
       }));
 
-      const result = await service.getUserPermissions('123e4567-e89b-12d3-a456-426614174000');
+      const result = await service.getUserPermissions(
+        '123e4567-e89b-12d3-a456-426614174000',
+      );
       expect(result).toContain('users:read');
     });
   });
@@ -169,7 +201,10 @@ describe('UsersService', () => {
   describe('findAllRoles', () => {
     it('should return all roles', async () => {
       mockDb.select.mockImplementation(() => ({
-        from: () => [{ id: '1', name: 'admin' }, { id: '2', name: 'user' }],
+        from: () => [
+          { id: '1', name: 'admin' },
+          { id: '2', name: 'user' },
+        ],
       }));
 
       expect(await service.findAllRoles()).toHaveLength(2);
@@ -179,7 +214,9 @@ describe('UsersService', () => {
   describe('findRoleById', () => {
     it('should return a role by id', async () => {
       mockDb.select.mockImplementation(() => ({
-        from: () => ({ where: () => ({ limit: () => [{ id: '123', name: 'admin' }] }) }),
+        from: () => ({
+          where: () => ({ limit: () => [{ id: '123', name: 'admin' }] }),
+        }),
       }));
 
       const result = await service.findRoleById('123');
@@ -201,10 +238,18 @@ describe('UsersService', () => {
   describe('updateRole', () => {
     it('should update a role', async () => {
       mockDb.update.mockImplementation(() => ({
-        set: () => ({ where: () => ({ returning: () => [{ id: '123', name: 'admin', description: 'Updated' }] }) }),
+        set: () => ({
+          where: () => ({
+            returning: () => [
+              { id: '123', name: 'admin', description: 'Updated' },
+            ],
+          }),
+        }),
       }));
 
-      const result = await service.updateRole('123', { description: 'Updated' });
+      const result = await service.updateRole('123', {
+        description: 'Updated',
+      });
       expect(result?.description).toBe('Updated');
     });
   });
@@ -266,7 +311,9 @@ describe('UsersService', () => {
       mockDb.delete.mockImplementation(() => ({ where: () => ({}) }));
       mockDb.insert.mockImplementation(() => ({ values: () => ({}) }));
 
-      await expect(service.setRolePermissions('123', ['users:read'])).resolves.toBeUndefined();
+      await expect(
+        service.setRolePermissions('123', ['users:read']),
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -19,7 +19,10 @@ export const EnvSchema = z.object({
   SMTP_PORT: z.coerce.number().int().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  SMTP_SECURE: z.string().default('false').transform(v => v === 'true'),
+  SMTP_SECURE: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 
   STORAGE_PROVIDER: z.enum(['local', 's3']).default('local'),
   STORAGE_LOCAL_PATH: z.string().default('./uploads'),
@@ -29,7 +32,10 @@ export const EnvSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().optional(),
   AWS_S3_PUBLIC_URL: z.string().optional(),
 
-  BULL_BOARD_ENABLED: z.string().default('false').transform(v => v === 'true'),
+  BULL_BOARD_ENABLED: z
+    .string()
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

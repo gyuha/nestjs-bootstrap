@@ -1,12 +1,12 @@
+import { join } from 'path';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
-import { join } from 'path';
 import { AppModule } from './app.module';
+import { setupBullBoard } from './bootstrap/admin/bull-board.setup';
 import { setupSecurity } from './bootstrap/security/security.setup';
 import { setupSwagger } from './bootstrap/swagger/swagger.setup';
-import { setupBullBoard } from './bootstrap/admin/bull-board.setup';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { HttpExceptionFilter } from './shared/presentation/filters/http-exception.filter';
 import { TransformInterceptor } from './shared/presentation/interceptors/transform.interceptor';
@@ -14,7 +14,9 @@ import { TransformInterceptor } from './shared/presentation/interceptors/transfo
 async function bootstrap(): Promise<void> {
   const env = validateEnv(process.env as Record<string, unknown>);
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
   app.useLogger(app.get(Logger));
 
@@ -35,7 +37,9 @@ async function bootstrap(): Promise<void> {
 
   setupBullBoard(app);
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   await app.listen(env.PORT);
 }

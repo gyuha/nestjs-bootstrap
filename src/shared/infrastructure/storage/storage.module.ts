@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { StorageService } from './storage.service';
-import { STORAGE_PROVIDER } from './storage.token';
 import { LocalProvider } from './providers/local.provider';
 import { S3Provider } from './providers/s3.provider';
+import { StorageService } from './storage.service';
+import { STORAGE_PROVIDER } from './storage.token';
 
 @Global()
 @Module({

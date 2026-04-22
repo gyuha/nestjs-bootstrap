@@ -1,14 +1,14 @@
 import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
 import { Worker } from 'bullmq';
+import Redis from 'ioredis';
+import { EMAIL_QUEUE } from '../queue/queue.module';
+import { EmailProcessor } from './email.processor';
 import { EmailService } from './email.service';
 import { EMAIL_PROVIDER } from './email.token';
 import { LogProvider } from './providers/log.provider';
 import { ResendProvider } from './providers/resend.provider';
 import { SmtpProvider } from './providers/smtp.provider';
-import { EmailProcessor } from './email.processor';
-import { EMAIL_QUEUE } from '../queue/queue.module';
 
 @Global()
 @Module({
@@ -32,9 +32,13 @@ import { EMAIL_QUEUE } from '../queue/queue.module';
         const connection = url ? new Redis(url) : new Redis();
         const logger = new Logger('EmailWorker');
 
-        const worker = new Worker(EMAIL_QUEUE, async (job) => {
-          return processor.process(job);
-        }, { connection });
+        const worker = new Worker(
+          EMAIL_QUEUE,
+          async (job) => {
+            return processor.process(job);
+          },
+          { connection },
+        );
 
         worker.on('completed', (job) => {
           logger.debug(`Job ${job.id} completed (${job.data.type})`);
@@ -44,7 +48,9 @@ import { EMAIL_QUEUE } from '../queue/queue.module';
           if (job?.attemptsMade === job?.opts?.attempts) {
             logger.error(`Job ${job?.id} failed permanently: ${err.message}`);
           } else {
-            logger.warn(`Job ${job?.id} retrying (${job?.attemptsMade}/${job?.opts?.attempts}): ${err.message}`);
+            logger.warn(
+              `Job ${job?.id} retrying (${job?.attemptsMade}/${job?.opts?.attempts}): ${err.message}`,
+            );
           }
         });
 

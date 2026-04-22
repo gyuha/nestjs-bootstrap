@@ -28,7 +28,14 @@ export function LoginAlertEmail({ ip, userAgent, loginTime }: Props) {
   );
 }
 
-export async function renderLoginAlert(ip: string, userAgent: string): Promise<string> {
-  const loginTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-  return render(<LoginAlertEmail ip={ip} userAgent={userAgent} loginTime={loginTime} />);
+export async function renderLoginAlert(
+  ip: string,
+  userAgent: string,
+): Promise<string> {
+  const loginTime = new Date().toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+  });
+  return render(
+    <LoginAlertEmail ip={ip} userAgent={userAgent} loginTime={loginTime} />,
+  );
 }

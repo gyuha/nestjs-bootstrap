@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
-import { AuditService } from './audit.service';
 import { DRIZZLE_CLIENT } from '../database/database.token';
+import { AuditService } from './audit.service';
 
 describe('AuditService', () => {
   let service: AuditService;
@@ -13,10 +13,7 @@ describe('AuditService', () => {
     };
 
     const module = await Test.createTestingModule({
-      providers: [
-        AuditService,
-        { provide: DRIZZLE_CLIENT, useValue: mockDb },
-      ],
+      providers: [AuditService, { provide: DRIZZLE_CLIENT, useValue: mockDb }],
     }).compile();
 
     service = module.get(AuditService);

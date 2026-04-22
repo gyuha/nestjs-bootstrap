@@ -1,12 +1,15 @@
-import { Test } from '@nestjs/testing';
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { type ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RolesGuard } from './roles.guard';
+import { Test } from '@nestjs/testing';
 import { UsersService } from '../../users/users.service';
+import { RolesGuard } from './roles.guard';
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
-  let mockUsersService: { getUserRoles: jest.Mock; getUserPermissions: jest.Mock };
+  let mockUsersService: {
+    getUserRoles: jest.Mock;
+    getUserPermissions: jest.Mock;
+  };
 
   beforeEach(async () => {
     mockUsersService = {
@@ -25,13 +28,14 @@ describe('RolesGuard', () => {
     guard = module.get(RolesGuard);
   });
 
-  const createMockContext = (userId: string): ExecutionContext => ({
-    switchToHttp: () => ({
-      getRequest: () => ({ user: { userId } }),
-    }),
-    getHandler: () => ({}),
-    getClass: () => ({}),
-  } as ExecutionContext);
+  const createMockContext = (userId: string): ExecutionContext =>
+    ({
+      switchToHttp: () => ({
+        getRequest: () => ({ user: { userId } }),
+      }),
+      getHandler: () => ({}),
+      getClass: () => ({}),
+    }) as ExecutionContext;
 
   it('allows access when no roles required', async () => {
     const context = createMockContext('user-1');
@@ -42,7 +46,7 @@ describe('RolesGuard', () => {
     mockUsersService.getUserRoles.mockResolvedValue(['admin']);
     mockUsersService.getUserPermissions.mockResolvedValue([]);
     const context = createMockContext('user-1');
-    const reflector = guard['reflector'];
+    const reflector = guard.reflector;
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -52,9 +56,11 @@ describe('RolesGuard', () => {
     mockUsersService.getUserRoles.mockResolvedValue(['user']);
     mockUsersService.getUserPermissions.mockResolvedValue([]);
     const context = createMockContext('user-1');
-    const reflector = guard['reflector'];
+    const reflector = guard.reflector;
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
 
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 });

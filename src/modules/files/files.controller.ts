@@ -1,21 +1,21 @@
 import {
+  BadRequestException,
   Controller,
-  Get,
-  Post,
   Delete,
+  Get,
   Param,
+  ParseUUIDPipe,
+  Post,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  ParseUUIDPipe,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { FilesService } from './files.service';
-import { UsersService } from '../users/users.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { UsersService } from '../users/users.service';
+import type { FilesService } from './files.service';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -28,9 +28,11 @@ export class FilesController {
   ) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', {
-    limits: { fileSize: 5 * 1024 * 1024 },
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async upload(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('category') category: string,

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { Job } from 'bullmq';
-import { EmailService } from './email.service';
 import type { EmailJobData } from '../queue/queue.interface';
+import type { EmailService } from './email.service';
 
 @Injectable()
 export class EmailProcessor {

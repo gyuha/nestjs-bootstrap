@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import type { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
-import type { IEmailProvider, SendEmailOptions } from './email-provider.interface';
+import type {
+  IEmailProvider,
+  SendEmailOptions,
+} from './email-provider.interface';
 
 @Injectable()
 export class ResendProvider implements IEmailProvider {

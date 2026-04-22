@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import type { CreateUserDto } from './dto/create-user.dto';
-import type { UpdateUserDto } from './dto/update-user.dto';
+import * as argon2 from 'argon2';
+import { eq } from 'drizzle-orm';
 // biome-ignore lint/style/useImportType: NestJS DI requires runtime value for @Inject decorator
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
+import type { CreateUserDto } from './dto/create-user.dto';
+import type { UpdateUserDto } from './dto/update-user.dto';
 import * as schema from './schemas/user.schema';
-import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -74,7 +74,10 @@ export class UsersService {
       .select({ permission: schema.rolePermissions.permission })
       .from(schema.userRoles)
       .innerJoin(schema.roles, eq(schema.userRoles.roleId, schema.roles.id))
-      .innerJoin(schema.rolePermissions, eq(schema.rolePermissions.roleId, schema.roles.id))
+      .innerJoin(
+        schema.rolePermissions,
+        eq(schema.rolePermissions.roleId, schema.roles.id),
+      )
       .where(eq(schema.userRoles.userId, userId));
     return results.map((r: { permission: string }) => r.permission);
   }
@@ -107,7 +110,10 @@ export class UsersService {
     return role ?? null;
   }
 
-  async createRole(dto: { name: string; description?: string }): Promise<schema.Role> {
+  async createRole(dto: {
+    name: string;
+    description?: string;
+  }): Promise<schema.Role> {
     const [role] = await this.db
       .insert(schema.roles)
       .values({ name: dto.name, description: dto.description })
@@ -115,7 +121,10 @@ export class UsersService {
     return role;
   }
 
-  async updateRole(id: string, dto: { name?: string; description?: string }): Promise<schema.Role | null> {
+  async updateRole(
+    id: string,
+    dto: { name?: string; description?: string },
+  ): Promise<schema.Role | null> {
     const [role] = await this.db
       .update(schema.roles)
       .set(dto)
@@ -128,12 +137,17 @@ export class UsersService {
     await this.db.delete(schema.roles).where(eq(schema.roles.id, id));
   }
 
-  async setRolePermissions(roleId: string, permissions: string[]): Promise<void> {
-    await this.db.delete(schema.rolePermissions).where(eq(schema.rolePermissions.roleId, roleId));
+  async setRolePermissions(
+    roleId: string,
+    permissions: string[],
+  ): Promise<void> {
+    await this.db
+      .delete(schema.rolePermissions)
+      .where(eq(schema.rolePermissions.roleId, roleId));
     if (permissions.length > 0) {
-      await this.db.insert(schema.rolePermissions).values(
-        permissions.map((permission) => ({ roleId, permission })),
-      );
+      await this.db
+        .insert(schema.rolePermissions)
+        .values(permissions.map((permission) => ({ roleId, permission })));
     }
   }
 

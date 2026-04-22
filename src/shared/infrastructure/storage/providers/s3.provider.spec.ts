@@ -1,5 +1,5 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { S3Provider } from './s3.provider';
 
 const mockSend = jest.fn();
@@ -56,7 +56,11 @@ describe('S3Provider', () => {
     it('uploads to S3 and returns URL', async () => {
       mockSend.mockResolvedValue({});
 
-      const result = await provider.upload('avatars/test.png', Buffer.from('data'), 'image/png');
+      const result = await provider.upload(
+        'avatars/test.png',
+        Buffer.from('data'),
+        'image/png',
+      );
 
       expect(mockSend).toHaveBeenCalled();
       expect(result).toContain('avatars/test.png');

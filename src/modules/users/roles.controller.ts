@@ -1,19 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
-  UseGuards,
   ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { Permissions } from './constants/permissions';
+import type { UsersService } from './users.service';
 
 @Controller('roles')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -40,7 +40,10 @@ export class RolesController {
 
   @Patch(':id')
   @Roles(Permissions.ROLES_MANAGE)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: { name?: string; description?: string }) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: { name?: string; description?: string },
+  ) {
     return this.usersService.updateRole(id, dto);
   }
 

@@ -1,6 +1,6 @@
-import { Test } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
 import { ChatGateway } from './chat.gateway';
 
 describe('ChatGateway', () => {
@@ -36,35 +36,45 @@ describe('ChatGateway', () => {
 
   it('disconnects client with no token', () => {
     const client = createClient();
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleConnection(client as any);
     expect(client.disconnect).toHaveBeenCalled();
   });
 
   it('disconnects client with invalid token', () => {
-    mockJwtService.verify.mockImplementation(() => { throw new Error('invalid'); });
+    mockJwtService.verify.mockImplementation(() => {
+      throw new Error('invalid');
+    });
     const client = createClient('bad');
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleConnection(client as any);
     expect(client.disconnect).toHaveBeenCalled();
   });
 
   it('authenticates valid client', () => {
-    mockJwtService.verify.mockReturnValue({ sub: 'user-1', email: 'u@example.com' });
+    mockJwtService.verify.mockReturnValue({
+      sub: 'user-1',
+      email: 'u@example.com',
+    });
     const client = createClient('valid-token');
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleConnection(client as any);
-    expect(client.data['userId']).toBe('user-1');
+    expect(client.data.userId).toBe('user-1');
     expect(client.disconnect).not.toHaveBeenCalled();
   });
 
   it('joins a chat room', () => {
     const client = createClient();
-    client.data['userId'] = 'user-1';
+    client.data.userId = 'user-1';
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleJoin(client as any, 'room-1');
     expect(client.join).toHaveBeenCalledWith('room-1');
   });
 
   it('leaves a chat room', () => {
     const client = createClient();
-    client.data['userId'] = 'user-1';
+    client.data.userId = 'user-1';
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleLeave(client as any, 'room-1');
     expect(client.leave).toHaveBeenCalledWith('room-1');
   });
@@ -73,10 +83,12 @@ describe('ChatGateway', () => {
     const emitFn = jest.fn();
     const toFn = jest.fn().mockReturnValue({ emit: emitFn });
     const mockServer = { to: toFn };
+    // biome-ignore lint/suspicious/noExplicitAny: mock server
     gateway.server = mockServer as any;
 
     const client = createClient();
-    client.data['userId'] = 'user-1';
+    client.data.userId = 'user-1';
+    // biome-ignore lint/suspicious/noExplicitAny: socket mock
     gateway.handleMessage(client as any, { room: 'room-1', message: 'Hello!' });
 
     expect(toFn).toHaveBeenCalledWith('room-1');

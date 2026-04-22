@@ -20,7 +20,11 @@ describe('AuditListener', () => {
   });
 
   it('logs auth.login event', async () => {
-    await listener.handleLogin({ userId: 'user-1', ip: '127.0.0.1', userAgent: 'Mozilla/5.0' });
+    await listener.handleLogin({
+      userId: 'user-1',
+      ip: '127.0.0.1',
+      userAgent: 'Mozilla/5.0',
+    });
 
     expect(mockAuditService.log).toHaveBeenCalledWith({
       userId: 'user-1',

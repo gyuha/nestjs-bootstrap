@@ -1,15 +1,20 @@
-import { randomBytes } from 'crypto';
-import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { randomBytes } from 'node:crypto';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
-import { UsersService } from '../users/users.service';
-import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
-import { QueueService } from '../../shared/infrastructure/queue/queue.service';
 import type Redis from 'ioredis';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { QueueService } from '../../shared/infrastructure/queue/queue.service';
+import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
+import { UsersService } from '../users/users.service';
+import type { LoginDto } from './dto/login.dto';
+import type { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,15 +39,33 @@ export class AuthService {
     const verifyToken = randomBytes(32).toString('hex');
     await this.redis.setex(`email:verify:${verifyToken}`, 86400, user.id);
 
-    void this.queueService.addJob('email', { type: 'signup-confirmation', to: user.email, token: verifyToken });
+    void this.queueService.addJob('email', {
+      type: 'signup-confirmation',
+      to: user.email,
+      token: verifyToken,
+    });
     void this.queueService.addJob('email', { type: 'welcome', to: user.email });
 
     return this.generateTokens(user.id, user.email);
   }
 
-  async login(_dto: LoginDto, user: { userId: string; email: string }, ip: string, userAgent: string) {
-    void this.queueService.addJob('email', { type: 'login-alert', to: user.email, ip, userAgent });
-    this.eventEmitter.emit('auth.login', { userId: user.userId, ip, userAgent });
+  async login(
+    _dto: LoginDto,
+    user: { userId: string; email: string },
+    ip: string,
+    userAgent: string,
+  ) {
+    void this.queueService.addJob('email', {
+      type: 'login-alert',
+      to: user.email,
+      ip,
+      userAgent,
+    });
+    this.eventEmitter.emit('auth.login', {
+      userId: user.userId,
+      ip,
+      userAgent,
+    });
     return this.generateTokens(user.userId, user.email);
   }
 
@@ -61,7 +84,11 @@ export class AuthService {
 
     const token = randomBytes(32).toString('hex');
     await this.redis.setex(`email:password-reset:${token}`, 3600, user.id);
-    void this.queueService.addJob('email', { type: 'password-reset', to: user.email, token });
+    void this.queueService.addJob('email', {
+      type: 'password-reset',
+      to: user.email,
+      token,
+    });
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -88,7 +115,11 @@ export class AuthService {
 
     const token = randomBytes(32).toString('hex');
     await this.redis.setex(`email:subscribe:${token}`, 172800, user.id);
-    void this.queueService.addJob('email', { type: 'subscription-confirm', to: user.email, token });
+    void this.queueService.addJob('email', {
+      type: 'subscription-confirm',
+      to: user.email,
+      token,
+    });
   }
 
   async confirmSubscription(token: string): Promise<void> {

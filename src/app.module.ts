@@ -5,27 +5,27 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { pinoConfig } from './bootstrap/logging/pino.config';
 import { TraceMiddleware } from './bootstrap/logging/trace.middleware';
 import { validateEnv } from './bootstrap/validation/env.schema';
-import { HealthModule } from './modules/health/health.module';
-import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { FilesModule } from './modules/files/files.module';
+import { HealthModule } from './modules/health/health.module';
 import { SocialModule } from './modules/social/social.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuditModule } from './shared/infrastructure/audit/audit.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
 import { DatabaseModule } from './shared/infrastructure/database/database.module';
-import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { EmailModule } from './shared/infrastructure/email/email.module';
-import { QueueModule } from './shared/infrastructure/queue/queue.module';
-import { StorageModule } from './shared/infrastructure/storage/storage.module';
-import { ImageModule } from './shared/infrastructure/image/image.module';
-import { FilesModule } from './modules/files/files.module';
-import { AuditModule } from './shared/infrastructure/audit/audit.module';
 import { GatewayModule } from './shared/infrastructure/gateway/gateway.module';
-import { ChatModule } from './modules/chat/chat.module';
+import { ImageModule } from './shared/infrastructure/image/image.module';
+import { QueueModule } from './shared/infrastructure/queue/queue.module';
+import { RedisModule } from './shared/infrastructure/redis/redis.module';
+import { StorageModule } from './shared/infrastructure/storage/storage.module';
 
 @Module({
   imports: [

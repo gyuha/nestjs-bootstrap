@@ -1,6 +1,6 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { RedisProvider, REDIS_CLIENT } from './redis.provider';
+import { Test } from '@nestjs/testing';
+import { REDIS_CLIENT, RedisProvider } from './redis.provider';
 
 describe('RedisProvider', () => {
   it('provides a Redis client', async () => {

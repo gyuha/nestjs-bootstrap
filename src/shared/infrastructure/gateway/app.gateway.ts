@@ -1,19 +1,21 @@
-import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  OnGatewayInit,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-} from '@nestjs/websockets';
+import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import {
+  type OnGatewayConnection,
+  type OnGatewayDisconnect,
+  type OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
 import { GatewayService } from './gateway.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class AppGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer() server!: Server;
 
   constructor(
@@ -27,7 +29,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   }
 
   handleConnection(client: Socket): void {
-    const token = client.handshake.auth['token'] as string | undefined;
+    const token = client.handshake.auth.token as string | undefined;
     if (!token) {
       client.disconnect();
       return;
@@ -36,7 +38,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
       const payload = this.jwtService.verify<{ sub: string }>(token, {
         secret: this.config.getOrThrow<string>('JWT_SECRET'),
       });
-      client.data['userId'] = payload.sub;
+      client.data.userId = payload.sub;
       this.gatewayService.registerSocket(payload.sub, client.id);
     } catch {
       client.disconnect();
@@ -44,7 +46,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   }
 
   handleDisconnect(client: Socket): void {
-    const userId = client.data['userId'] as string | undefined;
+    const userId = client.data.userId as string | undefined;
     if (userId) {
       this.gatewayService.unregisterSocket(userId, client.id);
     }
@@ -71,7 +73,11 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   }
 
   @OnEvent('auth.login')
-  handleLoginEvent(payload: { userId: string; ip: string; userAgent: string }): void {
+  handleLoginEvent(payload: {
+    userId: string;
+    ip: string;
+    userAgent: string;
+  }): void {
     this.gatewayService.sendToUser(payload.userId, 'login-detected', payload);
   }
 }

@@ -1,7 +1,7 @@
-import { Controller, Get, UseGuards, Res, Req } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
-import { AuthService } from '../auth/auth.service';
+import type { Response } from 'express';
+import type { AuthService } from '../auth/auth.service';
 
 @Controller('auth')
 export class SocialController {

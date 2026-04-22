@@ -10,10 +10,7 @@ describe('QueueService', () => {
     mockQueue = { add: jest.fn().mockResolvedValue({ id: '1' }) };
 
     const module = await Test.createTestingModule({
-      providers: [
-        QueueService,
-        { provide: QUEUE_TOKEN, useValue: mockQueue },
-      ],
+      providers: [QueueService, { provide: QUEUE_TOKEN, useValue: mockQueue }],
     }).compile();
 
     service = module.get(QueueService);
@@ -21,7 +18,11 @@ describe('QueueService', () => {
 
   describe('addJob()', () => {
     it('adds job to the queue with retry config', async () => {
-      const data = { type: 'signup-confirmation', to: 'test@example.com', token: 'abc' };
+      const data = {
+        type: 'signup-confirmation',
+        to: 'test@example.com',
+        token: 'abc',
+      };
 
       await service.addJob('email', data);
 

@@ -1,8 +1,8 @@
-import { Test } from '@nestjs/testing';
-import { ConfigService } from '@nestjs/config';
-import { LocalProvider } from './local.provider';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
+import { LocalProvider } from './local.provider';
 
 jest.mock('fs', () => ({
   ...jest.requireActual('fs'),
@@ -37,7 +37,11 @@ describe('LocalProvider', () => {
 
   describe('upload()', () => {
     it('writes file to disk and returns URL path', async () => {
-      const result = await provider.upload('avatars/test.png', Buffer.from('data'), 'image/png');
+      const result = await provider.upload(
+        'avatars/test.png',
+        Buffer.from('data'),
+        'image/png',
+      );
 
       expect(fs.promises.writeFile).toHaveBeenCalled();
       expect(result).toContain('avatars/test.png');

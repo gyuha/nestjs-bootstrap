@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
-import { FilesService } from './files.service';
-import { StorageService } from '../../shared/infrastructure/storage/storage.service';
-import { ImageService } from '../../shared/infrastructure/image/image.service';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
+import { ImageService } from '../../shared/infrastructure/image/image.service';
+import { StorageService } from '../../shared/infrastructure/storage/storage.service';
+import { FilesService } from './files.service';
 
 describe('FilesService', () => {
   let service: FilesService;
@@ -54,18 +54,21 @@ describe('FilesService', () => {
 
       mockDb.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([{
-            id: 'file-uuid',
-            userId: 'user-uuid',
-            category: 'gallery',
-            originalName: 'test.png',
-            mimeType: 'image/png',
-            size: 1024,
-            url: '/uploads/gallery/user-uuid/file-uuid-original.png',
-            thumbnailUrl: '/uploads/gallery/user-uuid/file-uuid-thumbnail.png',
-            mediumUrl: '/uploads/gallery/user-uuid/file-uuid-medium.png',
-            createdAt: new Date(),
-          }]),
+          returning: jest.fn().mockResolvedValue([
+            {
+              id: 'file-uuid',
+              userId: 'user-uuid',
+              category: 'gallery',
+              originalName: 'test.png',
+              mimeType: 'image/png',
+              size: 1024,
+              url: '/uploads/gallery/user-uuid/file-uuid-original.png',
+              thumbnailUrl:
+                '/uploads/gallery/user-uuid/file-uuid-thumbnail.png',
+              mediumUrl: '/uploads/gallery/user-uuid/file-uuid-medium.png',
+              createdAt: new Date(),
+            },
+          ]),
         }),
       });
 
@@ -90,8 +93,9 @@ describe('FilesService', () => {
         buffer: Buffer.from('data'),
       } as Express.Multer.File;
 
-      await expect(service.uploadFile(file, 'user-uuid', 'gallery'))
-        .rejects.toThrow('Gallery limit reached (max 10)');
+      await expect(
+        service.uploadFile(file, 'user-uuid', 'gallery'),
+      ).rejects.toThrow('Gallery limit reached (max 10)');
     });
   });
 });

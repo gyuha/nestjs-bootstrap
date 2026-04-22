@@ -1,25 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
   Body,
-  Param,
-  HttpStatus,
-  ParseUUIDPipe,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
 import { Permissions } from './constants/permissions';
-import type { UsersService } from './users.service';
+import type { AssignRoleDto } from './dto/assign-role.dto';
 import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
-import type { AssignRoleDto } from './dto/assign-role.dto';
+import type { UsersService } from './users.service';
 
 @ApiTags('users')
 @Controller('users')

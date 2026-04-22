@@ -1,7 +1,7 @@
 import { Test, type TestingModule } from '@nestjs/testing';
-import { SocialService } from './social.service';
-import { UsersService } from '../users/users.service';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
+import { UsersService } from '../users/users.service';
+import { SocialService } from './social.service';
 
 // Factory function to create fresh mock for each test
 // biome-ignore lint/suspicious/noExplicitAny: drizzle client mock
@@ -87,7 +87,9 @@ describe('SocialService', () => {
       });
 
       expect(result).toEqual(existingUser);
-      expect(mockUsersService.findByEmail).toHaveBeenCalledWith('test@example.com');
+      expect(mockUsersService.findByEmail).toHaveBeenCalledWith(
+        'test@example.com',
+      );
       expect(mockDb.insert).toHaveBeenCalled();
     });
 

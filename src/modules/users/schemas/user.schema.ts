@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -6,7 +6,9 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash'),
   isActive: boolean('is_active').notNull().default(true),
   isEmailVerified: boolean('is_email_verified').notNull().default(false),
-  isMarketingSubscribed: boolean('is_marketing_subscribed').notNull().default(false),
+  isMarketingSubscribed: boolean('is_marketing_subscribed')
+    .notNull()
+    .default(false),
   avatarUrl: text('avatar_url'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -19,18 +21,26 @@ export const roles = pgTable('roles', {
 });
 
 export const userRoles = pgTable('user_roles', {
-  userId: uuid('user_id').notNull().references(() => users.id),
-  roleId: uuid('role_id').notNull().references(() => roles.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
+  roleId: uuid('role_id')
+    .notNull()
+    .references(() => roles.id),
 });
 
 export const rolePermissions = pgTable('role_permissions', {
-  roleId: uuid('role_id').notNull().references(() => roles.id),
+  roleId: uuid('role_id')
+    .notNull()
+    .references(() => roles.id),
   permission: text('permission').notNull(),
 });
 
 export const socialAccounts = pgTable('social_accounts', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   provider: text('provider').notNull(),
   providerId: text('provider_id').notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),

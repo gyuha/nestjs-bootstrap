@@ -1,11 +1,17 @@
-import { Inject, Injectable, ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
-import { StorageService } from '../../shared/infrastructure/storage/storage.service';
-import { ImageService } from '../../shared/infrastructure/image/image.service';
-import { files } from './schemas/file.schema';
-import { eq, and } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { and, eq } from 'drizzle-orm';
+import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
+import type { ImageService } from '../../shared/infrastructure/image/image.service';
+import type { StorageService } from '../../shared/infrastructure/storage/storage.service';
+import { files } from './schemas/file.schema';
 
 @Injectable()
 export class FilesService {
@@ -47,17 +53,35 @@ export class FilesService {
 
     // Upload original
     const originalKey = `${baseKey}-original.${ext}`;
-    const url = await this.storageService.upload(originalKey, file.buffer, file.mimetype);
+    const url = await this.storageService.upload(
+      originalKey,
+      file.buffer,
+      file.mimetype,
+    );
 
     // Resize and upload medium (512x512)
-    const mediumBuffer = await this.imageService.resize(file.buffer, { width: 512, height: 512 });
+    const mediumBuffer = await this.imageService.resize(file.buffer, {
+      width: 512,
+      height: 512,
+    });
     const mediumKey = `${baseKey}-medium.${ext}`;
-    const mediumUrl = await this.storageService.upload(mediumKey, mediumBuffer, 'image/png');
+    const mediumUrl = await this.storageService.upload(
+      mediumKey,
+      mediumBuffer,
+      'image/png',
+    );
 
     // Resize and upload thumbnail (128x128)
-    const thumbBuffer = await this.imageService.resize(file.buffer, { width: 128, height: 128 });
+    const thumbBuffer = await this.imageService.resize(file.buffer, {
+      width: 128,
+      height: 128,
+    });
     const thumbKey = `${baseKey}-thumbnail.${ext}`;
-    const thumbnailUrl = await this.storageService.upload(thumbKey, thumbBuffer, 'image/png');
+    const thumbnailUrl = await this.storageService.upload(
+      thumbKey,
+      thumbBuffer,
+      'image/png',
+    );
 
     const [record] = await this.db
       .insert(files)
@@ -101,7 +125,9 @@ export class FilesService {
     if (record.userId !== userId) throw new ForbiddenException('Not your file');
 
     // Extract storage keys from URLs and delete
-    const urls = [record.url, record.thumbnailUrl, record.mediumUrl].filter(Boolean);
+    const urls = [record.url, record.thumbnailUrl, record.mediumUrl].filter(
+      Boolean,
+    );
     for (const url of urls) {
       const key = this.extractKeyFromUrl(url);
       if (key) await this.storageService.delete(key);
@@ -125,7 +151,9 @@ export class FilesService {
   private validateFile(file: Express.Multer.File): void {
     const ext = path.extname(file.originalname).slice(1).toLowerCase();
     if (!FilesService.ALLOWED_EXTENSIONS.includes(ext)) {
-      throw new ConflictException(`File extension .${ext} not allowed. Use: jpg, jpeg, png, webp`);
+      throw new ConflictException(
+        `File extension .${ext} not allowed. Use: jpg, jpeg, png, webp`,
+      );
     }
   }
 

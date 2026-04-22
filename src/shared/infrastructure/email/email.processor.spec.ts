@@ -26,38 +26,82 @@ describe('EmailProcessor', () => {
   });
 
   it('processes signup-confirmation job', async () => {
-    await processor.process({ data: { type: 'signup-confirmation', to: 'test@example.com', token: 'abc' } } as any);
-    expect(mockEmailService.sendSignupConfirmation).toHaveBeenCalledWith('test@example.com', 'abc');
+    await processor.process({
+      data: {
+        type: 'signup-confirmation',
+        to: 'test@example.com',
+        token: 'abc',
+      },
+    } as any);
+    expect(mockEmailService.sendSignupConfirmation).toHaveBeenCalledWith(
+      'test@example.com',
+      'abc',
+    );
   });
 
   it('processes welcome job', async () => {
-    await processor.process({ data: { type: 'welcome', to: 'test@example.com' } } as any);
-    expect(mockEmailService.sendWelcome).toHaveBeenCalledWith('test@example.com');
+    await processor.process({
+      data: { type: 'welcome', to: 'test@example.com' },
+    } as any);
+    expect(mockEmailService.sendWelcome).toHaveBeenCalledWith(
+      'test@example.com',
+    );
   });
 
   it('processes login-alert job', async () => {
-    await processor.process({ data: { type: 'login-alert', to: 'test@example.com', ip: '1.2.3.4', userAgent: 'chrome' } } as any);
-    expect(mockEmailService.sendLoginAlert).toHaveBeenCalledWith('test@example.com', '1.2.3.4', 'chrome');
+    await processor.process({
+      data: {
+        type: 'login-alert',
+        to: 'test@example.com',
+        ip: '1.2.3.4',
+        userAgent: 'chrome',
+      },
+    } as any);
+    expect(mockEmailService.sendLoginAlert).toHaveBeenCalledWith(
+      'test@example.com',
+      '1.2.3.4',
+      'chrome',
+    );
   });
 
   it('processes password-reset job', async () => {
-    await processor.process({ data: { type: 'password-reset', to: 'test@example.com', token: 'xyz' } } as any);
-    expect(mockEmailService.sendPasswordReset).toHaveBeenCalledWith('test@example.com', 'xyz');
+    await processor.process({
+      data: { type: 'password-reset', to: 'test@example.com', token: 'xyz' },
+    } as any);
+    expect(mockEmailService.sendPasswordReset).toHaveBeenCalledWith(
+      'test@example.com',
+      'xyz',
+    );
   });
 
   it('processes subscription-confirm job', async () => {
-    await processor.process({ data: { type: 'subscription-confirm', to: 'test@example.com', token: 'sub' } } as any);
-    expect(mockEmailService.sendSubscriptionConfirmation).toHaveBeenCalledWith('test@example.com', 'sub');
+    await processor.process({
+      data: {
+        type: 'subscription-confirm',
+        to: 'test@example.com',
+        token: 'sub',
+      },
+    } as any);
+    expect(mockEmailService.sendSubscriptionConfirmation).toHaveBeenCalledWith(
+      'test@example.com',
+      'sub',
+    );
   });
 
   it('processes account-deactivation job', async () => {
-    await processor.process({ data: { type: 'account-deactivation', to: 'test@example.com' } } as any);
-    expect(mockEmailService.sendAccountDeactivationWarning).toHaveBeenCalledWith('test@example.com');
+    await processor.process({
+      data: { type: 'account-deactivation', to: 'test@example.com' },
+    } as any);
+    expect(
+      mockEmailService.sendAccountDeactivationWarning,
+    ).toHaveBeenCalledWith('test@example.com');
   });
 
   it('throws on unknown email type', async () => {
     await expect(
-      processor.process({ data: { type: 'unknown', to: 'test@example.com' } } as any),
+      processor.process({
+        data: { type: 'unknown', to: 'test@example.com' },
+      } as any),
     ).rejects.toThrow('Unknown email job type: unknown');
   });
 });

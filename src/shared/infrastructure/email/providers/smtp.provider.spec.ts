@@ -1,5 +1,5 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 
 const mockSendMail = jest.fn();
 
@@ -64,10 +64,12 @@ describe('SmtpProvider', () => {
   it('throws on smtp error', async () => {
     mockSendMail.mockRejectedValue(new Error('Connection refused'));
 
-    await expect(provider.send({
-      to: 'user@example.com',
-      subject: 'Test',
-      html: '<p>Hi</p>',
-    })).rejects.toThrow('Connection refused');
+    await expect(
+      provider.send({
+        to: 'user@example.com',
+        subject: 'Test',
+        html: '<p>Hi</p>',
+      }),
+    ).rejects.toThrow('Connection refused');
   });
 });

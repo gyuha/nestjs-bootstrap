@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
 import { Queue } from 'bullmq';
-import { QUEUE_TOKEN } from './queue.token';
+import Redis from 'ioredis';
 import { QueueService } from './queue.service';
+import { QUEUE_TOKEN } from './queue.token';
 
 export const EMAIL_QUEUE = 'email';
 

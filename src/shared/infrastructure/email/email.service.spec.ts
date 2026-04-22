@@ -1,5 +1,5 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { EmailService } from './email.service';
 import { EMAIL_PROVIDER } from './email.token';
 import type { IEmailProvider } from './providers/email-provider.interface';
@@ -78,7 +78,11 @@ describe('EmailService', () => {
 
   describe('sendLoginAlert()', () => {
     it('calls provider.send with login alert subject', async () => {
-      await service.sendLoginAlert('user@example.com', '127.0.0.1', 'Mozilla/5.0');
+      await service.sendLoginAlert(
+        'user@example.com',
+        '127.0.0.1',
+        'Mozilla/5.0',
+      );
 
       expect(mockProvider.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -103,7 +107,9 @@ describe('EmailService', () => {
     it('does not throw when provider.send fails', async () => {
       mockProvider.send.mockRejectedValue(new Error('SMTP error'));
 
-      await expect(service.sendWelcome('user@example.com')).resolves.not.toThrow();
+      await expect(
+        service.sendWelcome('user@example.com'),
+      ).resolves.not.toThrow();
     });
   });
 });

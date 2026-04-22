@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
-import { socialAccounts } from '../../shared/infrastructure/database/database.schema';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { socialAccounts } from '../../shared/infrastructure/database/database.schema';
+import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 import { UsersService } from '../users/users.service';
 
 @Injectable()

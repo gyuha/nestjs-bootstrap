@@ -1,11 +1,11 @@
-import { Test } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
+import { JwtService } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
 import { QueueService } from '../../shared/infrastructure/queue/queue.service';
+import { REDIS_CLIENT } from '../../shared/infrastructure/redis/redis.provider';
+import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -16,7 +16,12 @@ describe('AuthService', () => {
     updatePassword: jest.Mock;
   };
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
-  let mockRedis: { get: jest.Mock; setex: jest.Mock; del: jest.Mock; keys: jest.Mock };
+  let mockRedis: {
+    get: jest.Mock;
+    setex: jest.Mock;
+    del: jest.Mock;
+    keys: jest.Mock;
+  };
   let mockQueueService: { addJob: jest.Mock };
   let mockEventEmitter: { emit: jest.Mock };
 
@@ -72,9 +77,15 @@ describe('AuthService', () => {
   describe('register()', () => {
     it('creates user and returns tokens', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
-      mockUsersService.create.mockResolvedValue({ id: 'uuid', email: 'test@example.com' });
+      mockUsersService.create.mockResolvedValue({
+        id: 'uuid',
+        email: 'test@example.com',
+      });
 
-      const result = await service.register({ email: 'test@example.com', password: 'password123' });
+      const result = await service.register({
+        email: 'test@example.com',
+        password: 'password123',
+      });
 
       expect(result.accessToken).toBe('mock-token');
       expect(result.refreshToken).toBe('mock-token');
@@ -84,8 +95,12 @@ describe('AuthService', () => {
     it('throws ConflictException when email exists', async () => {
       mockUsersService.findByEmail.mockResolvedValue({ id: 'existing' });
 
-      await expect(service.register({ email: 'test@example.com', password: 'password123' }))
-        .rejects.toThrow('Email already in use');
+      await expect(
+        service.register({
+          email: 'test@example.com',
+          password: 'password123',
+        }),
+      ).rejects.toThrow('Email already in use');
     });
   });
 
@@ -124,7 +139,9 @@ describe('AuthService', () => {
       await service.logout('uuid');
 
       expect(mockRedis.del).toHaveBeenCalledWith('refresh:uuid:token');
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.logout', { userId: 'uuid' });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.logout', {
+        userId: 'uuid',
+      });
     });
   });
 
@@ -132,12 +149,17 @@ describe('AuthService', () => {
     it('silently returns for unknown email', async () => {
       mockUsersService.findByEmail.mockResolvedValue(null);
 
-      await expect(service.forgotPassword('unknown@example.com')).resolves.toBeUndefined();
+      await expect(
+        service.forgotPassword('unknown@example.com'),
+      ).resolves.toBeUndefined();
       expect(mockQueueService.addJob).not.toHaveBeenCalled();
     });
 
     it('sends reset email for known user', async () => {
-      mockUsersService.findByEmail.mockResolvedValue({ id: 'uuid', email: 'test@example.com' });
+      mockUsersService.findByEmail.mockResolvedValue({
+        id: 'uuid',
+        email: 'test@example.com',
+      });
 
       await service.forgotPassword('test@example.com');
 
@@ -153,8 +175,9 @@ describe('AuthService', () => {
     it('throws UnauthorizedException for invalid token', async () => {
       mockRedis.get.mockResolvedValue(null);
 
-      await expect(service.resetPassword('bad-token', 'newpass123'))
-        .rejects.toThrow('Invalid or expired token');
+      await expect(
+        service.resetPassword('bad-token', 'newpass123'),
+      ).rejects.toThrow('Invalid or expired token');
     });
 
     it('updates password and emits auth.password-changed event', async () => {
@@ -162,11 +185,19 @@ describe('AuthService', () => {
 
       await service.resetPassword('valid-token', 'newpassword123');
 
-      expect(mockUsersService.updatePassword).toHaveBeenCalledWith('user-uuid', expect.any(String));
-      expect(mockRedis.del).toHaveBeenCalledWith('email:password-reset:valid-token');
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith('auth.password-changed', {
-        userId: 'user-uuid',
-      });
+      expect(mockUsersService.updatePassword).toHaveBeenCalledWith(
+        'user-uuid',
+        expect.any(String),
+      );
+      expect(mockRedis.del).toHaveBeenCalledWith(
+        'email:password-reset:valid-token',
+      );
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        'auth.password-changed',
+        {
+          userId: 'user-uuid',
+        },
+      );
     });
   });
 
@@ -174,7 +205,9 @@ describe('AuthService', () => {
     it('throws UnauthorizedException for invalid token', async () => {
       mockRedis.get.mockResolvedValue(null);
 
-      await expect(service.verifyEmail('bad-token')).rejects.toThrow('Invalid or expired token');
+      await expect(service.verifyEmail('bad-token')).rejects.toThrow(
+        'Invalid or expired token',
+      );
     });
 
     it('sets email verified for valid token', async () => {
@@ -182,14 +215,19 @@ describe('AuthService', () => {
 
       await service.verifyEmail('valid-token');
 
-      expect(mockUsersService.setEmailVerified).toHaveBeenCalledWith('user-uuid');
+      expect(mockUsersService.setEmailVerified).toHaveBeenCalledWith(
+        'user-uuid',
+      );
       expect(mockRedis.del).toHaveBeenCalledWith('email:verify:valid-token');
     });
   });
 
   describe('refreshTokens()', () => {
     it('issues new tokens for valid refresh token', async () => {
-      mockJwtService.verify.mockReturnValue({ sub: 'uuid', email: 'test@example.com' });
+      mockJwtService.verify.mockReturnValue({
+        sub: 'uuid',
+        email: 'test@example.com',
+      });
       mockRedis.get.mockResolvedValue('valid-refresh-token');
 
       const result = await service.refreshTokens('valid-refresh-token');

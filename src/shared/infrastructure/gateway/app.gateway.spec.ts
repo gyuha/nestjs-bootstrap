@@ -1,6 +1,6 @@
-import { Test } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test } from '@nestjs/testing';
 import { AppGateway } from './app.gateway';
 import { GatewayService } from './gateway.service';
 
@@ -54,7 +54,9 @@ describe('AppGateway', () => {
   });
 
   it('disconnects client with invalid token', () => {
-    mockJwtService.verify.mockImplementation(() => { throw new Error('invalid'); });
+    mockJwtService.verify.mockImplementation(() => {
+      throw new Error('invalid');
+    });
     const client = createClient('bad-token');
     gateway.handleConnection(client as any);
     expect(client.disconnect).toHaveBeenCalled();
@@ -64,15 +66,21 @@ describe('AppGateway', () => {
     mockJwtService.verify.mockReturnValue({ sub: 'user-1' });
     const client = createClient('valid-token');
     gateway.handleConnection(client as any);
-    expect(mockGatewayService.registerSocket).toHaveBeenCalledWith('user-1', 'socket-id');
-    expect(client.data['userId']).toBe('user-1');
+    expect(mockGatewayService.registerSocket).toHaveBeenCalledWith(
+      'user-1',
+      'socket-id',
+    );
+    expect(client.data.userId).toBe('user-1');
   });
 
   it('unregisters on disconnect', () => {
     const client = createClient();
-    client.data['userId'] = 'user-1';
+    client.data.userId = 'user-1';
     gateway.handleDisconnect(client as any);
-    expect(mockGatewayService.unregisterSocket).toHaveBeenCalledWith('user-1', 'socket-id');
+    expect(mockGatewayService.unregisterSocket).toHaveBeenCalledWith(
+      'user-1',
+      'socket-id',
+    );
   });
 
   it('joins room on subscribe', () => {
@@ -90,21 +98,31 @@ describe('AppGateway', () => {
   it('forwards role-assigned event to user via WS', () => {
     gateway.handleRoleAssigned({ userId: 'user-1', roleId: 'role-1' });
     expect(mockGatewayService.sendToUser).toHaveBeenCalledWith(
-      'user-1', 'role-assigned', { userId: 'user-1', roleId: 'role-1' },
+      'user-1',
+      'role-assigned',
+      { userId: 'user-1', roleId: 'role-1' },
     );
   });
 
   it('forwards role-removed event to user via WS', () => {
     gateway.handleRoleRemoved({ userId: 'user-1', roleId: 'role-1' });
     expect(mockGatewayService.sendToUser).toHaveBeenCalledWith(
-      'user-1', 'role-removed', { userId: 'user-1', roleId: 'role-1' },
+      'user-1',
+      'role-removed',
+      { userId: 'user-1', roleId: 'role-1' },
     );
   });
 
   it('forwards login-detected event to user via WS', () => {
-    gateway.handleLoginEvent({ userId: 'user-1', ip: '127.0.0.1', userAgent: 'Mozilla' });
+    gateway.handleLoginEvent({
+      userId: 'user-1',
+      ip: '127.0.0.1',
+      userAgent: 'Mozilla',
+    });
     expect(mockGatewayService.sendToUser).toHaveBeenCalledWith(
-      'user-1', 'login-detected', { userId: 'user-1', ip: '127.0.0.1', userAgent: 'Mozilla' },
+      'user-1',
+      'login-detected',
+      { userId: 'user-1', ip: '127.0.0.1', userAgent: 'Mozilla' },
     );
   });
 });

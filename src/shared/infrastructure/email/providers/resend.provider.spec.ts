@@ -1,5 +1,5 @@
-import { Test } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
 import { ResendProvider } from './resend.provider';
 
 const mockResendClient = {
@@ -38,7 +38,10 @@ describe('ResendProvider', () => {
   });
 
   it('sends email via Resend SDK', async () => {
-    mockResendClient.emails.send.mockResolvedValue({ data: { id: 'msg-1' }, error: null });
+    mockResendClient.emails.send.mockResolvedValue({
+      data: { id: 'msg-1' },
+      error: null,
+    });
 
     await provider.send({
       to: 'user@example.com',
@@ -60,10 +63,12 @@ describe('ResendProvider', () => {
       error: { message: 'Invalid API key' },
     });
 
-    await expect(provider.send({
-      to: 'user@example.com',
-      subject: 'Hello',
-      html: '<p>Hi</p>',
-    })).rejects.toThrow('Email delivery failed: Invalid API key');
+    await expect(
+      provider.send({
+        to: 'user@example.com',
+        subject: 'Hello',
+        html: '<p>Hi</p>',
+      }),
+    ).rejects.toThrow('Email delivery failed: Invalid API key');
   });
 });
