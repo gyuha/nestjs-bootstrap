@@ -9,7 +9,7 @@ export function toSlug(str: string): string {
 
 export function truncate(str: string, max: number): string {
   if (str.length <= max) return str;
-  return str.slice(0, max - 3) + '...';
+  return `${str.slice(0, max - 3)}...`;
 }
 
 export function maskEmail(email: string): string {
