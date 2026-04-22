@@ -16,6 +16,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { FilesModule } from './modules/files/files.module';
 import { HealthModule } from './modules/health/health.module';
 import { SocialModule } from './modules/social/social.module';
+import { MetricsModule } from './bootstrap/metrics/metrics.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuditModule } from './shared/infrastructure/audit/audit.module';
 import { AppCacheModule } from './shared/infrastructure/cache/cache.module';
@@ -52,6 +53,7 @@ import { StorageModule } from './shared/infrastructure/storage/storage.module';
     UsersModule,
     AuthModule,
     SocialModule,
+    MetricsModule,
   ],
 })
 export class AppModule implements NestModule {
