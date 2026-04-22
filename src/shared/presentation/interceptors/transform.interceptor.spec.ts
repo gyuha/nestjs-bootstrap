@@ -71,6 +71,18 @@ describe('TransformInterceptor', () => {
       });
   });
 
+  it('wraps domain object that has a success key but no timestamp', (done) => {
+    const domainObj = { success: false, transactionId: 'tx-123' };
+    const next = { handle: () => of(domainObj) };
+    interceptor.intercept(makeContext(), next).subscribe((result: unknown) => {
+      const r = result as Record<string, unknown>;
+      expect(r.success).toBe(true);
+      expect(r.data).toEqual(domainObj);
+      expect(typeof r.timestamp).toBe('string');
+      done();
+    });
+  });
+
   it('does not double-wrap already-enveloped response', (done) => {
     const alreadyWrapped = { success: true, data: { id: 2 }, timestamp: 'x' };
     const next = { handle: () => of(alreadyWrapped) };

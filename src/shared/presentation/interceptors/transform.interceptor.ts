@@ -33,12 +33,15 @@ export class TransformInterceptor<T>
 
     return next.handle().pipe(
       map((data) => {
-        if (
-          data !== null &&
-          typeof data === 'object' &&
-          'success' in (data as object)
-        ) {
-          return data as unknown as ApiResponse<T>;
+        if (data !== null && typeof data === 'object') {
+          const obj = data as Record<string, unknown>;
+          if (
+            typeof obj.success === 'boolean' &&
+            typeof obj.timestamp === 'string' &&
+            ('data' in obj || 'meta' in obj)
+          ) {
+            return data as unknown as ApiResponse<T>;
+          }
         }
         return {
           success: true as const,
