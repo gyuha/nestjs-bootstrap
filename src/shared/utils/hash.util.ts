@@ -1,0 +1,13 @@
+// src/shared/utils/hash.util.ts
+import * as argon2 from 'argon2';
+
+export async function hashPassword(plain: string): Promise<string> {
+  return argon2.hash(plain);
+}
+
+export async function verifyPassword(
+  plain: string,
+  hash: string,
+): Promise<boolean> {
+  return argon2.verify(hash, plain);
+}
