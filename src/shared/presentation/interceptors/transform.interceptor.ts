@@ -1,3 +1,4 @@
+// src/shared/presentation/interceptors/transform.interceptor.ts
 import {
   type CallHandler,
   type ExecutionContext,
@@ -6,18 +7,45 @@ import {
 } from '@nestjs/common';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ApiSuccessResponse } from '../dto/api-response.dto';
+import { SKIP_TRANSFORM_KEY } from '../decorators/skip-transform.decorator';
+import type { ApiResponse } from '../dto/api-response.dto';
 
 @Injectable()
 export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiSuccessResponse<T>>
+  implements NestInterceptor<T, ApiResponse<T> | T>
 {
   intercept(
-    _context: ExecutionContext,
+    context: ExecutionContext,
     next: CallHandler<T>,
-  ): Observable<ApiSuccessResponse<T>> {
-    return next
-      .handle()
-      .pipe(map((data) => ({ success: true as const, data })));
+  ): Observable<ApiResponse<T> | T> {
+    const skipHandler = Reflect.getMetadata(
+      SKIP_TRANSFORM_KEY,
+      context.getHandler(),
+    ) as boolean | undefined;
+    const skipClass = Reflect.getMetadata(
+      SKIP_TRANSFORM_KEY,
+      context.getClass(),
+    ) as boolean | undefined;
+
+    if (skipHandler || skipClass) {
+      return next.handle();
+    }
+
+    return next.handle().pipe(
+      map((data) => {
+        if (
+          data !== null &&
+          typeof data === 'object' &&
+          'success' in (data as object)
+        ) {
+          return data as ApiResponse<T>;
+        }
+        return {
+          success: true as const,
+          data,
+          timestamp: new Date().toISOString(),
+        };
+      }),
+    );
   }
 }
