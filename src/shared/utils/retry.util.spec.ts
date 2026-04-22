@@ -4,7 +4,9 @@ import { retry } from './retry.util';
 describe('retry.util', () => {
   it('resolves immediately on first success', async () => {
     const fn = jest.fn().mockResolvedValue('ok');
-    await expect(retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' })).resolves.toBe('ok');
+    await expect(
+      retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' }),
+    ).resolves.toBe('ok');
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -13,15 +15,17 @@ describe('retry.util', () => {
       .fn()
       .mockRejectedValueOnce(new Error('fail'))
       .mockResolvedValue('success');
-    await expect(retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' })).resolves.toBe('success');
+    await expect(
+      retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' }),
+    ).resolves.toBe('success');
     expect(fn).toHaveBeenCalledTimes(2);
   });
 
   it('throws after max attempts', async () => {
     const fn = jest.fn().mockRejectedValue(new Error('always fails'));
-    await expect(retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' })).rejects.toThrow(
-      'always fails',
-    );
+    await expect(
+      retry(fn, { attempts: 3, delayMs: 0, backoff: 'linear' }),
+    ).rejects.toThrow('always fails');
     expect(fn).toHaveBeenCalledTimes(3);
   });
 
