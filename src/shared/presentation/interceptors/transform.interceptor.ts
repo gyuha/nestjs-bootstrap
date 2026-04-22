@@ -38,7 +38,7 @@ export class TransformInterceptor<T>
           typeof data === 'object' &&
           'success' in (data as object)
         ) {
-          return data as ApiResponse<T>;
+          return data as unknown as ApiResponse<T>;
         }
         return {
           success: true as const,
