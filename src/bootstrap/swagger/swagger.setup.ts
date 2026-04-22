@@ -1,5 +1,25 @@
+// src/bootstrap/swagger/swagger.setup.ts
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+const errorSchema = (statusCode: number, example: string) => ({
+  properties: {
+    success: { type: 'boolean', example: false },
+    error: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: statusCode },
+        message: { type: 'string', example },
+        details: {
+          type: 'array',
+          items: { type: 'string' },
+          nullable: true,
+        },
+      },
+    },
+    timestamp: { type: 'string', example: '2026-04-22T10:00:00.000Z' },
+  },
+});
 
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
@@ -19,6 +39,21 @@ export function setupSwagger(app: INestApplication): void {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  document.components ??= {};
+  document.components.schemas ??= {};
+  const schemas = document.components.schemas as Record<string, unknown>;
+  // biome-ignore lint/complexity/useLiteralKeys: dynamic schema names for OpenAPI spec
+  schemas['Error400'] = errorSchema(400, 'Validation failed');
+  // biome-ignore lint/complexity/useLiteralKeys: dynamic schema names for OpenAPI spec
+  schemas['Error401'] = errorSchema(401, 'Unauthorized');
+  // biome-ignore lint/complexity/useLiteralKeys: dynamic schema names for OpenAPI spec
+  schemas['Error403'] = errorSchema(403, 'Forbidden');
+  // biome-ignore lint/complexity/useLiteralKeys: dynamic schema names for OpenAPI spec
+  schemas['Error404'] = errorSchema(404, 'Not Found');
+  // biome-ignore lint/complexity/useLiteralKeys: dynamic schema names for OpenAPI spec
+  schemas['Error500'] = errorSchema(500, 'Internal server error');
+
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: { persistAuthorization: true },
   });
