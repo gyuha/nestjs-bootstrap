@@ -12,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { UsersService } from '../users/users.service';
@@ -19,6 +20,8 @@ import type { FilesService } from './files.service';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+@ApiTags('files')
+@ApiBearerAuth('access-token')
 @Controller('files')
 @UseGuards(JwtAuthGuard)
 export class FilesController {
@@ -33,6 +36,7 @@ export class FilesController {
       limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
+  @ApiOperation({ summary: 'Upload a file' })
   async upload(
     @UploadedFile() file: Express.Multer.File | undefined,
     @Query('category') category: string,
@@ -56,6 +60,7 @@ export class FilesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'List user files' })
   findAll(
     @CurrentUser('userId') userId: string,
     @Query('category') category?: string,
@@ -64,6 +69,7 @@ export class FilesController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get file by id' })
   findOne(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('userId') userId: string,
@@ -72,6 +78,7 @@ export class FilesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a file' })
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('userId') userId: string,
