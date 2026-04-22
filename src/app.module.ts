@@ -27,6 +27,7 @@ import { ImageModule } from './shared/infrastructure/image/image.module';
 import { QueueModule } from './shared/infrastructure/queue/queue.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { StorageModule } from './shared/infrastructure/storage/storage.module';
+import { MonitoringModule } from './shared/infrastructure/monitoring/monitoring.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { StorageModule } from './shared/infrastructure/storage/storage.module';
     AuthModule,
     SocialModule,
     MetricsModule,
+    MonitoringModule,
   ],
 })
 export class AppModule implements NestModule {

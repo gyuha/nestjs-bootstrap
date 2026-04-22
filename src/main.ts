@@ -8,7 +8,6 @@ import { setupBullBoard } from './bootstrap/admin/bull-board.setup';
 import { setupSecurity } from './bootstrap/security/security.setup';
 import { setupSwagger } from './bootstrap/swagger/swagger.setup';
 import { validateEnv } from './bootstrap/validation/env.schema';
-import { HttpExceptionFilter } from './shared/presentation/filters/http-exception.filter';
 import { TransformInterceptor } from './shared/presentation/interceptors/transform.interceptor';
 
 async function bootstrap(): Promise<void> {
@@ -26,7 +25,6 @@ async function bootstrap(): Promise<void> {
     defaultVersion: '1',
   });
 
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
 
   setupSecurity(app);

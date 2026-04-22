@@ -1,21 +1,29 @@
-// src/shared/presentation/filters/http-exception.filter.ts
 import {
   type ArgumentsHost,
   Catch,
   type ExceptionFilter,
   HttpException,
   HttpStatus,
+  Inject,
   Logger,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
+import { traceStore } from '../../../bootstrap/logging/trace.middleware';
+import { ErrorTrackingService } from '../../infrastructure/monitoring/error-tracking.service';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
 
+  constructor(
+    @Inject(ErrorTrackingService)
+    private readonly errorTracking: ErrorTrackingService,
+  ) {}
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
@@ -44,6 +52,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : String(exception),
       );
     }
+
+    const traceId = traceStore.getStore()?.traceId ?? 'unknown';
+    const userId = (request.user as { userId: string } | undefined)?.userId ?? null;
+
+    this.errorTracking.record({
+      traceId,
+      method: request.method,
+      path: request.url,
+      statusCode,
+      message: String(message),
+      timestamp: new Date().toISOString(),
+      userId,
+      ...(statusCode >= 500 && exception instanceof Error
+        ? { stack: exception.stack }
+        : {}),
+    });
 
     response.status(statusCode).json({
       success: false,

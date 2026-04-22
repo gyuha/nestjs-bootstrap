@@ -1,4 +1,3 @@
-// src/shared/presentation/filters/http-exception.filter.spec.ts
 import type { ArgumentsHost } from '@nestjs/common';
 import {
   BadRequestException,
@@ -7,21 +6,29 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exception.filter';
+import { ErrorTrackingService } from '../../infrastructure/monitoring/error-tracking.service';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
   let mockJson: jest.Mock;
   let mockStatus: jest.Mock;
   let mockHost: ArgumentsHost;
+  let mockErrorTracking: { record: jest.Mock; getSummary: jest.Mock };
 
   beforeEach(() => {
-    filter = new HttpExceptionFilter();
+    mockErrorTracking = {
+      record: jest.fn(),
+      getSummary: jest.fn().mockReturnValue({}),
+    };
+    filter = new HttpExceptionFilter(
+      mockErrorTracking as unknown as ErrorTrackingService,
+    );
     mockJson = jest.fn();
     mockStatus = jest.fn().mockReturnValue({ json: mockJson });
     mockHost = {
       switchToHttp: () => ({
         getResponse: () => ({ status: mockStatus }),
-        getRequest: () => ({}),
+        getRequest: () => ({ method: 'GET', url: '/test', user: undefined }),
         getNext: () => ({}),
       }),
       getArgs: () => [],
@@ -87,5 +94,15 @@ describe('HttpExceptionFilter', () => {
     const error = payload.error as Record<string, unknown>;
     expect(error.message).toBe('Conflict');
     expect(error.details).toBeUndefined();
+  });
+
+  it('calls ErrorTrackingService.record with error context', () => {
+    filter.catch(new NotFoundException('Not found'), mockHost);
+
+    expect(mockErrorTracking.record).toHaveBeenCalledTimes(1);
+    const call = mockErrorTracking.record.mock.calls[0][0];
+    expect(call.statusCode).toBe(404);
+    expect(call.method).toBe('GET');
+    expect(call.path).toBe('/test');
   });
 });
