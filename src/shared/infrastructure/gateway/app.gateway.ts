@@ -10,8 +10,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
+import { SkipTransform } from '../../presentation/decorators/skip-transform.decorator';
 import { GatewayService } from './gateway.service';
 
+@SkipTransform()
 @WebSocketGateway({ cors: { origin: '*' } })
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
