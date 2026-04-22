@@ -22,8 +22,8 @@ describe('MetricsStore', () => {
     store.record('GET', 200, 10);
     const snap = store.snapshot();
     expect(snap.requests.total).toBe(1);
-    expect(snap.requests.byStatus['200']).toBe(1);
-    expect(snap.requests.byMethod['GET']).toBe(1);
+    expect(snap.requests.byStatus[200]).toBe(1);
+    expect(snap.requests.byMethod.GET).toBe(1);
   });
 
   it('accumulates multiple requests', () => {
@@ -32,9 +32,9 @@ describe('MetricsStore', () => {
     store.record('POST', 201, 30);
     const snap = store.snapshot();
     expect(snap.requests.total).toBe(3);
-    expect(snap.requests.byStatus['200']).toBe(2);
-    expect(snap.requests.byStatus['201']).toBe(1);
-    expect(snap.requests.byMethod['POST']).toBe(1);
+    expect(snap.requests.byStatus[200]).toBe(2);
+    expect(snap.requests.byStatus[201]).toBe(1);
+    expect(snap.requests.byMethod.POST).toBe(1);
   });
 
   it('counts 4xx as client errors', () => {

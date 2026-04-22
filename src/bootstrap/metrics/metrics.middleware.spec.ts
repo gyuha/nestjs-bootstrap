@@ -1,5 +1,5 @@
-import { MetricsStore } from './metrics.store';
 import { MetricsMiddleware } from './metrics.middleware';
+import { MetricsStore } from './metrics.store';
 
 describe('MetricsMiddleware', () => {
   let store: MetricsStore;
@@ -30,7 +30,7 @@ describe('MetricsMiddleware', () => {
     const snap = store.snapshot();
     expect(snap.requests.total).toBe(1);
     expect(snap.requests.byStatus['200']).toBe(1);
-    expect(snap.requests.byMethod['GET']).toBe(1);
+    expect(snap.requests.byMethod.GET).toBe(1);
   });
 
   it('captures 4xx status codes', () => {
