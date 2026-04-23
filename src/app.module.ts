@@ -29,6 +29,7 @@ import { QueueModule } from './shared/infrastructure/queue/queue.module';
 import { RedisModule } from './shared/infrastructure/redis/redis.module';
 import { StorageModule } from './shared/infrastructure/storage/storage.module';
 
+/** 애플리케이션의 루트 모듈 — 모든 기능 모듈과 공통 인프라를 등록한다 */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -59,6 +60,10 @@ import { StorageModule } from './shared/infrastructure/storage/storage.module';
   ],
 })
 export class AppModule implements NestModule {
+  /**
+   * 전역 미들웨어를 등록한다 — 모든 라우트에 TraceMiddleware를 적용하여 요청 추적 ID를 주입한다
+   * @param consumer NestJS 미들웨어 소비자 인스턴스
+   */
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(TraceMiddleware)

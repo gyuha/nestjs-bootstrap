@@ -10,6 +10,7 @@ import { setupSwagger } from './bootstrap/swagger/swagger.setup';
 import { validateEnv } from './bootstrap/validation/env.schema';
 import { TransformInterceptor } from './shared/presentation/interceptors/transform.interceptor';
 
+/** NestJS 애플리케이션을 초기화하고 HTTP 서버를 시작하는 진입점 함수 */
 async function bootstrap(): Promise<void> {
   const env = validateEnv(process.env as Record<string, unknown>);
 
