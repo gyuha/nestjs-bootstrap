@@ -1,9 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 import { TraceMiddleware, traceStore } from './trace.middleware';
 
+/** 요청 헤더를 제어하기 위한 최소 Request 모의 타입 */
 type MockRequest = Partial<Request> & { headers: Record<string, string> };
+/** setHeader 호출을 검사하기 위한 최소 Response 모의 타입 */
 type MockResponse = Partial<Response> & { setHeader: jest.Mock };
 
+/** TraceMiddleware의 단위 테스트 스위트 — 트레이스 ID 전파 및 AsyncLocalStorage 저장 동작 검증 */
 describe('TraceMiddleware', () => {
   let middleware: TraceMiddleware;
 

@@ -1,5 +1,6 @@
 import { validateEnv } from './env.schema';
 
+/** validateEnv 함수의 단위 테스트 스위트 — 필수 필드 검증, 타입 변환, 기본값 적용, 에러 케이스 검증 */
 describe('validateEnv', () => {
   const validEnv = {
     NODE_ENV: 'development',

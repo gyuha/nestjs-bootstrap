@@ -1,6 +1,7 @@
 import { MetricsMiddleware } from './metrics.middleware';
 import { MetricsStore } from './metrics.store';
 
+/** MetricsMiddleware의 단위 테스트 스위트 — 응답 완료 시 메트릭 기록 동작 검증 */
 describe('MetricsMiddleware', () => {
   let store: MetricsStore;
   let middleware: MetricsMiddleware;

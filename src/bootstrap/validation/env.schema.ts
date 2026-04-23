@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+/**
+ * 환경 변수 유효성 검사 스키마.
+ * 필수 설정 누락 또는 잘못된 값이 있을 경우 애플리케이션 시작을 차단한다.
+ * 각 필드는 기본값 또는 선택 여부가 명시되어 있다.
+ */
 export const EnvSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
@@ -38,8 +43,15 @@ export const EnvSchema = z.object({
     .transform((v) => v === 'true'),
 });
 
+/** EnvSchema로부터 추론된 환경 변수 타입 */
 export type Env = z.infer<typeof EnvSchema>;
 
+/**
+ * 주어진 설정 객체를 EnvSchema로 파싱하여 유효성을 검사한다.
+ * 유효성 검사 실패 시 상세 오류 메시지를 포함한 Error를 던진다.
+ * @param config 검사할 환경 변수 원시 객체
+ * @returns 유효성 검사를 통과한 파싱된 Env 객체
+ */
 export function validateEnv(config: Record<string, unknown>): Env {
   const result = EnvSchema.safeParse(config);
   if (!result.success) {

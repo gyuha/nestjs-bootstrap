@@ -1,5 +1,6 @@
 import { MetricsStore } from './metrics.store';
 
+/** MetricsStore의 단위 테스트 스위트 — 메트릭 기록·집계·초기화·레이턴시 백분위수 계산 검증 */
 describe('MetricsStore', () => {
   let store: MetricsStore;
 
