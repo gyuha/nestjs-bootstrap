@@ -3,6 +3,7 @@
  *
  * `CacheService.ping()`으로 PING 명령을 보내고 'PONG' 응답 여부로 정상 여부를 판단합니다.
  * 예외 발생 시(연결 실패, 타임아웃 등) false를 반환해 헬스체크가 실패 처리되도록 합니다.
+ * 헬스체크 판단 기준을 변경하거나 추가 검사 항목을 넣으려면 `isHealthy()`를 수정하세요.
  */
 import { Injectable } from '@nestjs/common';
 

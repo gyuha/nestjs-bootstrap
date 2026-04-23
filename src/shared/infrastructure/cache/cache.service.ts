@@ -41,7 +41,7 @@ export class CacheService implements OnApplicationShutdown {
     return this.client.ping();
   }
 
-  /** 앱 종료 시 Redis 연결을 안전하게 닫습니다. 연결 상태에 따라 quit 또는 disconnect를 사용합니다. */
+  /** 앱 종료 시 Redis 연결 상태(`end`·`wait`·기타)에 따라 no-op·disconnect·quit 중 하나를 실행합니다. */
   async onApplicationShutdown() {
     if (this.client.status === 'end') {
       return;
