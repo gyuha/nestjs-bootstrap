@@ -14,6 +14,7 @@ import { AppModule } from './app.module';
 import { bootstrapApplication } from './bootstrap/bootstrap-application';
 import { AppConfigService } from './bootstrap/config/app-config.service';
 
+/** 앱 인스턴스를 생성하고 공통 설정을 적용한 뒤 지정된 포트에서 서버를 시작합니다. */
 async function main() {
   const app = await NestFactory.create(AppModule);
 
