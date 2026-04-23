@@ -73,6 +73,7 @@ export const appConfigSchema = z
           code: z.ZodIssueCode.custom,
           message:
             'SQLITE_PATH or a sqlite DATABASE_URL is required when DB_DRIVER=sqlite',
+          // hasSqlitePath가 true면 이미 위에서 통과했으므로 실질적으로 항상 DATABASE_URL을 가리킵니다.
           path: hasSqlitePath ? ['SQLITE_PATH'] : ['DATABASE_URL'],
         });
       }

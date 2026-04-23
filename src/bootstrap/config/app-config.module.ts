@@ -18,7 +18,7 @@ import { loadAppConfig } from './load-app-config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true, // ConfigModule 자체도 전역 등록해 다른 모듈에서 중복 import 없이 사용할 수 있게 합니다.
       cache: true,
       load: [loadAppConfig],
       // ${VAR} 형태로 다른 환경변수를 참조할 수 있게 합니다.
