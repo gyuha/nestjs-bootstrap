@@ -1,8 +1,16 @@
+/**
+ * 환경변수에 타입 안전하게 접근하는 서비스.
+ *
+ * NestJS `ConfigService`를 직접 사용하면 키를 문자열로 지정해야 해서 오타 위험이 있습니다.
+ * 이 서비스는 `ConfigService`를 래핑해 각 환경변수를 타입이 명시된 getter로 노출합니다.
+ * 새로운 환경변수를 앱에서 사용하려면 이 파일에 getter를 추가하세요.
+ */
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import type { AppConfig } from './app-config.schema';
 
+/** 환경변수를 타입 안전한 getter로 제공하는 서비스 */
 @Injectable()
 export class AppConfigService {
   constructor(private readonly configService: ConfigService<AppConfig, true>) {}
