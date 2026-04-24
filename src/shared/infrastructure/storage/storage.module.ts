@@ -19,6 +19,6 @@ import { STORAGE_PROVIDER } from './storage.token';
     },
     StorageService,
   ],
-  exports: [StorageService],
+  exports: [STORAGE_PROVIDER, StorageService],
 })
 export class StorageModule {}

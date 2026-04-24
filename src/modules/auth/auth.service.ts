@@ -46,7 +46,7 @@ export class AuthService {
     });
     void this.queueService.addJob('email', { type: 'welcome', to: user.email });
 
-    return this.generateTokens(user.id, user.email);
+    return this.issueTokens(user.id, user.email);
   }
 
   async login(
@@ -66,7 +66,7 @@ export class AuthService {
       ip,
       userAgent,
     });
-    return this.generateTokens(user.userId, user.email);
+    return this.issueTokens(user.userId, user.email);
   }
 
   async logout(userId: string) {
@@ -160,17 +160,22 @@ export class AuthService {
     }
 
     await this.redis.del(`refresh:${payload.sub}:token`);
-    const tokens = this.generateTokens(payload.sub, payload.email);
+    const tokens = await this.issueTokens(payload.sub, payload.email);
+    return tokens;
+  }
+
+  async generateTokensForUser(userId: string, email: string) {
+    return this.issueTokens(userId, email);
+  }
+
+  private async issueTokens(userId: string, email: string) {
+    const tokens = this.generateTokens(userId, email);
     await this.redis.setex(
-      `refresh:${payload.sub}:token`,
+      `refresh:${userId}:token`,
       this.refreshTokenTtl,
       tokens.refreshToken,
     );
     return tokens;
-  }
-
-  generateTokensForUser(userId: string, email: string) {
-    return this.generateTokens(userId, email);
   }
 
   private generateTokens(userId: string, email: string) {

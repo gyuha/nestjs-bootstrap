@@ -1,5 +1,4 @@
 import { Inject, Logger, Module, type OnModuleInit } from '@nestjs/common';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import { ConfigService } from '@nestjs/config';
 import { DatabaseProvider } from './database.provider';
 import { DRIZZLE_CLIENT } from './database.token';

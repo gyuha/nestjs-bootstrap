@@ -41,6 +41,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # local db
 *.db
 *.db-journal
+*.sqlite
+*.sqlite-journal
 
 # uploads
 uploads/

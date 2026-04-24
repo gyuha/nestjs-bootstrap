@@ -1,8 +1,8 @@
 import { Injectable, Optional } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-github2';
-import type { SocialService } from '../../social/social.service';
+import { SocialService } from '../../social/social.service';
 
 @Injectable()
 export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {

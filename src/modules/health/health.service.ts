@@ -2,7 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { Queue as BullQueue } from 'bullmq';
 import { sql } from 'drizzle-orm';
 import type Redis from 'ioredis';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import { CacheService } from '../../shared/infrastructure/cache/cache.service';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 import { QUEUE_TOKEN } from '../../shared/infrastructure/queue/queue.token';

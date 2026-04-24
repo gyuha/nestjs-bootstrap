@@ -6,6 +6,7 @@ import { RolesGuard } from './roles.guard';
 
 describe('RolesGuard', () => {
   let guard: RolesGuard;
+  let reflector: Reflector;
   let mockUsersService: {
     getUserRoles: jest.Mock;
     getUserPermissions: jest.Mock;
@@ -17,10 +18,12 @@ describe('RolesGuard', () => {
       getUserPermissions: jest.fn(),
     };
 
+    reflector = new Reflector();
+
     const module = await Test.createTestingModule({
       providers: [
         RolesGuard,
-        { provide: Reflector, useValue: new Reflector() },
+        { provide: Reflector, useValue: reflector },
         { provide: UsersService, useValue: mockUsersService },
       ],
     }).compile();
@@ -46,7 +49,6 @@ describe('RolesGuard', () => {
     mockUsersService.getUserRoles.mockResolvedValue(['admin']);
     mockUsersService.getUserPermissions.mockResolvedValue([]);
     const context = createMockContext('user-1');
-    const reflector = guard.reflector;
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -56,7 +58,6 @@ describe('RolesGuard', () => {
     mockUsersService.getUserRoles.mockResolvedValue(['user']);
     mockUsersService.getUserPermissions.mockResolvedValue([]);
     const context = createMockContext('user-1');
-    const reflector = guard.reflector;
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['admin']);
 
     await expect(guard.canActivate(context)).rejects.toThrow(

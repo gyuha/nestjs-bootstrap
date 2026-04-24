@@ -16,6 +16,7 @@ export const RedisProvider: Provider = {
         setex: async () => 'OK',
         del: async () => 1,
         keys: async () => [],
+        ping: async () => 'PONG',
       } as unknown as Redis;
     }
     return new Redis(url);

@@ -14,13 +14,19 @@ export const EMAIL_QUEUE = 'email';
       provide: QUEUE_TOKEN,
       useFactory: (config: ConfigService) => {
         const url = config.get<string>('REDIS_URL');
-        const connection = url ? new Redis(url) : new Redis();
+        if (!url) {
+          return {
+            add: async () => undefined,
+            isPaused: async () => false,
+          } as unknown as Queue;
+        }
+        const connection = new Redis(url);
         return new Queue(EMAIL_QUEUE, { connection });
       },
       inject: [ConfigService],
     },
     QueueService,
   ],
-  exports: [QueueService],
+  exports: [QUEUE_TOKEN, QueueService],
 })
 export class QueueModule {}

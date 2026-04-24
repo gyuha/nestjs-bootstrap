@@ -19,5 +19,6 @@
     "types": ["jest", "node", "multer"],
     "jsx": "react-jsx",
     "jsxImportSource": "react"
-  }
+  },
+  "exclude": ["dist", "coverage", "node_modules", "**/*.spec.ts", "test"]
 }

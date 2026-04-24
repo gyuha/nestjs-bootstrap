@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
+import type { Socket } from 'socket.io';
 import { AppGateway } from './app.gateway';
 import { GatewayService } from './gateway.service';
 
@@ -50,7 +51,7 @@ describe('AppGateway', () => {
 
   it('disconnects client with no token', () => {
     const client = createClient();
-    gateway.handleConnection(client as any);
+    gateway.handleConnection(client as unknown as Socket);
     expect(client.disconnect).toHaveBeenCalled();
   });
 
@@ -59,14 +60,14 @@ describe('AppGateway', () => {
       throw new Error('invalid');
     });
     const client = createClient('bad-token');
-    gateway.handleConnection(client as any);
+    gateway.handleConnection(client as unknown as Socket);
     expect(client.disconnect).toHaveBeenCalled();
   });
 
   it('registers authenticated client', () => {
     mockJwtService.verify.mockReturnValue({ sub: 'user-1' });
     const client = createClient('valid-token');
-    gateway.handleConnection(client as any);
+    gateway.handleConnection(client as unknown as Socket);
     expect(mockGatewayService.registerSocket).toHaveBeenCalledWith(
       'user-1',
       'socket-id',
@@ -77,7 +78,7 @@ describe('AppGateway', () => {
   it('unregisters on disconnect', () => {
     const client = createClient();
     client.data.userId = 'user-1';
-    gateway.handleDisconnect(client as any);
+    gateway.handleDisconnect(client as unknown as Socket);
     expect(mockGatewayService.unregisterSocket).toHaveBeenCalledWith(
       'user-1',
       'socket-id',
@@ -86,13 +87,13 @@ describe('AppGateway', () => {
 
   it('joins room on subscribe', () => {
     const client = createClient();
-    gateway.handleSubscribe(client as any, 'my-topic');
+    gateway.handleSubscribe(client as unknown as Socket, 'my-topic');
     expect(client.join).toHaveBeenCalledWith('my-topic');
   });
 
   it('leaves room on unsubscribe', () => {
     const client = createClient();
-    gateway.handleUnsubscribe(client as any, 'my-topic');
+    gateway.handleUnsubscribe(client as unknown as Socket, 'my-topic');
     expect(client.leave).toHaveBeenCalledWith('my-topic');
   });
 

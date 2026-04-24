@@ -15,8 +15,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import type { UsersService } from '../users/users.service';
-import type { FilesService } from './files.service';
+import { UsersService } from '../users/users.service';
+import { FilesService } from './files.service';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -74,7 +74,7 @@ export class FilesController {
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('userId') userId: string,
   ) {
-    return this.filesService.findById(id);
+    return this.filesService.findByIdForUser(id, userId);
   }
 
   @Delete(':id')

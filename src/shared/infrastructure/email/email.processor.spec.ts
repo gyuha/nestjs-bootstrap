@@ -1,3 +1,5 @@
+import type { Job } from 'bullmq';
+import type { EmailJobData } from '../queue/queue.interface';
 import { EmailProcessor } from './email.processor';
 import { EmailService } from './email.service';
 
@@ -9,9 +11,13 @@ describe('EmailProcessor', () => {
     sendWelcome: jest.Mock;
     sendLoginAlert: jest.Mock;
     sendPasswordReset: jest.Mock;
+    sendEmailChange: jest.Mock;
     sendSubscriptionConfirmation: jest.Mock;
     sendAccountDeactivationWarning: jest.Mock;
   };
+
+  const createJob = (data: EmailJobData): Job<EmailJobData> =>
+    ({ data }) as Job<EmailJobData>;
 
   beforeEach(() => {
     mockEmailService = {
@@ -19,21 +25,22 @@ describe('EmailProcessor', () => {
       sendWelcome: jest.fn().mockResolvedValue(undefined),
       sendLoginAlert: jest.fn().mockResolvedValue(undefined),
       sendPasswordReset: jest.fn().mockResolvedValue(undefined),
+      sendEmailChange: jest.fn().mockResolvedValue(undefined),
       sendSubscriptionConfirmation: jest.fn().mockResolvedValue(undefined),
       sendAccountDeactivationWarning: jest.fn().mockResolvedValue(undefined),
     };
 
-    processor = new EmailProcessor(mockEmailService as any);
+    processor = new EmailProcessor(mockEmailService as unknown as EmailService);
   });
 
   it('processes signup-confirmation job', async () => {
-    await processor.process({
-      data: {
+    await processor.process(
+      createJob({
         type: 'signup-confirmation',
         to: 'test@example.com',
         token: 'abc',
-      },
-    } as any);
+      }),
+    );
     expect(mockEmailService.sendSignupConfirmation).toHaveBeenCalledWith(
       'test@example.com',
       'abc',
@@ -41,23 +48,23 @@ describe('EmailProcessor', () => {
   });
 
   it('processes welcome job', async () => {
-    await processor.process({
-      data: { type: 'welcome', to: 'test@example.com' },
-    } as any);
+    await processor.process(
+      createJob({ type: 'welcome', to: 'test@example.com' }),
+    );
     expect(mockEmailService.sendWelcome).toHaveBeenCalledWith(
       'test@example.com',
     );
   });
 
   it('processes login-alert job', async () => {
-    await processor.process({
-      data: {
+    await processor.process(
+      createJob({
         type: 'login-alert',
         to: 'test@example.com',
         ip: '1.2.3.4',
         userAgent: 'chrome',
-      },
-    } as any);
+      }),
+    );
     expect(mockEmailService.sendLoginAlert).toHaveBeenCalledWith(
       'test@example.com',
       '1.2.3.4',
@@ -66,9 +73,13 @@ describe('EmailProcessor', () => {
   });
 
   it('processes password-reset job', async () => {
-    await processor.process({
-      data: { type: 'password-reset', to: 'test@example.com', token: 'xyz' },
-    } as any);
+    await processor.process(
+      createJob({
+        type: 'password-reset',
+        to: 'test@example.com',
+        token: 'xyz',
+      }),
+    );
     expect(mockEmailService.sendPasswordReset).toHaveBeenCalledWith(
       'test@example.com',
       'xyz',
@@ -76,13 +87,13 @@ describe('EmailProcessor', () => {
   });
 
   it('processes subscription-confirm job', async () => {
-    await processor.process({
-      data: {
+    await processor.process(
+      createJob({
         type: 'subscription-confirm',
         to: 'test@example.com',
         token: 'sub',
-      },
-    } as any);
+      }),
+    );
     expect(mockEmailService.sendSubscriptionConfirmation).toHaveBeenCalledWith(
       'test@example.com',
       'sub',
@@ -90,9 +101,9 @@ describe('EmailProcessor', () => {
   });
 
   it('processes account-deactivation job', async () => {
-    await processor.process({
-      data: { type: 'account-deactivation', to: 'test@example.com' },
-    } as any);
+    await processor.process(
+      createJob({ type: 'account-deactivation', to: 'test@example.com' }),
+    );
     expect(
       mockEmailService.sendAccountDeactivationWarning,
     ).toHaveBeenCalledWith('test@example.com');
@@ -102,7 +113,7 @@ describe('EmailProcessor', () => {
     await expect(
       processor.process({
         data: { type: 'unknown', to: 'test@example.com' },
-      } as any),
+      } as unknown as Job<EmailJobData>),
     ).rejects.toThrow('Unknown email job type: unknown');
   });
 });

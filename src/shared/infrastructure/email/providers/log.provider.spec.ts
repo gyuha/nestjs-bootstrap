@@ -39,7 +39,7 @@ describe('LogProvider', () => {
 
   it('truncates html longer than 200 characters in log output', async () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-    const longHtml = '<p>' + 'a'.repeat(300) + '</p>';
+    const longHtml = `<p>${'a'.repeat(300)}</p>`;
 
     await provider.send({
       to: 'x@example.com',

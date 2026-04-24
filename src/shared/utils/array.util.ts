@@ -23,7 +23,8 @@ export function dedupe<T>(arr: T[], key?: keyof T): T[] {
 export function groupBy<T>(arr: T[], key: keyof T): Record<string, T[]> {
   return arr.reduce<Record<string, T[]>>((acc, item) => {
     const k = String(item[key]);
-    (acc[k] ??= []).push(item);
+    if (!acc[k]) acc[k] = [];
+    acc[k].push(item);
     return acc;
   }, {});
 }

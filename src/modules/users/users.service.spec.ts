@@ -304,6 +304,16 @@ describe('UsersService', () => {
         roleId: 'role-id',
       });
     });
+
+    it('uses a combined user and role condition', async () => {
+      const where = jest.fn();
+      mockDb.delete.mockImplementation(() => ({ where }));
+
+      await service.removeRole('user-id', 'role-id');
+
+      const condition = where.mock.calls[0]?.[0];
+      expect(condition.queryChunks[1].queryChunks[1].value).toEqual([' and ']);
+    });
   });
 
   describe('setRolePermissions', () => {

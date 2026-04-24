@@ -2,7 +2,6 @@ import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import type { Response } from 'express';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime class reference
 import { HealthService } from './health.service';
 
 interface ReadinessResult {

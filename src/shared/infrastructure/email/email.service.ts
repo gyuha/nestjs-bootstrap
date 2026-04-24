@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { EMAIL_PROVIDER } from './email.token';
 import type { IEmailProvider } from './providers/email-provider.interface';
 import { renderAccountDeactivation } from './templates/account-deactivation.email';

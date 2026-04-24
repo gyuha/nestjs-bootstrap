@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { Job } from 'bullmq';
 import type { EmailJobData } from '../queue/queue.interface';
-import type { EmailService } from './email.service';
+import { EmailService } from './email.service';
 
 /** BullMQ 이메일 작업을 처리하여 유형별 이메일 발송 메서드를 호출하는 프로세서 */
 @Injectable()
@@ -20,22 +20,39 @@ export class EmailProcessor {
 
     switch (type) {
       case 'signup-confirmation':
-        await this.emailService.sendSignupConfirmation(to, token!);
+        await this.emailService.sendSignupConfirmation(
+          to,
+          this.requireField(token, 'token'),
+        );
         break;
       case 'welcome':
         await this.emailService.sendWelcome(to);
         break;
       case 'login-alert':
-        await this.emailService.sendLoginAlert(to, ip!, userAgent!);
+        await this.emailService.sendLoginAlert(
+          to,
+          this.requireField(ip, 'ip'),
+          this.requireField(userAgent, 'userAgent'),
+        );
         break;
       case 'password-reset':
-        await this.emailService.sendPasswordReset(to, token!);
+        await this.emailService.sendPasswordReset(
+          to,
+          this.requireField(token, 'token'),
+        );
         break;
       case 'email-change':
-        await this.emailService.sendEmailChange(to, token!, '');
+        await this.emailService.sendEmailChange(
+          to,
+          this.requireField(token, 'token'),
+          '',
+        );
         break;
       case 'subscription-confirm':
-        await this.emailService.sendSubscriptionConfirmation(to, token!);
+        await this.emailService.sendSubscriptionConfirmation(
+          to,
+          this.requireField(token, 'token'),
+        );
         break;
       case 'account-deactivation':
         await this.emailService.sendAccountDeactivationWarning(to);
@@ -43,5 +60,10 @@ export class EmailProcessor {
       default:
         throw new Error(`Unknown email job type: ${type}`);
     }
+  }
+
+  private requireField(value: string | undefined, name: string): string {
+    if (!value) throw new Error(`Email job is missing required field: ${name}`);
+    return value;
   }
 }

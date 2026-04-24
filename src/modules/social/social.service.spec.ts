@@ -4,7 +4,6 @@ import { UsersService } from '../users/users.service';
 import { SocialService } from './social.service';
 
 // Factory function to create fresh mock for each test
-// biome-ignore lint/suspicious/noExplicitAny: drizzle client mock
 function createMockDb() {
   return {
     select: jest.fn(),

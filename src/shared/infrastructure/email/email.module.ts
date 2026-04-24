@@ -30,7 +30,8 @@ import { SmtpProvider } from './providers/smtp.provider';
       provide: 'EMAIL_WORKER',
       useFactory: (config: ConfigService, processor: EmailProcessor) => {
         const url = config.get<string>('REDIS_URL');
-        const connection = url ? new Redis(url) : new Redis();
+        if (!url) return null;
+        const connection = new Redis(url);
         const logger = new Logger('EmailWorker');
 
         const worker = new Worker(

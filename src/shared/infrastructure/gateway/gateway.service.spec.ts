@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import type { Server } from 'socket.io';
 import { GatewayService } from './gateway.service';
 
 /** GatewayService의 단위 테스트 스위트 */
@@ -21,7 +22,7 @@ describe('GatewayService', () => {
 
   it('registers socket and sends message to user', () => {
     const { server, toFn, emitFn } = makeServer();
-    service.setServer(server as any);
+    service.setServer(server as unknown as Server);
     service.registerSocket('user-1', 'socket-a');
 
     service.sendToUser('user-1', 'test-event', { hello: 'world' });
@@ -32,7 +33,7 @@ describe('GatewayService', () => {
 
   it('sends to all sockets for a user with multiple connections', () => {
     const { server, toFn } = makeServer();
-    service.setServer(server as any);
+    service.setServer(server as unknown as Server);
     service.registerSocket('user-1', 'socket-a');
     service.registerSocket('user-1', 'socket-b');
 
@@ -47,7 +48,7 @@ describe('GatewayService', () => {
 
   it('does nothing for unknown user', () => {
     const { server, toFn } = makeServer();
-    service.setServer(server as any);
+    service.setServer(server as unknown as Server);
 
     service.sendToUser('unknown-user', 'event', {});
 
@@ -56,7 +57,7 @@ describe('GatewayService', () => {
 
   it('unregisters a socket and stops sending to it', () => {
     const { server, toFn } = makeServer();
-    service.setServer(server as any);
+    service.setServer(server as unknown as Server);
     service.registerSocket('user-1', 'socket-a');
     service.unregisterSocket('user-1', 'socket-a');
 
@@ -67,7 +68,7 @@ describe('GatewayService', () => {
 
   it('sends to room', () => {
     const { server, toFn, emitFn } = makeServer();
-    service.setServer(server as any);
+    service.setServer(server as unknown as Server);
 
     service.sendToRoom('room-1', 'room-event', { data: 1 });
 

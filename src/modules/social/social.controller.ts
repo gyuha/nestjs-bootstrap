@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
-import type { AuthService } from '../auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 
 @Controller('auth')
 export class SocialController {
@@ -13,17 +13,17 @@ export class SocialController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthCallback(
+  async googleAuthCallback(
     @Req() req: Request & { user: { id: string; email: string } },
     @Res() res: Response,
   ) {
-    const tokens = this.authService.generateTokensForUser(
+    const tokens = await this.authService.generateTokensForUser(
       req.user.id,
       req.user.email,
     );
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -36,17 +36,17 @@ export class SocialController {
 
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  githubAuthCallback(
+  async githubAuthCallback(
     @Req() req: Request & { user: { id: string; email: string } },
     @Res() res: Response,
   ) {
-    const tokens = this.authService.generateTokensForUser(
+    const tokens = await this.authService.generateTokensForUser(
       req.user.id,
       req.user.email,
     );
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env['NODE_ENV'] === 'production',
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });

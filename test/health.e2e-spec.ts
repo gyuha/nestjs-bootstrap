@@ -3,6 +3,7 @@ import { INestApplication, VersioningType } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
+import { ErrorTrackingService } from '../src/shared/infrastructure/monitoring/error-tracking.service';
 import { HttpExceptionFilter } from '../src/shared/presentation/filters/http-exception.filter';
 import { TransformInterceptor } from '../src/shared/presentation/interceptors/transform.interceptor';
 
@@ -20,7 +21,9 @@ describe('HealthController (e2e)', () => {
       header: 'X-API-Version',
       defaultVersion: '1',
     });
-    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalFilters(
+      new HttpExceptionFilter(app.get(ErrorTrackingService)),
+    );
     app.useGlobalInterceptors(new TransformInterceptor());
     await app.init();
   });

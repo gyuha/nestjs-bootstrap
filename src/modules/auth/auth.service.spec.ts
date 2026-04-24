@@ -14,6 +14,7 @@ describe('AuthService', () => {
     create: jest.Mock;
     setEmailVerified: jest.Mock;
     updatePassword: jest.Mock;
+    setMarketingSubscribed: jest.Mock;
   };
   let mockJwtService: { sign: jest.Mock; verify: jest.Mock };
   let mockRedis: {
@@ -31,6 +32,7 @@ describe('AuthService', () => {
       create: jest.fn(),
       setEmailVerified: jest.fn().mockResolvedValue(undefined),
       updatePassword: jest.fn().mockResolvedValue(undefined),
+      setMarketingSubscribed: jest.fn().mockResolvedValue(undefined),
     };
     mockJwtService = {
       sign: jest.fn().mockReturnValue('mock-token'),
@@ -57,7 +59,11 @@ describe('AuthService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn().mockReturnValue('1800'),
+            get: jest.fn().mockImplementation((key: string) => {
+              if (key === 'JWT_ACCESS_TTL') return 1800;
+              if (key === 'JWT_REFRESH_TTL') return 604800;
+              return undefined;
+            }),
             getOrThrow: jest.fn().mockImplementation((key: string) => {
               if (key === 'JWT_SECRET') return 'test-secret';
               if (key === 'API_BASE_URL') return 'http://localhost:3000';
@@ -92,6 +98,28 @@ describe('AuthService', () => {
       expect(mockUsersService.create).toHaveBeenCalled();
     });
 
+    it('stores the issued refresh token', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(null);
+      mockUsersService.create.mockResolvedValue({
+        id: 'uuid',
+        email: 'test@example.com',
+      });
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
+
+      await service.register({
+        email: 'test@example.com',
+        password: 'password123',
+      });
+
+      expect(mockRedis.setex).toHaveBeenCalledWith(
+        'refresh:uuid:token',
+        604800,
+        'refresh-token',
+      );
+    });
+
     it('throws ConflictException when email exists', async () => {
       mockUsersService.findByEmail.mockResolvedValue({ id: 'existing' });
 
@@ -114,6 +142,25 @@ describe('AuthService', () => {
       );
 
       expect(result.accessToken).toBe('mock-token');
+    });
+
+    it('stores the issued refresh token', async () => {
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
+
+      await service.login(
+        { email: 'test@example.com', password: 'password123' },
+        { userId: 'uuid', email: 'test@example.com' },
+        '127.0.0.1',
+        'Mozilla/5.0',
+      );
+
+      expect(mockRedis.setex).toHaveBeenCalledWith(
+        'refresh:uuid:token',
+        604800,
+        'refresh-token',
+      );
     });
 
     it('emits auth.login event', async () => {
@@ -234,6 +281,26 @@ describe('AuthService', () => {
 
       expect(result.accessToken).toBe('mock-token');
       expect(result.refreshToken).toBe('mock-token');
+    });
+  });
+
+  describe('generateTokensForUser()', () => {
+    it('stores the issued refresh token', async () => {
+      mockJwtService.sign
+        .mockReturnValueOnce('access-token')
+        .mockReturnValueOnce('refresh-token');
+
+      const result = await service.generateTokensForUser(
+        'uuid',
+        'test@example.com',
+      );
+
+      expect(result.refreshToken).toBe('refresh-token');
+      expect(mockRedis.setex).toHaveBeenCalledWith(
+        'refresh:uuid:token',
+        604800,
+        'refresh-token',
+      );
     });
   });
 });

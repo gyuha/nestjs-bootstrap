@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime value for @Inject decorator
 import { DRIZZLE_CLIENT } from '../database/database.token';
 import { auditLogs } from './schemas/audit-log.schema';
 

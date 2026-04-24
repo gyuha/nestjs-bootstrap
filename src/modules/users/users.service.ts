@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as argon2 from 'argon2';
-import { eq } from 'drizzle-orm';
-// biome-ignore lint/style/useImportType: NestJS DI requires runtime value for @Inject decorator
+import { and, eq } from 'drizzle-orm';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
 import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
@@ -91,8 +90,10 @@ export class UsersService {
     await this.db
       .delete(schema.userRoles)
       .where(
-        eq(schema.userRoles.userId, userId) &&
+        and(
+          eq(schema.userRoles.userId, userId),
           eq(schema.userRoles.roleId, roleId),
+        ),
       );
     this.eventEmitter.emit('user.role-removed', { userId, roleId });
   }

@@ -98,4 +98,37 @@ describe('FilesService', () => {
       ).rejects.toThrow('Gallery limit reached (max 10)');
     });
   });
+
+  describe('findByIdForUser()', () => {
+    it('returns the file when it belongs to the user', async () => {
+      const record = { id: 'file-id', userId: 'user-id' };
+      mockDb.select.mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest.fn().mockResolvedValue([record]),
+          }),
+        }),
+      });
+
+      await expect(service.findByIdForUser('file-id', 'user-id')).resolves.toBe(
+        record,
+      );
+    });
+
+    it('throws when the file belongs to another user', async () => {
+      mockDb.select.mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          where: jest.fn().mockReturnValue({
+            limit: jest
+              .fn()
+              .mockResolvedValue([{ id: 'file-id', userId: 'other-user-id' }]),
+          }),
+        }),
+      });
+
+      await expect(
+        service.findByIdForUser('file-id', 'user-id'),
+      ).rejects.toThrow('Not your file');
+    });
+  });
 });

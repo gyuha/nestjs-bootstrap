@@ -42,8 +42,8 @@ describe('array.util', () => {
         { type: 'a', val: 3 },
       ];
       const result = groupBy(items, 'type');
-      expect(result['a']).toHaveLength(2);
-      expect(result['b']).toHaveLength(1);
+      expect(result.a).toHaveLength(2);
+      expect(result.b).toHaveLength(1);
     });
   });
 

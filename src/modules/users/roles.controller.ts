@@ -14,7 +14,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Permissions } from './constants/permissions';
-import type { UsersService } from './users.service';
+import { UsersService } from './users.service';
 
 @ApiTags('roles')
 @ApiBearerAuth('access-token')

@@ -1,5 +1,5 @@
-import { randomUUID } from 'crypto';
-import * as path from 'path';
+import { randomUUID } from 'node:crypto';
+import * as path from 'node:path';
 import {
   ConflictException,
   ForbiddenException,
@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { DRIZZLE_CLIENT } from '../../shared/infrastructure/database/database.token';
-import type { ImageService } from '../../shared/infrastructure/image/image.service';
-import type { StorageService } from '../../shared/infrastructure/storage/storage.service';
+import { ImageService } from '../../shared/infrastructure/image/image.service';
+import { StorageService } from '../../shared/infrastructure/storage/storage.service';
 import { files } from './schemas/file.schema';
 
 @Injectable()
@@ -119,10 +119,15 @@ export class FilesService {
     return record ?? null;
   }
 
-  async deleteFile(id: string, userId: string): Promise<void> {
+  async findByIdForUser(id: string, userId: string) {
     const record = await this.findById(id);
     if (!record) throw new NotFoundException('File not found');
     if (record.userId !== userId) throw new ForbiddenException('Not your file');
+    return record;
+  }
+
+  async deleteFile(id: string, userId: string): Promise<void> {
+    const record = await this.findByIdForUser(id, userId);
 
     // Extract storage keys from URLs and delete
     const urls = [record.url, record.thumbnailUrl, record.mediumUrl].filter(
