@@ -1,7 +1,7 @@
-import { INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppConfig } from '../config/app-config';
+import type { AppConfig } from '../config/app-config';
 
 export function setupSwagger(app: INestApplication): void {
   const configService = app.get(ConfigService<AppConfig, true>);

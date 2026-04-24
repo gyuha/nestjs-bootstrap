@@ -2,7 +2,7 @@ import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AppConfig } from './bootstrap/config/app-config';
+import type { AppConfig } from './bootstrap/config/app-config';
 import { setupSwagger } from './bootstrap/swagger/setup-swagger';
 import { setupValidation } from './bootstrap/validation/setup-validation';
 
