@@ -43,6 +43,21 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   SWAGGER_PATH!: string;
+
+  @IsBoolean()
+  CORS_ENABLED!: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  CORS_ORIGIN!: string;
+
+  @IsInt()
+  @Min(1)
+  RATE_LIMIT_TTL_SECONDS!: number;
+
+  @IsInt()
+  @Min(1)
+  RATE_LIMIT_MAX!: number;
 }
 
 function parseBooleanEnvironmentValue(value: unknown): boolean | undefined {
@@ -71,7 +86,28 @@ export type AppConfig = {
     enabled: boolean;
     path: string;
   };
+  security: {
+    cors: {
+      enabled: boolean;
+      origin: string | string[];
+    };
+    rateLimit: {
+      ttlSeconds: number;
+      max: number;
+    };
+  };
 };
+
+function parseCorsOrigin(value: string | undefined): string | string[] {
+  if (!value || value === '*') {
+    return '*';
+  }
+
+  return value
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+}
 
 export function validateEnvironment(config: Record<string, unknown>): EnvironmentVariables {
   const validatedConfig = plainToInstance(
@@ -79,6 +115,7 @@ export function validateEnvironment(config: Record<string, unknown>): Environmen
     {
       ...config,
       SWAGGER_ENABLED: parseBooleanEnvironmentValue(config.SWAGGER_ENABLED),
+      CORS_ENABLED: parseBooleanEnvironmentValue(config.CORS_ENABLED),
     },
     {
       enableImplicitConversion: true,
@@ -105,5 +142,15 @@ export default (): AppConfig => ({
   swagger: {
     enabled: process.env.SWAGGER_ENABLED === 'true',
     path: process.env.SWAGGER_PATH ?? 'docs',
+  },
+  security: {
+    cors: {
+      enabled: process.env.CORS_ENABLED === 'true',
+      origin: parseCorsOrigin(process.env.CORS_ORIGIN),
+    },
+    rateLimit: {
+      ttlSeconds: Number(process.env.RATE_LIMIT_TTL_SECONDS ?? 60),
+      max: Number(process.env.RATE_LIMIT_MAX ?? 100),
+    },
   },
 });
