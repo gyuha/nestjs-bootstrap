@@ -1,6 +1,6 @@
 export type PaginationQuery = {
-  page?: number;
-  limit?: number;
+  page?: number | string;
+  limit?: number | string;
 };
 
 export type NormalizedPaginationQuery = {
@@ -26,12 +26,15 @@ const MIN_PAGE = 1;
 const MIN_LIMIT = 1;
 const MAX_LIMIT = 100;
 
-function normalizePositiveInteger(value: number | undefined, fallback: number): number {
-  if (typeof value !== 'number' || !Number.isInteger(value)) {
+function normalizePositiveInteger(value: number | string | undefined, fallback: number): number {
+  const normalizedValue =
+    typeof value === 'string' && /^-?\d+$/.test(value.trim()) ? Number(value) : value;
+
+  if (typeof normalizedValue !== 'number' || !Number.isInteger(normalizedValue)) {
     return fallback;
   }
 
-  return value;
+  return normalizedValue;
 }
 
 export function normalizePaginationQuery(query: PaginationQuery): NormalizedPaginationQuery {
@@ -78,5 +81,22 @@ export function isPaginatedResult<T>(value: unknown): value is PaginatedResult<T
     return false;
   }
 
-  return 'items' in value && 'pagination' in value;
+  if (!('items' in value) || !Array.isArray(value.items)) {
+    return false;
+  }
+
+  if (!('pagination' in value) || !value.pagination || typeof value.pagination !== 'object') {
+    return false;
+  }
+
+  return (
+    'page' in value.pagination &&
+    Number.isFinite(value.pagination.page) &&
+    'limit' in value.pagination &&
+    Number.isFinite(value.pagination.limit) &&
+    'total' in value.pagination &&
+    Number.isFinite(value.pagination.total) &&
+    'totalPages' in value.pagination &&
+    Number.isFinite(value.pagination.totalPages)
+  );
 }
