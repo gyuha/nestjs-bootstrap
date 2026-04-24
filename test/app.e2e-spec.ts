@@ -34,7 +34,29 @@ describe('App health endpoint (e2e)', () => {
     await app.close();
   });
 
-  it('returns application health without version prefix', async () => {
-    await request(app.getHttpServer()).get('/api/health').expect(200).expect({ status: 'ok' });
+  it('returns application health in the standard response envelope', async () => {
+    const response = await request(app.getHttpServer()).get('/api/health').expect(200);
+
+    expect(response.body).toEqual({
+      data: {
+        status: 'ok',
+      },
+      meta: {
+        traceId: expect.any(String),
+      },
+    });
+    expect(response.headers['x-trace-id']).toBe(response.body.meta.traceId);
+  });
+
+  it('reuses provided trace id in response header and body metadata', async () => {
+    const traceId = 'test-trace-id';
+
+    const response = await request(app.getHttpServer())
+      .get('/api/health')
+      .set('x-trace-id', traceId)
+      .expect(200);
+
+    expect(response.headers['x-trace-id']).toBe(traceId);
+    expect(response.body.meta.traceId).toBe(traceId);
   });
 });
