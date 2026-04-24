@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import {
   ApplicationError,
   ApplicationErrorCategory,
@@ -7,7 +12,6 @@ import { DomainError, DomainErrorCategory } from '../../domain/errors/domain-err
 import { HttpExceptionFilter } from './http-exception.filter';
 
 type MockResponse = {
-  statusCode?: number;
   body?: unknown;
   status: jest.Mock;
   json: jest.Mock;
@@ -116,6 +120,21 @@ describe('HttpExceptionFilter', () => {
     expect(response.body).toEqual({
       error: {
         code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
+      meta: {
+        traceId: 'trace-test-id',
+      },
+    });
+  });
+
+  it('preserves server http exception status while hiding details', () => {
+    const response = createHost(new ServiceUnavailableException('upstream secret'));
+
+    expect(response.status).toHaveBeenCalledWith(503);
+    expect(response.body).toEqual({
+      error: {
+        code: 'SERVICE_UNAVAILABLE',
         message: 'Internal server error',
       },
       meta: {

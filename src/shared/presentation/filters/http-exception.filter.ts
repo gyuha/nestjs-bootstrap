@@ -87,9 +87,9 @@ function mapHttpException(exception: HttpException): { status: number; error: Ap
 
   if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
     return {
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      status,
       error: {
-        code: 'INTERNAL_SERVER_ERROR',
+        code: toErrorCode(HttpStatus[status] ?? 'INTERNAL_SERVER_ERROR'),
         message: 'Internal server error',
       },
     };
