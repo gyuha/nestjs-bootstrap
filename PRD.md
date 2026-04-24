@@ -40,7 +40,6 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 - 인증 및 사용자 기능이 예제 수준이 아닌 실제 서비스 시작점으로 사용 가능해야 한다.
 - 로컬 개발 환경이 문서 기준으로 빠르게 부팅 가능해야 한다.
 - Swagger 문서와 테스트 유틸리티가 포함되어 API 개발 생산성을 높여야 한다.
-- Docker 기반으로 앱과 의존 서비스 실행 및 헬스체크가 가능해야 한다.
 
 ## 5. 비목표
 
@@ -77,26 +76,42 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 
 ### 8.1 포함 범위
 
-- NestJS latest, TypeScript latest, pnpm, Biome 기반 초기 프로젝트 구성
+- NestJS latest, TypeScript latest, Bun, Biome 기반 초기 프로젝트 구성
 - Swagger / OpenAPI 문서화
 - Config validation 및 환경 분리
 - API versioning
-- Drizzle ORM 기반 데이터 접근 계층
-- PostgreSQL, SQLite, Redis 연동 전략
-- Repository abstraction
-- Factories / Seeders / Migrations 체계
-- OAuth authentication
-- JWT access token 및 Refresh token
-- RBAC authorization
+- 개발환경
+  - SQLite
+  - in-memory cache
+  - 설정
+    - .env.development
+    - .env.development.local
+- 운영환경
+  - PostgreSQL
+  - Redis
+  - 설정
+    - .env.test
+    - .env.production
+    - .env.production.local
+- ORM
+  - Drizzle ORM 기반 데이터 접근 계층
+  - Repository abstraction
+  - Factories / Seeders / Migrations 체계
+- Authentication
+  - OAuth authentication
+  - JWT access token 및 Refresh token
+  - RBAC authorization
 - Users CRUD
-- 사용자 프로필 / 상태 / 권한 관리
-- 공통 응답 포맷 및 표준 에러 처리
-- pagination helper, 날짜/암호화/환경설정 유틸
-- CORS, Helmet, Rate limiting
-- Request logging / trace id
-- 테스트용 DB bootstrap 및 mock factory / fixture helpers
-- Husky, Commitlint, Conventional Commits
-- Dockerfile, docker-compose, multi-stage build, healthcheck, startup migration support
+  - 사용자 프로필 / 상태 / 권한 관리
+- 공통
+  - 응답 포맷 및 표준 에러 처리
+  - pagination helper, 날짜/암호화/환경설정 유틸
+  - CORS, Helmet, Rate limiting
+  - Request logging / trace id
+  - 테스트용 DB bootstrap 및 mock factory / fixture helpers
+- Git hooks (Husky, Commitlint, Conventional Commits)
+- Healthcheck & startup migration support
+- multi-stage build
 
 ### 8.2 제외 범위
 
@@ -109,7 +124,7 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 ### 9.1 프로젝트 부트스트랩
 
 - 프로젝트는 최신 NestJS와 TypeScript 기반으로 구성되어야 한다.
-- 패키지 매니저는 pnpm을 기준으로 해야 하며, 실행 환경은 Node.js를 기준으로 해야 한다.
+- 패키지 매니저 및 실행 환경은 Bun을 기준으로 해야 한다.
 - 코드 포맷팅과 린팅은 Biome으로 통합해야 한다.
 - API 버저닝이 기본 활성화되어야 한다.
 - Swagger 문서가 개발 환경에서 접근 가능해야 한다.
@@ -208,9 +223,9 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 - 언어는 TypeScript를 사용해야 한다.
 - ORM은 Drizzle ORM을 사용해야 한다.
 - 운영 DB는 PostgreSQL을 사용해야 한다.
-- 로컬 개발/경량 테스트 DB는 SQLite를 사용해야 한다.
-- 캐시 및 인증 임시 데이터 저장소는 Redis를 사용해야 한다.
-- 런타임은 Node.js를, 패키지 매니저는 pnpm을 기준으로 해야 한다.
+- 로컬 개발/테스트 DB는 SQLite를 사용해야 한다.
+- 캐시 및 인증/인가 임시 데이터 저장소는 Redis를 사용해야 한다.
+- 패키지 매니저는 Bun을 사용해야 한다.
 - 코드 품질 도구는 Biome, Husky, Commitlint를 사용해야 한다.
 
 ## 12. 권장 폴더 구조
@@ -248,98 +263,10 @@ src/
       users.module.ts
 ```
 
-## 13. 구현 단계
 
-### Phase 1. Foundation
+## 13. 향후 확장 방향
 
-- NestJS, pnpm, TypeScript, Biome 기반 초기 환경 구성
-- Config validation, API versioning, Swagger, 공통 bootstrap 구성
-- 공통 응답/에러/로깅/trace id 기반 마련
-- PostgreSQL, SQLite, Redis 연결 전략 수립
-
-### Phase 2. Data and Infrastructure
-
-- Drizzle ORM 설정
-- 마이그레이션, 시더, 팩토리 기본 체계 구성
-- Repository abstraction 및 공통 DB 모듈 설계
-- healthcheck 및 docker-compose 기반 의존 서비스 구성
-
-### Phase 3. Auth Module
-
-- OAuth 로그인 흐름 구성
-- JWT access token 및 Refresh token 흐름 구현
-- RBAC authorization 기본 구성
-- 인증 관련 DTO, Swagger 문서, 테스트 추가
-
-### Phase 4. Users Module
-
-- Users CRUD 구현
-- 프로필 / 상태 / 권한 관리 구현
-- 도메인 규칙, 유스케이스, 리포지토리 구현 분리
-- 사용자 관련 테스트 및 문서 추가
-
-### Phase 5. Quality and Delivery
-
-- unit/e2e 테스트 유틸 정리
-- Husky, Commitlint, pre-push 검증 파이프라인 설정
-- Dockerfile multi-stage build 정리
-- startup migration support 및 운영 문서 보강
-
-## 14. 수용 기준
-
-### 14.1 프로젝트 구조
-
-- `auth`, `users` 모듈이 DDD 4계층 구조를 따른다.
-- `shared` 영역이 공통 관심사를 분리한다.
-
-### 14.2 데이터 저장소
-
-- PostgreSQL을 운영 DB로 사용 가능한 설정이 존재한다.
-- SQLite를 로컬 개발 또는 테스트용으로 사용할 수 있다.
-- Redis 연결 및 사용 예제가 포함된다.
-
-### 14.3 인증/인가
-
-- OAuth 인증 진입점이 존재한다.
-- JWT access token 발급 및 검증이 동작한다.
-- Refresh token 재발급 흐름이 존재한다.
-- RBAC 기반 권한 검사 예제가 동작한다.
-
-### 14.4 사용자 기능
-
-- 사용자 생성, 조회, 수정, 삭제 API가 존재한다.
-- 사용자 프로필, 상태, 권한 관리 기능이 문서화되어 있다.
-
-### 14.5 운영/품질
-
-- Swagger 문서가 노출된다.
-- Config validation이 잘못된 환경 변수에서 실패한다.
-- 표준 에러 처리와 공통 응답 포맷이 적용된다.
-- 요청 로그와 trace id를 확인할 수 있다.
-- lint, format, test가 pre-push에서 실행된다.
-- Docker 기반 기동과 healthcheck가 가능하다.
-
-### 14.6 테스트
-
-- unit/e2e 테스트를 위한 기본 실행 구조가 존재한다.
-- 테스트용 DB bootstrap과 fixture/factory helper가 존재한다.
-- 핵심 인증 및 사용자 흐름에 대한 예제 테스트가 포함된다.
-
-## 15. 리스크 및 오픈 이슈
-
-- OAuth 공급자 범위가 확정되지 않았다.
-- Refresh token 저장 전략(DB, Redis, 혼합 방식)에 대한 상세 정책이 필요하다.
-- RBAC 역할 체계의 기본값(USER, ADMIN 등) 정의가 필요하다.
-- SQLite와 PostgreSQL 간 테스트/운영 스키마 차이를 최소화하는 전략이 필요하다.
-- startup migration을 어떤 환경에서 자동 수행할지 정책 정의가 필요하다.
-
-## 16. 향후 확장 방향
-
-- 추가 도메인 모듈(product, billing, notification 등) 확장
+- 추가 도메인 모듈 확장
 - 감사 로그 및 운영 관측성 강화
-- 권한 정책 세분화 및 정책 기반 인가(PBAC/ABAC) 확장
+- 권한 정책 세분화
 - 비동기 이벤트 처리 및 메시징 확장
-
-## 17. 최종 요약
-
-NestJS DDD Bootstrap Project는 단순한 샘플이 아니라, 실제 서비스 출발점으로 사용할 수 있는 백엔드 템플릿을 목표로 한다. 이 프로젝트는 인증, 사용자 관리, 문서화, 테스트, 배포, 운영 기본 설정을 포함하고, PostgreSQL + Redis 중심의 운영 구조와 SQLite 기반의 가벼운 개발/테스트 환경을 함께 제공한다. 또한 DDD 기반 계층 분리와 모듈러 모놀리식 아키텍처를 통해 기능 확장성과 유지보수성을 확보한다.
