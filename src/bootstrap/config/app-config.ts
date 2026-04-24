@@ -45,6 +45,22 @@ class EnvironmentVariables {
   SWAGGER_PATH!: string;
 }
 
+function parseBooleanEnvironmentValue(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (value === 'true') {
+    return true;
+  }
+
+  if (value === 'false') {
+    return false;
+  }
+
+  return undefined;
+}
+
 export type AppConfig = {
   nodeEnv: NodeEnvironment;
   appName: string;
@@ -58,9 +74,16 @@ export type AppConfig = {
 };
 
 export function validateEnvironment(config: Record<string, unknown>): EnvironmentVariables {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
+  const validatedConfig = plainToInstance(
+    EnvironmentVariables,
+    {
+      ...config,
+      SWAGGER_ENABLED: parseBooleanEnvironmentValue(config.SWAGGER_ENABLED),
+    },
+    {
+      enableImplicitConversion: true,
+    },
+  );
 
   const errors = validateSync(validatedConfig, {
     skipMissingProperties: false,
