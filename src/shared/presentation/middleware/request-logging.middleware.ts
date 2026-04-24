@@ -11,7 +11,7 @@ export function createRequestLoggingMiddleware(appLogger: AppLogger) {
 
       appLogger.logRequest({
         method: request.method,
-        path: request.originalUrl,
+        path: request.path,
         statusCode: response.statusCode,
         durationMs: Math.round(durationMs),
         traceId: request.traceId ?? 'unknown',
