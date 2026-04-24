@@ -4,7 +4,7 @@ NestJS DDD bootstrap project for building modular monolith backends with Bun.
 
 ## Current Milestone
 
-M0 foundation is implemented:
+M0 foundation and M1 common layer are implemented:
 
 - NestJS application shell
 - Bun package scripts
@@ -13,8 +13,13 @@ M0 foundation is implemented:
 - typed environment validation
 - URI API versioning
 - Swagger setup for development
-- neutral `/api/health` endpoint
-- first e2e test
+- standard `{ data, meta }` success response envelope
+- standard `{ error, meta }` error response envelope
+- trace id propagation with `x-trace-id`
+- request logging with method, path, status, duration, and trace id
+- basic Helmet, CORS, and rate limiting setup
+- neutral `/api/health` endpoint through an application use case
+- unit and e2e tests for the common pipeline
 
 ## Requirements
 
@@ -45,6 +50,10 @@ Default development values are already provided in `.env.development`.
 | `API_VERSION` | `1` | Default URI API version |
 | `SWAGGER_ENABLED` | `true` | Enables Swagger UI |
 | `SWAGGER_PATH` | `docs` | Swagger UI path |
+| `CORS_ENABLED` | `true` | Enables CORS |
+| `CORS_ORIGIN` | `*` | Comma-separated allowed origins or `*` |
+| `RATE_LIMIT_TTL_SECONDS` | `60` | Rate limit window in seconds |
+| `RATE_LIMIT_MAX` | `100` | Maximum requests per rate limit window |
 
 ## Run
 
@@ -55,7 +64,20 @@ bun run start:dev
 Health endpoint:
 
 ```bash
-curl http://localhost:3000/api/health
+curl -H 'x-trace-id: local-test' http://localhost:3000/api/health
+```
+
+Expected response shape:
+
+```json
+{
+  "data": {
+    "status": "ok"
+  },
+  "meta": {
+    "traceId": "local-test"
+  }
+}
 ```
 
 Swagger UI:
@@ -69,6 +91,7 @@ http://localhost:3000/docs
 ```bash
 bun run check
 bun run build
+bun run test
 bun run test:e2e
 ```
 
