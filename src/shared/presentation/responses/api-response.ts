@@ -1,4 +1,4 @@
-import type { PaginationMeta } from '../../../application/pagination/pagination';
+import type { PaginationMeta } from '../../application/pagination/pagination';
 
 export type ApiResponseMeta = {
   traceId: string;
