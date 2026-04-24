@@ -4,6 +4,8 @@ import { Test } from '@nestjs/testing';
 import request = require('supertest');
 
 import { AppModule } from '../src/app.module';
+import { setupHttpPipeline } from '../src/bootstrap/http/setup-http-pipeline';
+import { setupSecurity } from '../src/bootstrap/security/setup-security';
 import { setupValidation } from '../src/bootstrap/validation/setup-validation';
 
 describe('App health endpoint (e2e)', () => {
@@ -17,12 +19,14 @@ describe('App health endpoint (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    setupSecurity(app);
     app.setGlobalPrefix('api');
     app.enableVersioning({
       type: VersioningType.URI,
       defaultVersion: '1',
     });
     setupValidation(app);
+    setupHttpPipeline(app);
     await app.init();
   });
 

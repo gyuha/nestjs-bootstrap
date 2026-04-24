@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import type { AppConfig } from './bootstrap/config/app-config';
+import { setupHttpPipeline } from './bootstrap/http/setup-http-pipeline';
+import { setupSecurity } from './bootstrap/security/setup-security';
 import { setupSwagger } from './bootstrap/swagger/setup-swagger';
 import { setupValidation } from './bootstrap/validation/setup-validation';
 
@@ -14,6 +16,8 @@ async function bootstrap(): Promise<void> {
   const apiVersion = configService.get('apiVersion', { infer: true });
   const port = configService.get('port', { infer: true });
 
+  setupSecurity(app);
+
   app.setGlobalPrefix(apiPrefix);
   app.enableVersioning({
     type: VersioningType.URI,
@@ -21,6 +25,7 @@ async function bootstrap(): Promise<void> {
   });
 
   setupValidation(app);
+  setupHttpPipeline(app);
   setupSwagger(app);
 
   await app.listen(port);
