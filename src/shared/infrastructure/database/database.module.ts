@@ -1,6 +1,7 @@
 import { Inject, Logger, Module, type OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseProvider } from './database.provider';
+import { isBunRuntime } from './database.runtime';
 import { DRIZZLE_CLIENT } from './database.token';
 
 /** Drizzle ORM 클라이언트를 제공하고 마이그레이션을 수행하는 데이터베이스 모듈 */
@@ -22,7 +23,9 @@ export class DatabaseModule implements OnModuleInit {
     const env = this.config.get<string>('NODE_ENV');
     if (env !== 'production') {
       try {
-        const { migrate } = await import('drizzle-orm/better-sqlite3/migrator');
+        const { migrate } = isBunRuntime()
+          ? await import('drizzle-orm/bun-sqlite/migrator')
+          : await import('drizzle-orm/better-sqlite3/migrator');
         migrate(this.db, {
           migrationsFolder: './src/shared/infrastructure/database/migrations',
         });
