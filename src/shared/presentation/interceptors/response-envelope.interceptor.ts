@@ -29,7 +29,7 @@ export class ResponseEnvelopeInterceptor implements NestInterceptor {
         }
 
         return {
-          data: value,
+          data: value ?? null,
           meta: {
             traceId,
           },
