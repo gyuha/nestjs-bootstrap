@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
+/** 감사 로그 테이블 스키마 */
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id'),

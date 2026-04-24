@@ -1,6 +1,7 @@
 import { EmailProcessor } from './email.processor';
 import { EmailService } from './email.service';
 
+/** EmailProcessor의 단위 테스트 스위트 */
 describe('EmailProcessor', () => {
   let processor: EmailProcessor;
   let mockEmailService: {

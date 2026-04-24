@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { GatewayService } from './gateway.service';
 
+/** GatewayService의 단위 테스트 스위트 */
 describe('GatewayService', () => {
   let service: GatewayService;
 

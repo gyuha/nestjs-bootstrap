@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AuditListener } from './audit.listener';
 import { AuditService } from './audit.service';
 
+/** AuditListener의 단위 테스트 스위트 */
 describe('AuditListener', () => {
   let listener: AuditListener;
   let mockAuditService: { log: jest.Mock };

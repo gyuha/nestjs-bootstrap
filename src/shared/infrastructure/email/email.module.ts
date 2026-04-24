@@ -10,6 +10,7 @@ import { LogProvider } from './providers/log.provider';
 import { ResendProvider } from './providers/resend.provider';
 import { SmtpProvider } from './providers/smtp.provider';
 
+/** 이메일 발송 인프라를 구성하고 BullMQ 워커를 등록하는 전역 이메일 모듈 */
 @Global()
 @Module({
   providers: [

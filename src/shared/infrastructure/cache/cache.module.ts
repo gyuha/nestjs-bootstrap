@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from './cache.service';
 
+/** Redis 또는 인메모리 캐시를 환경에 따라 구성하는 캐시 모듈 */
 @Module({
   imports: [
     NestCacheModule.registerAsync({

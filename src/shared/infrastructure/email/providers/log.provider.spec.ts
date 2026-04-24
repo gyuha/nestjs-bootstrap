@@ -1,5 +1,6 @@
 import { LogProvider } from './log.provider';
 
+/** LogProvider의 단위 테스트 스위트 */
 describe('LogProvider', () => {
   let provider: LogProvider;
 

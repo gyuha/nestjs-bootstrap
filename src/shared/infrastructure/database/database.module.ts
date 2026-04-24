@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { DatabaseProvider } from './database.provider';
 import { DRIZZLE_CLIENT } from './database.token';
 
+/** Drizzle ORM 클라이언트를 제공하고 마이그레이션을 수행하는 데이터베이스 모듈 */
 @Module({
   providers: [DatabaseProvider],
   exports: [DatabaseProvider],
@@ -17,6 +18,7 @@ export class DatabaseModule implements OnModuleInit {
     @Inject(DRIZZLE_CLIENT) private readonly db: any,
   ) {}
 
+  /** 모듈 초기화 시 비운영 환경에서 SQLite 마이그레이션을 자동 적용한다. */
   async onModuleInit(): Promise<void> {
     const env = this.config.get<string>('NODE_ENV');
     if (env !== 'production') {

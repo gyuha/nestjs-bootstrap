@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import type { Cache } from 'cache-manager';
 import { CacheService } from './cache.service';
 
+/** CacheService의 단위 테스트 스위트 */
 describe('CacheService', () => {
   let service: CacheService;
   let mockCache: jest.Mocked<Pick<Cache, 'get' | 'set' | 'del'>>;

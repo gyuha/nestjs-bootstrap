@@ -26,6 +26,7 @@ jest.mock('./templates/account-deactivation.email', () => ({
   renderAccountDeactivation: jest.fn().mockResolvedValue('<html>deact</html>'),
 }));
 
+/** EmailService의 단위 테스트 스위트 */
 describe('EmailService', () => {
   let service: EmailService;
   let mockProvider: jest.Mocked<IEmailProvider>;

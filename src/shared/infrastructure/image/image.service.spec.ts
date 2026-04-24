@@ -15,6 +15,7 @@ jest.mock('sharp', () => {
   return jest.fn().mockReturnValue({ resize: mockResize });
 });
 
+/** ImageService의 단위 테스트 스위트 */
 describe('ImageService', () => {
   let service: ImageService;
 

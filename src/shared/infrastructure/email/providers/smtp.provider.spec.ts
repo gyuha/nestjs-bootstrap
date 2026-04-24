@@ -9,6 +9,7 @@ jest.mock('nodemailer', () => ({
   }),
 }));
 
+/** SmtpProvider의 단위 테스트 스위트 */
 describe('SmtpProvider', () => {
   let SmtpProvider: typeof import('./smtp.provider').SmtpProvider;
   let provider: InstanceType<typeof SmtpProvider>;

@@ -1,5 +1,6 @@
 import { ErrorTrackingService } from './error-tracking.service';
 
+/** ErrorTrackingService의 단위 테스트 스위트 */
 describe('ErrorTrackingService', () => {
   let service: ErrorTrackingService;
 

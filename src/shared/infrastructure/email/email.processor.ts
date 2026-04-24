@@ -3,12 +3,16 @@ import type { Job } from 'bullmq';
 import type { EmailJobData } from '../queue/queue.interface';
 import type { EmailService } from './email.service';
 
+/** BullMQ 이메일 작업을 처리하여 유형별 이메일 발송 메서드를 호출하는 프로세서 */
 @Injectable()
 export class EmailProcessor {
   private readonly logger = new Logger(EmailProcessor.name);
 
   constructor(private readonly emailService: EmailService) {}
 
+  /** 이메일 작업 유형에 따라 적절한 이메일 발송 메서드를 호출한다.
+   * @param job 처리할 BullMQ 이메일 작업
+   */
   async process(job: Job<EmailJobData>): Promise<void> {
     const { type, to, token, ip, userAgent } = job.data;
 

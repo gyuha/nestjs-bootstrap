@@ -6,6 +6,7 @@ import type {
   SendEmailOptions,
 } from './email-provider.interface';
 
+/** nodemailer를 사용하여 SMTP 프로토콜로 이메일을 발송하는 프로바이더 */
 @Injectable()
 export class SmtpProvider implements IEmailProvider {
   private readonly transporter: nodemailer.Transporter;
@@ -24,6 +25,9 @@ export class SmtpProvider implements IEmailProvider {
     });
   }
 
+  /** SMTP를 통해 이메일을 발송한다.
+   * @param options 이메일 옵션 (수신자, 제목, 본문 등)
+   */
   async send(options: SendEmailOptions): Promise<void> {
     await this.transporter.sendMail({
       from: this.from,

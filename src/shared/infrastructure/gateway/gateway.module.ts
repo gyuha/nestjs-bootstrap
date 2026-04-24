@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AppGateway } from './app.gateway';
 import { GatewayService } from './gateway.service';
 
+/** WebSocket 게이트웨이와 GatewayService를 구성하는 모듈 */
 @Module({
   imports: [
     JwtModule.registerAsync({

@@ -2,6 +2,7 @@ import type { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DRIZZLE_CLIENT } from './database.token';
 
+/** 환경에 따라 PostgreSQL 또는 SQLite Drizzle 클라이언트를 생성하는 프로바이더 */
 export const DatabaseProvider: Provider = {
   provide: DRIZZLE_CLIENT,
   useFactory: async (config: ConfigService) => {

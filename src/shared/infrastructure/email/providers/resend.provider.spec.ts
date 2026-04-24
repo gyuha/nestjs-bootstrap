@@ -12,6 +12,7 @@ jest.mock('resend', () => ({
   Resend: jest.fn().mockImplementation(() => mockResendClient),
 }));
 
+/** ResendProvider의 단위 테스트 스위트 */
 describe('ResendProvider', () => {
   let provider: ResendProvider;
 

@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { DRIZZLE_CLIENT } from '../database/database.token';
 import { AuditService } from './audit.service';
 
+/** AuditService의 단위 테스트 스위트 */
 describe('AuditService', () => {
   let service: AuditService;
   // biome-ignore lint/suspicious/noExplicitAny: mock db

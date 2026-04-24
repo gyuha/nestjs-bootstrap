@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { AppGateway } from './app.gateway';
 import { GatewayService } from './gateway.service';
 
+/** AppGateway의 단위 테스트 스위트 */
 describe('AppGateway', () => {
   let gateway: AppGateway;
   let mockGatewayService: {

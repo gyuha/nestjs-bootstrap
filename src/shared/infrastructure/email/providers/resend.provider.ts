@@ -6,6 +6,7 @@ import type {
   SendEmailOptions,
 } from './email-provider.interface';
 
+/** Resend API를 사용하여 이메일을 발송하는 프로덕션용 이메일 프로바이더 */
 @Injectable()
 export class ResendProvider implements IEmailProvider {
   private readonly client: Resend;
@@ -16,6 +17,9 @@ export class ResendProvider implements IEmailProvider {
     this.from = config.getOrThrow<string>('EMAIL_FROM');
   }
 
+  /** Resend API를 통해 이메일을 발송한다.
+   * @param options 이메일 옵션 (수신자, 제목, 본문 등)
+   */
   async send(options: SendEmailOptions): Promise<void> {
     const { error } = await this.client.emails.send({
       from: this.from,
