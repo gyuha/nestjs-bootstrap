@@ -1,5 +1,6 @@
-import { Controller, Dependencies, Get, VERSION_NEUTRAL } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
+import { ApiHeader, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+// biome-ignore lint/style/useImportType: Nest constructor injection relies on emitted decorator metadata for this class token.
 import {
   GetHealthStatusUseCase,
   type HealthStatus,
@@ -10,19 +11,31 @@ import {
   path: 'health',
   version: VERSION_NEUTRAL,
 })
-@Dependencies(GetHealthStatusUseCase)
 export class HealthController {
   constructor(private readonly getHealthStatus: GetHealthStatusUseCase) {}
 
   @Get()
+  @ApiHeader({
+    name: 'x-trace-id',
+    required: false,
+    description: 'Optional trace id to reuse in response headers and metadata.',
+  })
   @ApiOkResponse({
+    headers: {
+      'x-trace-id': {
+        description: 'Trace id associated with the request.',
+        schema: {
+          type: 'string',
+        },
+      },
+    },
     schema: {
       type: 'object',
       properties: {
         data: {
           type: 'object',
           properties: {
-            status: { type: 'string', example: 'ok' },
+            status: { type: 'string', enum: ['ok'] },
           },
           required: ['status'],
         },
