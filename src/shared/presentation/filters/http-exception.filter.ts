@@ -85,6 +85,16 @@ function mapHttpException(exception: HttpException): { status: number; error: Ap
   const status = exception.getStatus();
   const response = exception.getResponse();
 
+  if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    return {
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
+    };
+  }
+
   if (Array.isArray(response) && status === HttpStatus.BAD_REQUEST) {
     return {
       status,
@@ -98,7 +108,7 @@ function mapHttpException(exception: HttpException): { status: number; error: Ap
 
   if (typeof response === 'object' && response !== null) {
     const body = response as { error?: string; message?: string | string[] };
-    const message = Array.isArray(body.message) ? body.message.join(', ') : body.message;
+    const message = normalizeHttpExceptionMessage(body.message);
 
     if (Array.isArray(body.message) && status === HttpStatus.BAD_REQUEST) {
       return {
@@ -135,6 +145,18 @@ function buildErrorBody(error: { code: string; message: string; details?: unknow
     message: error.message,
     ...(error.details === undefined ? {} : { details: error.details }),
   };
+}
+
+function normalizeHttpExceptionMessage(message: unknown): string | undefined {
+  if (Array.isArray(message)) {
+    return message.join(', ');
+  }
+
+  if (typeof message === 'string') {
+    return message;
+  }
+
+  return undefined;
 }
 
 function toErrorCode(value: string): string {

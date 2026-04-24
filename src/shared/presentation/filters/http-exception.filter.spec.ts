@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException } from '@nestjs/common';
+import { BadRequestException, HttpException, InternalServerErrorException } from '@nestjs/common';
 import {
   ApplicationError,
   ApplicationErrorCategory,
@@ -109,6 +109,21 @@ describe('HttpExceptionFilter', () => {
     });
   });
 
+  it('hides server http exception details', () => {
+    const response = createHost(new InternalServerErrorException('database password leaked'));
+
+    expect(response.status).toHaveBeenCalledWith(500);
+    expect(response.body).toEqual({
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
+      meta: {
+        traceId: 'trace-test-id',
+      },
+    });
+  });
+
   it('uses validation code for class-validator bad request arrays', () => {
     const response = createHost(new HttpException(['name must be a string'], 400));
 
@@ -118,6 +133,23 @@ describe('HttpExceptionFilter', () => {
         code: 'VALIDATION_ERROR',
         message: 'Request validation failed',
         details: ['name must be a string'],
+      },
+      meta: {
+        traceId: 'trace-test-id',
+      },
+    });
+  });
+
+  it('falls back to exception message for non-string http response messages', () => {
+    const response = createHost(
+      new HttpException({ error: 'Bad Request', message: { field: 'invalid' } }, 400),
+    );
+
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(response.body).toEqual({
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'Http Exception',
       },
       meta: {
         traceId: 'trace-test-id',
