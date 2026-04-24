@@ -103,10 +103,16 @@ function parseCorsOrigin(value: string | undefined): string | string[] {
     return '*';
   }
 
-  return value
+  const origins = value
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
+
+  if (origins.length === 0) {
+    throw new Error('CORS_ORIGIN must be "*" or a comma-separated list of origins');
+  }
+
+  return origins;
 }
 
 export function validateEnvironment(config: Record<string, unknown>): EnvironmentVariables {
@@ -129,6 +135,8 @@ export function validateEnvironment(config: Record<string, unknown>): Environmen
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }
+
+  parseCorsOrigin(validatedConfig.CORS_ORIGIN);
 
   return validatedConfig;
 }
