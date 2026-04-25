@@ -110,6 +110,83 @@ describe("DrizzleRefreshTokenRepository", () => {
     await expect(repository.findValidByHash(newToken.tokenHash)).resolves.toEqual(newToken);
   });
 
+  it("allows only one concurrent rotation for a refresh token hash", async () => {
+    const user = await createUser("concurrent-rotate@example.com");
+    const currentToken = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-concurrent-rotate-current`,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    const rotations = await Promise.allSettled([
+      repository.rotate(currentToken.tokenHash, {
+        tokenHash: `${tokenPrefix}-concurrent-rotate-first-replacement`,
+        expiresAt: new Date(Date.now() + 60_000),
+      }),
+      repository.rotate(currentToken.tokenHash, {
+        tokenHash: `${tokenPrefix}-concurrent-rotate-second-replacement`,
+        expiresAt: new Date(Date.now() + 60_000),
+      }),
+    ]);
+    const fulfilled = rotations.filter((result) => result.status === "fulfilled");
+    const rejected = rotations.filter((result) => result.status === "rejected");
+
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+
+    const successfulRotation = fulfilled[0].value;
+    expect(successfulRotation.currentToken).toMatchObject({
+      id: currentToken.id,
+      revokedAt: expect.any(Date),
+      replacedByTokenId: successfulRotation.replacementToken.id,
+    });
+    expect(successfulRotation.replacementToken.userId).toBe(user.id);
+
+    await expect(repository.findValidByHash(currentToken.tokenHash)).resolves.toBeNull();
+
+    const firstReplacement = await repository.findValidByHash(
+      `${tokenPrefix}-concurrent-rotate-first-replacement`,
+    );
+    const secondReplacement = await repository.findValidByHash(
+      `${tokenPrefix}-concurrent-rotate-second-replacement`,
+    );
+    expect([firstReplacement, secondReplacement].filter(Boolean)).toHaveLength(1);
+  });
+
+  it("rejects rotation for missing, expired, or revoked refresh token hashes", async () => {
+    const user = await createUser("rejected-rotate@example.com");
+    const expired = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-rotate-expired`,
+      expiresAt: new Date(Date.now() - 60_000),
+    });
+    const revoked = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-rotate-revoked`,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    await repository.revoke(revoked.id, null);
+
+    await expect(
+      repository.rotate(`${tokenPrefix}-rotate-missing`, {
+        tokenHash: `${tokenPrefix}-missing-replacement`,
+        expiresAt: new Date(Date.now() + 60_000),
+      }),
+    ).rejects.toThrow("Refresh token cannot be rotated");
+    await expect(
+      repository.rotate(expired.tokenHash, {
+        tokenHash: `${tokenPrefix}-expired-replacement`,
+        expiresAt: new Date(Date.now() + 60_000),
+      }),
+    ).rejects.toThrow("Refresh token cannot be rotated");
+    await expect(
+      repository.rotate(revoked.tokenHash, {
+        tokenHash: `${tokenPrefix}-revoked-replacement`,
+        expiresAt: new Date(Date.now() + 60_000),
+      }),
+    ).rejects.toThrow("Refresh token cannot be rotated");
+  });
+
   it("returns an already revoked token without overwriting revoke metadata", async () => {
     const user = await createUser("double-revoke@example.com");
     const oldToken = await repository.create({

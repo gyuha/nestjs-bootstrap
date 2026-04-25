@@ -11,6 +11,7 @@ import {
 } from "../domain/auth-identity.repository";
 import { PASSWORD_HASHER, type PasswordHasher } from "../domain/password-hasher";
 import {
+  RefreshTokenRotationError,
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
 } from "../domain/refresh-token.repository";
@@ -205,33 +206,19 @@ export class RefreshSession {
 
   async execute(input: RefreshSessionInput): Promise<AuthSessionResponse> {
     const tokenHash = this.refreshTokenService.hashRefreshToken(input.refreshToken);
-    const currentToken = await this.refreshTokens.findValidByHash(tokenHash);
-
-    if (!currentToken) {
-      throw new InvalidRefreshTokenError();
-    }
-
-    const user = await this.users.findById(currentToken.userId);
+    const refreshTokenPair = this.refreshTokenService.generateRefreshTokenPair();
+    const rotation = await this.rotateRefreshToken(tokenHash, refreshTokenPair.tokenHash, input);
+    const user = await this.users.findById(rotation.currentToken.userId);
 
     if (!user || user.status !== "active") {
+      await this.refreshTokens.revoke(rotation.replacementToken.id, null);
       throw new InvalidRefreshTokenError();
     }
-
-    const refreshTokenPair = this.refreshTokenService.generateRefreshTokenPair();
-    const replacementToken = await this.refreshTokens.create({
-      userId: user.id,
-      tokenHash: refreshTokenPair.tokenHash,
-      expiresAt: getRefreshTokenExpiration(this.config),
-      userAgent: input.userAgent,
-      ipAddress: input.ipAddress,
-    });
-
-    await this.refreshTokens.revoke(currentToken.id, replacementToken.id);
 
     const accessToken = await this.tokenService.createAccessToken({
       userId: user.id,
       role: user.role,
-      sessionId: replacementToken.id,
+      sessionId: rotation.replacementToken.id,
     });
 
     return {
@@ -239,6 +226,27 @@ export class RefreshSession {
       refreshToken: refreshTokenPair.plainToken,
       user: toUserResponse(user),
     };
+  }
+
+  private async rotateRefreshToken(
+    currentTokenHash: string,
+    replacementTokenHash: string,
+    input: RefreshSessionInput,
+  ) {
+    try {
+      return await this.refreshTokens.rotate(currentTokenHash, {
+        tokenHash: replacementTokenHash,
+        expiresAt: getRefreshTokenExpiration(this.config),
+        userAgent: input.userAgent,
+        ipAddress: input.ipAddress,
+      });
+    } catch (error) {
+      if (error instanceof RefreshTokenRotationError) {
+        throw new InvalidRefreshTokenError();
+      }
+
+      throw error;
+    }
   }
 }
 

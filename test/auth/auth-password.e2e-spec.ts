@@ -140,6 +140,37 @@ describe("Password auth API", () => {
     expect(tokenRows.some((token) => token.revokedAt && token.replacedByTokenId)).toBe(true);
   });
 
+  it("allows only one concurrent refresh with the same token", async () => {
+    const email = `${emailPrefix}-concurrent-refresh@example.com`;
+    const registered = await register(email, "Concurrent Refresh User").expect(201);
+    const originalRefreshToken = registered.body.data.refreshToken;
+
+    const refreshAttempts = await Promise.all([
+      request(app.getHttpServer())
+        .post("/api/v1/auth/refresh")
+        .send({ refreshToken: originalRefreshToken }),
+      request(app.getHttpServer())
+        .post("/api/v1/auth/refresh")
+        .send({ refreshToken: originalRefreshToken }),
+    ]);
+    const statuses = refreshAttempts.map((response) => response.status).sort();
+
+    expect(statuses.filter((status) => status === 200)).toHaveLength(1);
+    expect(statuses.filter((status) => status === 401)).toHaveLength(1);
+
+    const tokenRows = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.userId, registered.body.data.user.id));
+    const validTokens = tokenRows.filter(
+      (token) => token.revokedAt === null && token.expiresAt.getTime() > Date.now(),
+    );
+
+    expect(tokenRows).toHaveLength(2);
+    expect(validTokens).toHaveLength(1);
+    expect(tokenRows.filter((token) => token.revokedAt !== null)).toHaveLength(1);
+  });
+
   it("revokes refresh tokens on logout", async () => {
     const email = `${emailPrefix}-logout@example.com`;
     const registered = await register(email, "Logout User").expect(201);
