@@ -17,5 +17,15 @@ export function configuration() {
     redis: {
       url: env.REDIS_URL,
     },
+    auth: {
+      accessTokenSecret: env.JWT_ACCESS_TOKEN_SECRET,
+      accessTokenExpiresIn: env.JWT_ACCESS_TOKEN_EXPIRES_IN,
+      refreshTokenExpiresIn: env.REFRESH_TOKEN_EXPIRES_IN,
+      google: {
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+        callbackUrl: env.GOOGLE_CALLBACK_URL,
+      },
+    },
   };
 }

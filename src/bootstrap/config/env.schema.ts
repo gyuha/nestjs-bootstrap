@@ -54,6 +54,12 @@ const rawEnvSchema = z
     CORS_ORIGINS: corsOrigins,
     SWAGGER_ENABLED: optionalBooleanFromString.optional(),
     RUN_MIGRATIONS_ON_STARTUP: booleanFromString("false"),
+    JWT_ACCESS_TOKEN_SECRET: z.string().min(32),
+    JWT_ACCESS_TOKEN_EXPIRES_IN: z.string().default("15m"),
+    REFRESH_TOKEN_EXPIRES_IN: z.string().default("30d"),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
+    GOOGLE_CALLBACK_URL: z.string().url(),
   })
   .transform((env) => ({
     ...env,

@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { parseEnv } from "../../src/bootstrap/config/env.schema";
 
-const validEnv = {
+const authEnv = {
+  JWT_ACCESS_TOKEN_SECRET: "test-access-secret-that-is-at-least-32-characters",
+  GOOGLE_CLIENT_ID: "google-client-id",
+  GOOGLE_CLIENT_SECRET: "google-client-secret",
+  GOOGLE_CALLBACK_URL: "http://localhost:3000/api/v1/auth/google/callback",
+};
+
+const baseEnv = {
   NODE_ENV: "test",
   PORT: "3000",
   DATABASE_URL: "postgres://postgres:postgres@localhost:5432/nestjs_bootstrap_test",
@@ -9,6 +16,11 @@ const validEnv = {
   CORS_ORIGINS: "http://localhost:3000",
   SWAGGER_ENABLED: "true",
   RUN_MIGRATIONS_ON_STARTUP: "true",
+};
+
+const validEnv = {
+  ...baseEnv,
+  ...authEnv,
 };
 
 describe("env schema", () => {
@@ -63,6 +75,20 @@ describe("env schema", () => {
     });
 
     expect(env.CORS_ORIGINS).toBe("http://localhost:3000,https://example.com");
+  });
+
+  it("parses auth configuration defaults", () => {
+    const env = parseEnv({
+      ...validEnv,
+      ...authEnv,
+    });
+
+    expect(env.JWT_ACCESS_TOKEN_EXPIRES_IN).toBe("15m");
+    expect(env.REFRESH_TOKEN_EXPIRES_IN).toBe("30d");
+  });
+
+  it("requires jwt and google oauth secrets", () => {
+    expect(() => parseEnv(baseEnv)).toThrow("Invalid environment");
   });
 
   it("trims comma-separated cors origins", () => {
