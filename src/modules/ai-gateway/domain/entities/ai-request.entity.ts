@@ -16,6 +16,10 @@ export interface AIRequestProps {
 }
 
 export class AIRequest extends AggregateRoot<AIRequestProps> {
+  get id(): string {
+    return this.props.id;
+  }
+
   get messages(): ChatMessage[] {
     return this.props.messages;
   }

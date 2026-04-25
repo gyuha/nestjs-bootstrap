@@ -8,12 +8,8 @@ export enum ProviderType {
 export class ProviderTypeVO extends ValueObject<ProviderType> {
   readonly value: ProviderType;
 
-  constructor(value: string) {
-    if (!Object.values(ProviderType).includes(value as ProviderType)) {
-      throw new Error(`Invalid provider type: ${value}`);
-    }
-    const enumValue = value as ProviderType;
-    super(enumValue);
-    this.value = enumValue;
+  constructor(value: ProviderType) {
+    super(value);
+    this.value = value;
   }
 }

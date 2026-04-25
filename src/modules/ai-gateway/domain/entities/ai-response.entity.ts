@@ -11,6 +11,10 @@ export interface AIResponseProps {
 }
 
 export class AIResponse extends Entity<AIResponseProps> {
+  get id(): string {
+    return this.props.id;
+  }
+
   get content(): string {
     return this.props.content;
   }
