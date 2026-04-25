@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Put, Param, Delete, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { ProductApplicationService } from '../../application/services/product-application.service';
 import { CreateProductDto, UpdateProductDto, AdjustStockDto } from '../../application/dto/product.dto';
-import { Public } from '../../../../shared/presentation/decorators/public.decorator';
+import { Public } from '../../../../modules/auth/presentation/decorators/public.decorator';
 import { ResponseEnvelopeInterceptor } from '../../../../shared/presentation/interceptors/response-envelope.interceptor';
-import { UseInterceptors, UseGuards as NestUseGuards } from '@nestjs/common';
+import { UseInterceptors, UseGuards } from '@nestjs/common';
 
 @ApiTags('Products')
 @Controller('products')
-@NestUseGuards(ThrottlerGuard)
+@UseGuards(ThrottlerGuard)
 @ApiBearerAuth()
 @UseInterceptors(ResponseEnvelopeInterceptor)
 export class ProductController {

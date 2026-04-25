@@ -58,8 +58,8 @@ export class DrizzleProductRepository implements ProductRepository {
   }
 
   async update(entity: ProductEntity): Promise<void> {
-    const { id, ...data } = entity;
-    await this.db.db.update(products).set(data).where(eq(products.id, id));
+    const { id, price, ...data } = entity;
+    await this.db.db.update(products).set({ ...data, price: price.toString() }).where(eq(products.id, id));
   }
 
   async delete(id: string): Promise<void> {

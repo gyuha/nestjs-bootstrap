@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { DrizzleModule } from '../../../infrastructure/database/drizzle.module';
+import { DrizzleModule } from '../../infrastructure/database/drizzle.module';
 import { ProductController } from './presentation/controllers/product.controller';
 import { ProductApplicationService } from './application/services/product-application.service';
 import { DrizzleProductRepository } from './infrastructure/repositories/drizzle-product.repository';
-import type { ProductRepository } from './domain/repositories/product.repository.interface';
 
 const PRODUCT_REPOSITORY = 'PRODUCT_REPOSITORY';
 

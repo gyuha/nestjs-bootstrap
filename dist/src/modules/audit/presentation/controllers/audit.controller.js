@@ -45,7 +45,7 @@ __decorate([
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [audit_dto_1.QueryAuditLogsDto, Object]),
+    __metadata("design:paramtypes", [Function, Object]),
     __metadata("design:returntype", Promise)
 ], AuditController.prototype, "queryLogs", null);
 exports.AuditController = AuditController = __decorate([

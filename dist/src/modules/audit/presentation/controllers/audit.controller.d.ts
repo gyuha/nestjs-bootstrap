@@ -1,5 +1,5 @@
 import type { AuditApplicationService } from '../../application/services/audit-application.service';
-import { QueryAuditLogsDto, AuditLogListResponseDto } from '../../application/dto/audit.dto';
+import { type QueryAuditLogsDto, AuditLogListResponseDto } from '../../application/dto/audit.dto';
 import type { Request } from 'express';
 export declare class AuditController {
     private readonly auditService;
