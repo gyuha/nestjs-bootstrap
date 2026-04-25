@@ -12,6 +12,7 @@ exports.envSchema = zod_1.z.object({
     REFRESH_TOKEN_EXPIRES_IN: zod_1.z.string().default('7d'),
     SWAGGER_ENABLED: zod_1.z.enum(['true', 'false']).default('true'),
     CORS_ORIGIN: zod_1.z.string().default('*'),
+    APP_URL: zod_1.z.string().default('http://localhost:3000'),
     EMAIL_PROVIDER: zod_1.z.enum(['console', 'smtp']).default('console'),
     SMTP_HOST: zod_1.z.string().optional(),
     SMTP_PORT: zod_1.z.string().optional(),

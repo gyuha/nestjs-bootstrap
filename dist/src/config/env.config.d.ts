@@ -8,6 +8,7 @@ export declare const envConfig: (() => {
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    APP_URL: string;
     EMAIL_PROVIDER: "console" | "smtp";
     EMAIL_FROM: string;
     SMTP_HOST?: string | undefined;
@@ -24,6 +25,7 @@ export declare const envConfig: (() => {
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    APP_URL: string;
     EMAIL_PROVIDER: "console" | "smtp";
     EMAIL_FROM: string;
     SMTP_HOST?: string | undefined;

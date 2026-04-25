@@ -14,6 +14,7 @@ const env_service_1 = require("../../../config/env.service");
 const drizzle_module_1 = require("../../../infrastructure/database/drizzle.module");
 const redis_module_1 = require("../../../infrastructure/redis/redis.module");
 const users_module_1 = require("../../users/users.module");
+const email_module_1 = require("../../../shared/infrastructure/email/email.module");
 const jwt_token_service_1 = require("./services/jwt-token.service");
 const oauth_google_service_1 = require("./services/oauth-google.service");
 const oauth_kakao_service_1 = require("./services/oauth-kakao.service");
@@ -34,6 +35,7 @@ exports.AuthModule = AuthModule = __decorate([
             drizzle_module_1.DrizzleModule,
             redis_module_1.RedisModule,
             users_module_1.UsersModule,
+            email_module_1.EmailModule,
         ],
         controllers: [auth_controller_1.AuthController],
         providers: [

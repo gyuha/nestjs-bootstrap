@@ -22,6 +22,14 @@ export declare class AuthApplicationService {
     loginWithPassword(email: string, password: string): Promise<AuthResult>;
     loginWithOAuth(provider: OAuthProvider, code: string): Promise<AuthResult>;
     refreshToken(refreshToken: string): Promise<TokenPair>;
+    register(dto: {
+        email: string;
+        password: string;
+        name: string;
+    }): Promise<AuthResult>;
+    verifyEmail(token: string): Promise<void>;
+    resendVerificationEmail(email: string): Promise<void>;
+    private generateSecureToken;
     private incrementFailedLoginAttempts;
     private lockAccount;
     private resetFailedLoginAttempts;

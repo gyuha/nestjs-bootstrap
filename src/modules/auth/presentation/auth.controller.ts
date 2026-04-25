@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, UseInterceptors, Get, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -13,6 +13,8 @@ import {
   type LoginPasswordDto,
   type LoginOAuthDto,
   type RefreshTokenDto,
+  type RegisterDto,
+  type ResendVerificationDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
 } from '../application/dto/auth.dto';
@@ -70,5 +72,39 @@ export class AuthController {
       accessToken: tokenPair.accessToken,
       refreshToken: tokenPair.refreshToken,
     };
+  }
+
+  @Public()
+  @Post('register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, type: AuthResponseDto })
+  @ApiResponse({ status: 400, description: 'Weak password' })
+  @ApiResponse({ status: 409, description: 'Email already exists' })
+  async register(@Body() dto: RegisterDto): Promise<AuthResponseDto> {
+    const result = await this.authService.register(dto);
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: result.user,
+    };
+  }
+
+  @Public()
+  @Get('verify-email/:token')
+  @ApiOperation({ summary: 'Verify email address' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async verifyEmail(@Param('token') token: string): Promise<{ message: string }> {
+    await this.authService.verifyEmail(token);
+    return { message: 'Email verified successfully' };
+  }
+
+  @Public()
+  @Post('resend-verification')
+  @ApiOperation({ summary: 'Resend verification email' })
+  @ApiResponse({ status: 200, description: 'Verification email sent' })
+  async resendVerification(@Body() dto: ResendVerificationDto): Promise<{ message: string }> {
+    await this.authService.resendVerificationEmail(dto.email);
+    return { message: 'Verification email sent' };
   }
 }

@@ -46,6 +46,22 @@ let AuthController = class AuthController {
             refreshToken: tokenPair.refreshToken,
         };
     }
+    async register(dto) {
+        const result = await this.authService.register(dto);
+        return {
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+            user: result.user,
+        };
+    }
+    async verifyEmail(token) {
+        await this.authService.verifyEmail(token);
+        return { message: 'Email verified successfully' };
+    }
+    async resendVerification(dto) {
+        await this.authService.resendVerificationEmail(dto.email);
+        return { message: 'Verification email sent' };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -81,6 +97,39 @@ __decorate([
     __metadata("design:paramtypes", [Function]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refreshToken", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('register'),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
+    (0, swagger_1.ApiResponse)({ status: 201, type: auth_dto_1.AuthResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Weak password' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'Email already exists' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Function]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "register", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('verify-email/:token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Verify email address' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Email verified successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid or expired token' }),
+    __param(0, (0, common_1.Param)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyEmail", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('resend-verification'),
+    (0, swagger_1.ApiOperation)({ summary: 'Resend verification email' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Verification email sent' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Function]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resendVerification", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),

@@ -24,3 +24,11 @@ export declare class TokenRefreshResponseDto {
     accessToken: string;
     refreshToken: string;
 }
+export declare class RegisterDto {
+    email: string;
+    password: string;
+    name: string;
+}
+export declare class ResendVerificationDto {
+    email: string;
+}

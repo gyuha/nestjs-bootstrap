@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { createHash, } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { eq, sql } from 'drizzle-orm';
 import type { AuthResult } from '../domain/entities/auth.entity';
 import type { TokenPair } from '../domain/value-objects/token.value-object';
@@ -17,13 +18,15 @@ import { AuthException } from '../presentation/exceptions/auth.exception';
 import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
 import type { EnvService } from '../../../config/env.service';
 import type { EmailServiceInterface } from '../../../shared/infrastructure/email/email-service.interface';
+import { validatePassword } from '../../../shared/utils/password.validation';
+import { getVerificationEmailHtml, getVerificationEmailSubject } from '../../../shared/infrastructure/email/templates/verification-email';
 
 const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_LOGIN_ATTEMPTS = 10;
-const _VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
-const _RESET_TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
-const _MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const RESET_TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+const MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
 
 @Injectable()
 export class AuthApplicationService {
@@ -136,6 +139,108 @@ export class AuthApplicationService {
     );
 
     return newTokenPair;
+  }
+
+  async register(dto: { email: string; password: string; name: string }): Promise<AuthResult> {
+    // Validate password complexity
+    const validation = validatePassword(dto.password);
+    if (!validation.isValid) {
+      throw new HttpException(
+        { code: 'AUTH_WEAK_PASSWORD', message: validation.errors.join(', ') },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Check if user exists
+    const existing = await this.userRepo.findByEmail(dto.email);
+    if (existing) throw AuthException.emailAlreadyExists();
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(dto.password, 12);
+
+    // Generate verification token
+    const verificationToken = this.generateSecureToken();
+    const verificationTokenExpiry = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS);
+
+    // Create user
+    const newUser = {
+      id: crypto.randomUUID(),
+      email: dto.email,
+      passwordHash,
+      name: dto.name,
+      role: Role.USER,
+      status: UserStatus.ACTIVE,
+      emailVerified: false,
+      verificationToken,
+      verificationTokenExpiry,
+      lockoutUntil: null,
+      failedLoginAttempts: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    await this.db.db.insert(users).values(newUser);
+
+    // Send verification email
+    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/api/v1/auth/verify-email/${verificationToken}`;
+    await this.emailService.send({
+      to: dto.email,
+      subject: getVerificationEmailSubject(),
+      html: getVerificationEmailHtml(verificationUrl),
+    });
+
+    // Return auth result (but note email is not verified)
+    return this.generateAuthResult(newUser.id, newUser.email, newUser.name, newUser.role);
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    // Find user by verification token
+    const result = await this.db.db
+      .select()
+      .from(users)
+      .where(eq(users.verificationToken, token))
+      .limit(1);
+
+    const user = result[0];
+    if (!user) throw AuthException.invalidResetToken();
+    if (user.verificationTokenExpiry && new Date(user.verificationTokenExpiry) < new Date()) {
+      throw AuthException.resetTokenExpired();
+    }
+
+    // Update user as verified
+    await this.db.db
+      .update(users)
+      .set({ emailVerified: true, verificationToken: null, verificationTokenExpiry: null })
+      .where(eq(users.id, user.id));
+  }
+
+  async resendVerificationEmail(email: string): Promise<void> {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) return; // Silent fail for security
+
+    if (user.emailVerified) return; // Already verified
+
+    // Generate new token
+    const verificationToken = this.generateSecureToken();
+    const verificationTokenExpiry = new Date(Date.now() + VERIFICATION_TOKEN_EXPIRY_MS);
+
+    await this.db.db
+      .update(users)
+      .set({ verificationToken, verificationTokenExpiry })
+      .where(eq(users.id, user.id));
+
+    // Send email
+    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/api/v1/auth/verify-email/${verificationToken}`;
+    await this.emailService.send({
+      to: email,
+      subject: getVerificationEmailSubject(),
+      html: getVerificationEmailHtml(verificationUrl),
+    });
+  }
+
+  private generateSecureToken(): string {
+    return randomBytes(32).toString('hex');
   }
 
   private async incrementFailedLoginAttempts(userId: string): Promise<void> {

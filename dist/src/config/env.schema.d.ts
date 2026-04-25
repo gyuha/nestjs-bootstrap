@@ -9,6 +9,7 @@ export declare const envSchema: z.ZodObject<{
     REFRESH_TOKEN_EXPIRES_IN: z.ZodDefault<z.ZodString>;
     SWAGGER_ENABLED: z.ZodDefault<z.ZodEnum<["true", "false"]>>;
     CORS_ORIGIN: z.ZodDefault<z.ZodString>;
+    APP_URL: z.ZodDefault<z.ZodString>;
     EMAIL_PROVIDER: z.ZodDefault<z.ZodEnum<["console", "smtp"]>>;
     SMTP_HOST: z.ZodOptional<z.ZodString>;
     SMTP_PORT: z.ZodOptional<z.ZodString>;
@@ -25,6 +26,7 @@ export declare const envSchema: z.ZodObject<{
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    APP_URL: string;
     EMAIL_PROVIDER: "console" | "smtp";
     EMAIL_FROM: string;
     SMTP_HOST?: string | undefined;
@@ -41,6 +43,7 @@ export declare const envSchema: z.ZodObject<{
     REFRESH_TOKEN_EXPIRES_IN?: string | undefined;
     SWAGGER_ENABLED?: "true" | "false" | undefined;
     CORS_ORIGIN?: string | undefined;
+    APP_URL?: string | undefined;
     EMAIL_PROVIDER?: "console" | "smtp" | undefined;
     SMTP_HOST?: string | undefined;
     SMTP_PORT?: string | undefined;

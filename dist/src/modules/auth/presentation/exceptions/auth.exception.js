@@ -33,6 +33,9 @@ class AuthException extends common_1.HttpException {
     static invalidMagicLink() {
         return new common_1.HttpException({ code: 'AUTH_INVALID_MAGIC_LINK', message: 'Invalid or expired magic link' }, common_1.HttpStatus.BAD_REQUEST);
     }
+    static emailAlreadyExists() {
+        return new common_1.HttpException({ code: 'AUTH_EMAIL_ALREADY_EXISTS', message: 'An account with this email already exists' }, common_1.HttpStatus.CONFLICT);
+    }
 }
 exports.AuthException = AuthException;
 //# sourceMappingURL=auth.exception.js.map

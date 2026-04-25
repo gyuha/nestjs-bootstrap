@@ -10,6 +10,7 @@ export const envSchema = z.object({
   REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
   SWAGGER_ENABLED: z.enum(['true', 'false']).default('true'),
   CORS_ORIGIN: z.string().default('*'),
+  APP_URL: z.string().default('http://localhost:3000'),
   EMAIL_PROVIDER: z.enum(['console', 'smtp']).default('console'),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.string().optional(),

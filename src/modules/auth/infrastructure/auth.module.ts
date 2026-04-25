@@ -5,6 +5,7 @@ import { EnvService } from '../../../config/env.service';
 import { DrizzleModule } from '../../../infrastructure/database/drizzle.module';
 import { RedisModule } from '../../../infrastructure/redis/redis.module';
 import { UsersModule } from '../../users/users.module';
+import { EmailModule } from '../../../shared/infrastructure/email/email.module';
 
 import { JwtTokenService } from './services/jwt-token.service';
 import { OAuthGoogleService } from './services/oauth-google.service';
@@ -26,6 +27,7 @@ const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
     DrizzleModule,
     RedisModule,
     UsersModule,
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [

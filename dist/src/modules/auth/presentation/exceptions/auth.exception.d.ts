@@ -10,4 +10,5 @@ export declare class AuthException extends HttpException {
     static invalidResetToken(): HttpException;
     static resetTokenExpired(): HttpException;
     static invalidMagicLink(): HttpException;
+    static emailAlreadyExists(): HttpException;
 }

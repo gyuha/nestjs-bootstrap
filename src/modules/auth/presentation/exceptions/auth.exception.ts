@@ -70,4 +70,11 @@ export class AuthException extends HttpException {
       HttpStatus.BAD_REQUEST,
     );
   }
+
+  static emailAlreadyExists() {
+    return new HttpException(
+      { code: 'AUTH_EMAIL_ALREADY_EXISTS', message: 'An account with this email already exists' },
+      HttpStatus.CONFLICT,
+    );
+  }
 }
