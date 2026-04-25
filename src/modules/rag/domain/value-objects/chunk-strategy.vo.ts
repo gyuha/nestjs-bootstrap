@@ -1,5 +1,5 @@
 export enum ChunkStrategy {
-  CHARACTERS = 'characters',
-  PARAGRAPHS = 'paragraphs',
-  SENTENCES = 'sentences',
+  CHARACTERS = "characters",
+  PARAGRAPHS = "paragraphs",
+  SENTENCES = "sentences",
 }

@@ -1,12 +1,12 @@
-import { Injectable, Inject } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import type { UserRepository } from '../domain/repository/user.repository.interface';
-import type { UserEntity } from '../domain/entities/user.entity';
-import type { CreateUserDto, UpdateUserDto } from './dto/users.dto';
-import { Role, UserStatus } from '../domain/value-objects/role.value-object';
-import { UserException } from '../presentation/exceptions/user.exception';
+import { Injectable, Inject } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import type { UserRepository } from "../domain/repository/user.repository.interface";
+import type { UserEntity } from "../domain/entities/user.entity";
+import type { CreateUserDto, UpdateUserDto } from "./dto/users.dto";
+import { Role, UserStatus } from "../domain/value-objects/role.value-object";
+import { UserException } from "../presentation/exceptions/user.exception";
 
-const USER_REPOSITORY = 'USER_REPOSITORY';
+const USER_REPOSITORY = "USER_REPOSITORY";
 
 @Injectable()
 export class UsersApplicationService {
@@ -44,7 +44,13 @@ export class UsersApplicationService {
     return user;
   }
 
-  async findAll(query: { email?: string; role?: Role; status?: UserStatus; page?: number; limit?: number }) {
+  async findAll(query: {
+    email?: string;
+    role?: Role;
+    status?: UserStatus;
+    page?: number;
+    limit?: number;
+  }) {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const offset = (page - 1) * limit;

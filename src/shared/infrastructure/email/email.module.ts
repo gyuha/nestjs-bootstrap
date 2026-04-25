@@ -3,7 +3,7 @@ import { EnvService } from "../../../config/env.service";
 import { ConsoleEmailService } from "./console-email.service";
 import { SmtpEmailService } from "./smtp-email.service";
 
-const EMAIL_SERVICE = 'EMAIL_SERVICE';
+const EMAIL_SERVICE = "EMAIL_SERVICE";
 
 @Global()
 @Module({
@@ -11,8 +11,8 @@ const EMAIL_SERVICE = 'EMAIL_SERVICE';
     {
       provide: EMAIL_SERVICE,
       useFactory: (env: EnvService) => {
-        const provider = env.get('EMAIL_PROVIDER');
-        if (provider === 'smtp') {
+        const provider = env.get("EMAIL_PROVIDER");
+        if (provider === "smtp") {
           return new SmtpEmailService(env);
         }
         return new ConsoleEmailService();

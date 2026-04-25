@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import type { IDocumentConnector, RawDocument } from '../../domain/services/idocument-connector.interface';
+import { Injectable } from "@nestjs/common";
+import type {
+  IDocumentConnector,
+  RawDocument,
+} from "../../domain/services/idocument-connector.interface";
 
 @Injectable()
 export class DatabaseConnector implements IDocumentConnector {
   supports(source: string): boolean {
-    return source === 'database';
+    return source === "database";
   }
 
   async fetch(sourcePath: string): Promise<RawDocument[]> {

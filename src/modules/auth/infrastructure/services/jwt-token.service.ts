@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import type { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import type { TokenServiceInterface } from '../../domain/services/token.service.interface';
-import type { TokenPair, JwtPayload } from '../../domain/value-objects/token.value-object';
-import type { EnvService } from '../../../../config/env.service';
-import { createHash, randomBytes } from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable } from "@nestjs/common";
+import type { JwtService, JwtSignOptions } from "@nestjs/jwt";
+import type { TokenServiceInterface } from "../../domain/services/token.service.interface";
+import type { TokenPair, JwtPayload } from "../../domain/value-objects/token.value-object";
+import type { EnvService } from "../../../../config/env.service";
+import { createHash, randomBytes } from "crypto";
+import { v4 as uuidv4 } from "uuid";
 
 @Injectable()
 export class JwtTokenService implements TokenServiceInterface {
@@ -15,22 +15,22 @@ export class JwtTokenService implements TokenServiceInterface {
 
   generateAccessToken(userId: string, email: string, role: string): string {
     const options: JwtSignOptions = {
-      secret: this.env.get('JWT_SECRET') as string,
+      secret: this.env.get("JWT_SECRET") as string,
       expiresIn: 900, // 15 minutes in seconds
     };
     return this.jwt.sign({ sub: userId, email, role }, options);
   }
 
   verifyAccessToken(token: string): JwtPayload {
-    return this.jwt.verify<JwtPayload>(token, { secret: this.env.get('JWT_SECRET') as string });
+    return this.jwt.verify<JwtPayload>(token, { secret: this.env.get("JWT_SECRET") as string });
   }
 
   generateRefreshToken(): string {
-    return uuidv4() + '-' + randomBytes(32).toString('hex');
+    return uuidv4() + "-" + randomBytes(32).toString("hex");
   }
 
   hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
+    return createHash("sha256").update(token).digest("hex");
   }
 
   async generateTokenPair(userId: string, email: string, role: string): Promise<TokenPair> {

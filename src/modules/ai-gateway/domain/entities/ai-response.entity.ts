@@ -1,5 +1,5 @@
-import { Entity } from '../../../../shared/domain/entity';
-import type { TokenUsage } from './token-usage.entity';
+import { Entity } from "../../../../shared/domain/entity";
+import type { TokenUsage } from "./token-usage.entity";
 
 export interface AIResponseProps {
   id: string;

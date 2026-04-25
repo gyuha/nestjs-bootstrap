@@ -1,4 +1,4 @@
-import { Entity } from '../../../../shared/domain/entity';
+import { Entity } from "../../../../shared/domain/entity";
 
 export interface ChunkMetadata {
   documentId: string;

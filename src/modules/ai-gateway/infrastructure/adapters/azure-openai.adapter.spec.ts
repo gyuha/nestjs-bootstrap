@@ -1,12 +1,12 @@
-import { AzureOpenAIAdapter, type AzureOpenAIAdapterConfig } from './azure-openai.adapter';
-import { AIRequest } from '../../domain/entities/ai-request.entity';
-import type { ChatCompletion } from 'openai/resources/index';
-import type { CreateEmbeddingResponse } from 'openai/resources/index';
+import { AzureOpenAIAdapter, type AzureOpenAIAdapterConfig } from "./azure-openai.adapter";
+import { AIRequest } from "../../domain/entities/ai-request.entity";
+import type { ChatCompletion } from "openai/resources/index";
+import type { CreateEmbeddingResponse } from "openai/resources/index";
 
 const mockChatCompletionsCreate = jest.fn();
 const mockEmbeddingsCreate = jest.fn();
 
-jest.mock('openai', () => {
+jest.mock("openai", () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => ({
@@ -22,25 +22,25 @@ jest.mock('openai', () => {
   };
 });
 
-describe('AzureOpenAIAdapter', () => {
+describe("AzureOpenAIAdapter", () => {
   let adapter: AzureOpenAIAdapter;
   let config: AzureOpenAIAdapterConfig;
 
   const mockChatCompletion: ChatCompletion = {
-    id: 'chatcmpl-azure-123',
+    id: "chatcmpl-azure-123",
     choices: [
       {
         index: 0,
         message: {
-          role: 'assistant',
-          content: 'Azure response',
+          role: "assistant",
+          content: "Azure response",
         },
-        finish_reason: 'stop',
+        finish_reason: "stop",
       },
     ],
     created: 1234567890,
-    model: 'azure-gpt-4o',
-    object: 'chat.completion',
+    model: "azure-gpt-4o",
+    object: "chat.completion",
     usage: {
       prompt_tokens: 15,
       completion_tokens: 25,
@@ -53,11 +53,11 @@ describe('AzureOpenAIAdapter', () => {
       {
         embedding: [0.7, 0.8, 0.9],
         index: 0,
-        object: 'embedding',
+        object: "embedding",
       },
     ],
-    model: 'azure-embedding',
-    object: 'list',
+    model: "azure-embedding",
+    object: "list",
     usage: {
       prompt_tokens: 5,
       completion_tokens: 0,
@@ -67,10 +67,10 @@ describe('AzureOpenAIAdapter', () => {
 
   beforeEach(() => {
     config = {
-      endpoint: 'https://example.openai.azure.com',
-      apiKey: 'azure-api-key',
-      apiVersion: '2024-02-01',
-      deploymentName: 'azure-gpt-4o',
+      endpoint: "https://example.openai.azure.com",
+      apiKey: "azure-api-key",
+      apiVersion: "2024-02-01",
+      deploymentName: "azure-gpt-4o",
     };
     adapter = new AzureOpenAIAdapter(config);
   });
@@ -79,15 +79,13 @@ describe('AzureOpenAIAdapter', () => {
     jest.clearAllMocks();
   });
 
-  describe('chat', () => {
-    it('should send chat request to Azure OpenAI and return AIResponse', async () => {
+  describe("chat", () => {
+    it("should send chat request to Azure OpenAI and return AIResponse", async () => {
       mockChatCompletionsCreate.mockResolvedValue(mockChatCompletion);
 
       const request = new AIRequest({
-        id: 'req-azure-1',
-        messages: [
-          { role: 'user', content: 'Hello Azure' },
-        ],
+        id: "req-azure-1",
+        messages: [{ role: "user", content: "Hello Azure" }],
         temperature: 0.5,
         maxTokens: 500,
       });
@@ -95,46 +93,46 @@ describe('AzureOpenAIAdapter', () => {
       const response = await adapter.chat(request);
 
       expect(response).toBeDefined();
-      expect(response.id).toBe('chatcmpl-azure-123');
-      expect(response.content).toBe('Azure response');
-      expect(response.model).toBe('azure-gpt-4o');
+      expect(response.id).toBe("chatcmpl-azure-123");
+      expect(response.content).toBe("Azure response");
+      expect(response.model).toBe("azure-gpt-4o");
       expect(response.usage.promptTokens).toBe(15);
       expect(response.usage.completionTokens).toBe(25);
       expect(response.usage.totalTokens).toBe(40);
       expect(mockChatCompletionsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'azure-gpt-4o',
-          messages: [{ role: 'user', content: 'Hello Azure' }],
+          model: "azure-gpt-4o",
+          messages: [{ role: "user", content: "Hello Azure" }],
           temperature: 0.5,
           max_tokens: 500,
         }),
       );
     });
 
-    it('should handle missing usage gracefully', async () => {
+    it("should handle missing usage gracefully", async () => {
       const chatCompletionWithoutUsage: ChatCompletion = {
-        id: 'chatcmpl-no-usage',
+        id: "chatcmpl-no-usage",
         choices: [
           {
             index: 0,
             message: {
-              role: 'assistant',
-              content: 'Response without usage',
+              role: "assistant",
+              content: "Response without usage",
             },
-            finish_reason: 'stop',
+            finish_reason: "stop",
           },
         ],
         created: 1234567890,
-        model: 'azure-gpt-4o',
-        object: 'chat.completion',
+        model: "azure-gpt-4o",
+        object: "chat.completion",
         usage: undefined,
       } as unknown as ChatCompletion;
 
       mockChatCompletionsCreate.mockResolvedValue(chatCompletionWithoutUsage);
 
       const request = new AIRequest({
-        id: 'req-no-usage',
-        messages: [{ role: 'user', content: 'Test' }],
+        id: "req-no-usage",
+        messages: [{ role: "user", content: "Test" }],
       });
 
       const response = await adapter.chat(request);
@@ -146,16 +144,16 @@ describe('AzureOpenAIAdapter', () => {
     });
   });
 
-  describe('embed', () => {
-    it('should create embeddings using Azure OpenAI', async () => {
+  describe("embed", () => {
+    it("should create embeddings using Azure OpenAI", async () => {
       mockEmbeddingsCreate.mockResolvedValue(mockEmbeddingResponse);
 
-      const texts = ['Azure embedding test'];
+      const texts = ["Azure embedding test"];
       const result = await adapter.embed(texts);
 
       expect(result).toEqual([[0.7, 0.8, 0.9]]);
       expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
-        model: 'azure-gpt-4o',
+        model: "azure-gpt-4o",
         input: texts,
       });
     });

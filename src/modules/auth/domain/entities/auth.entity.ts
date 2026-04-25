@@ -1,4 +1,4 @@
-import type { OAuthProvider } from '../value-objects/oauth-provider.value-object';
+import type { OAuthProvider } from "../value-objects/oauth-provider.value-object";
 
 export interface AuthResult {
   user: {

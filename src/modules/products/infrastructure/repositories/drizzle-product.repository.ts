@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { eq, and, sql } from 'drizzle-orm';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { products, type Product, type NewProduct } from '../../../../infrastructure/database/schema/products.schema';
-import type { ProductEntity } from '../../domain/entities/product.entity';
-import type { ProductRepository } from '../../domain/repositories/product.repository.interface';
+import { Injectable } from "@nestjs/common";
+import { eq, and, sql } from "drizzle-orm";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import {
+  products,
+  type Product,
+  type NewProduct,
+} from "../../../../infrastructure/database/schema/products.schema";
+import type { ProductEntity } from "../../domain/entities/product.entity";
+import type { ProductRepository } from "../../domain/repositories/product.repository.interface";
 
 function toProductEntity(result: Product): ProductEntity {
   return {
@@ -30,7 +34,12 @@ export class DrizzleProductRepository implements ProductRepository {
     return result[0] ? toProductEntity(result[0]) : null;
   }
 
-  async findAll(query: { categoryId?: string; isActive?: boolean; page?: number; limit?: number }): Promise<{ data: ProductEntity[]; total: number }> {
+  async findAll(query: {
+    categoryId?: string;
+    isActive?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<{ data: ProductEntity[]; total: number }> {
     const page = query.page || 1;
     const limit = query.limit || 20;
     const offset = (page - 1) * limit;
@@ -38,8 +47,16 @@ export class DrizzleProductRepository implements ProductRepository {
     if (query.categoryId) conditions.push(eq(products.categoryId, query.categoryId));
     if (query.isActive !== undefined) conditions.push(eq(products.isActive, query.isActive));
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-    const data = await this.db.db.select().from(products).where(whereClause).limit(limit).offset(offset);
-    const countResult = await this.db.db.select({ count: sql<number>`count(*)` }).from(products).where(whereClause);
+    const data = await this.db.db
+      .select()
+      .from(products)
+      .where(whereClause)
+      .limit(limit)
+      .offset(offset);
+    const countResult = await this.db.db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(whereClause);
     return { data: data.map(toProductEntity), total: countResult[0]?.count ?? 0 };
   }
 
@@ -59,7 +76,10 @@ export class DrizzleProductRepository implements ProductRepository {
 
   async update(entity: ProductEntity): Promise<void> {
     const { id, price, ...data } = entity;
-    await this.db.db.update(products).set({ ...data, price: price.toString() }).where(eq(products.id, id));
+    await this.db.db
+      .update(products)
+      .set({ ...data, price: price.toString() })
+      .where(eq(products.id, id));
   }
 
   async delete(id: string): Promise<void> {
@@ -67,6 +87,9 @@ export class DrizzleProductRepository implements ProductRepository {
   }
 
   async updateStock(id: string, quantity: number): Promise<void> {
-    await this.db.db.update(products).set({ quantity, updatedAt: new Date() }).where(eq(products.id, id));
+    await this.db.db
+      .update(products)
+      .set({ quantity, updatedAt: new Date() })
+      .where(eq(products.id, id));
   }
 }

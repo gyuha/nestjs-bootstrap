@@ -4,10 +4,10 @@ import {
   Injectable,
   type NestInterceptor,
   Optional,
-} from '@nestjs/common';
-import { tap, catchError } from 'rxjs/operators';
-import type { LoggingService } from '../../../monitoring/application/services/logging.service';
-import type { MetricsService } from '../../../monitoring/application/services/metrics.service';
+} from "@nestjs/common";
+import { tap, catchError } from "rxjs/operators";
+import type { LoggingService } from "../../../monitoring/application/services/logging.service";
+import type { MetricsService } from "../../../monitoring/application/services/metrics.service";
 
 @Injectable()
 export class TokenUsageInterceptor implements NestInterceptor {
@@ -56,17 +56,19 @@ export class TokenUsageInterceptor implements NestInterceptor {
       catchError((error) => {
         const latencyMs = Date.now() - startTime;
         if (this.loggingService) {
-          this.loggingService.log({
-            traceId: crypto.randomUUID(),
-            sessionId: request.body?.sessionId,
-            userId: request.user?.id,
-            method,
-            path,
-            statusCode: error.status ?? 500,
-            latencyMs,
-            useRag: request.body?.useRag ?? false,
-            error: error.message,
-          }).catch(() => {});
+          this.loggingService
+            .log({
+              traceId: crypto.randomUUID(),
+              sessionId: request.body?.sessionId,
+              userId: request.user?.id,
+              method,
+              path,
+              statusCode: error.status ?? 500,
+              latencyMs,
+              useRag: request.body?.useRag ?? false,
+              error: error.message,
+            })
+            .catch(() => {});
         }
         throw error;
       }),

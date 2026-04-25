@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { EnvConfig } from './env.schema';
+import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import type { EnvConfig } from "./env.schema";
 
 @Injectable()
 export class EnvService {
@@ -11,10 +11,10 @@ export class EnvService {
   }
 
   get isDev(): boolean {
-    return this.get('NODE_ENV') === 'development';
+    return this.get("NODE_ENV") === "development";
   }
 
   get isProd(): boolean {
-    return this.get('NODE_ENV') === 'production';
+    return this.get("NODE_ENV") === "production";
   }
 }

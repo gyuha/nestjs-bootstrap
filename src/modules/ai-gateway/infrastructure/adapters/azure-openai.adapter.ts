@@ -1,8 +1,8 @@
-import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
-import type { AIRequest } from '../../domain/entities/ai-request.entity';
-import { AIResponse } from '../../domain/entities/ai-response.entity';
-import { TokenUsage } from '../../domain/entities/token-usage.entity';
-import OpenAI from 'openai';
+import type { IAIGatewayService } from "../../domain/services/iai-gateway.service";
+import type { AIRequest } from "../../domain/entities/ai-request.entity";
+import { AIResponse } from "../../domain/entities/ai-response.entity";
+import { TokenUsage } from "../../domain/entities/token-usage.entity";
+import OpenAI from "openai";
 
 export interface AzureOpenAIAdapterConfig {
   endpoint: string;
@@ -19,14 +19,14 @@ export class AzureOpenAIAdapter implements IAIGatewayService {
     this.client = new OpenAI({
       baseURL: `${config.endpoint}/openai/deployments/${config.deploymentName}`,
       apiKey: config.apiKey,
-      defaultQuery: { 'api-version': config.apiVersion ?? '2024-02-01' },
+      defaultQuery: { "api-version": config.apiVersion ?? "2024-02-01" },
     });
   }
 
   async chat(request: AIRequest): Promise<AIResponse> {
     const response = await this.client.chat.completions.create({
       model: this.config.model ?? this.config.deploymentName,
-      messages: request.messages.map(m => ({ role: m.role, content: m.content })),
+      messages: request.messages.map((m) => ({ role: m.role, content: m.content })),
       temperature: request.temperature,
       max_tokens: request.maxTokens,
     });
@@ -36,7 +36,7 @@ export class AzureOpenAIAdapter implements IAIGatewayService {
 
     return new AIResponse({
       id: response.id,
-      content: choice.message.content ?? '',
+      content: choice.message.content ?? "",
       usage: new TokenUsage({
         promptTokens: usage?.prompt_tokens ?? 0,
         completionTokens: usage?.completion_tokens ?? 0,
@@ -52,6 +52,6 @@ export class AzureOpenAIAdapter implements IAIGatewayService {
       model: this.config.model ?? this.config.deploymentName,
       input: texts,
     });
-    return response.data.map(d => d.embedding);
+    return response.data.map((d) => d.embedding);
   }
 }

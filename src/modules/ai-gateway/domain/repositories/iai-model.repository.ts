@@ -1,4 +1,4 @@
-import type { ProviderType } from '../value-objects/provider-type.vo';
+import type { ProviderType } from "../value-objects/provider-type.vo";
 
 export interface ModelDefinition {
   id: string;

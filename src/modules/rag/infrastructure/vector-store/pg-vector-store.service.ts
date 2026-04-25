@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { sql } from 'drizzle-orm';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { ragChunks } from '../../../../infrastructure/database/schema/rag-chunks.schema';
-import type { VectorStoreServiceInterface } from '../../../rag/application/services/rag.service';
-import type { SearchResult } from '../../../rag/domain/services/irag.service';
+import { Injectable } from "@nestjs/common";
+import { sql } from "drizzle-orm";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { ragChunks } from "../../../../infrastructure/database/schema/rag-chunks.schema";
+import type { VectorStoreServiceInterface } from "../../../rag/application/services/rag.service";
+import type { SearchResult } from "../../../rag/domain/services/irag.service";
 
-export const VECTOR_STORE_SERVICE = 'VECTOR_STORE_SERVICE';
+export const VECTOR_STORE_SERVICE = "VECTOR_STORE_SERVICE";
 
 interface ChunkMetadata {
   documentId: string;
@@ -26,10 +26,7 @@ interface UpsertDocument {
 export class PgVectorStoreService implements VectorStoreServiceInterface {
   constructor(private readonly db: DrizzleService) {}
 
-  async similaritySearch(
-    queryEmbedding: number[],
-    topK: number,
-  ): Promise<SearchResult[]> {
+  async similaritySearch(queryEmbedding: number[], topK: number): Promise<SearchResult[]> {
     // Use <=> operator for cosine distance
     // Distance 0 = identical, 2 = opposite
     // Convert distance to similarity score: score = 1 - (distance / 2)
@@ -71,12 +68,15 @@ export class PgVectorStoreService implements VectorStoreServiceInterface {
       totalChunks: doc.metadata.totalChunks,
     }));
 
-    await this.db.db.insert(ragChunks).values(chunks).onConflictDoUpdate({
-      target: ragChunks.id,
-      set: {
-        content: sql`excluded.content`,
-        embedding: sql`excluded.embedding`,
-      },
-    });
+    await this.db.db
+      .insert(ragChunks)
+      .values(chunks)
+      .onConflictDoUpdate({
+        target: ragChunks.id,
+        set: {
+          content: sql`excluded.content`,
+          embedding: sql`excluded.embedding`,
+        },
+      });
   }
 }

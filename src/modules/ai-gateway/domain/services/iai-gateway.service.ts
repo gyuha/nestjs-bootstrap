@@ -1,5 +1,5 @@
-import type { AIRequest } from '../entities/ai-request.entity';
-import type { AIResponse } from '../entities/ai-response.entity';
+import type { AIRequest } from "../entities/ai-request.entity";
+import type { AIResponse } from "../entities/ai-response.entity";
 
 export interface IAIGatewayService {
   chat(request: AIRequest): Promise<AIResponse>;

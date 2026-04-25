@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { eq, and } from 'drizzle-orm';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { users, type User, type NewUser } from '../../../../infrastructure/database/schema/users.schema';
-import { type UserEntity, type Role, UserStatus } from '../../domain/entities/user.entity';
-import type { UserRepository } from '../../domain/repository/user.repository.interface';
-import { oauthAccounts } from '../../../../infrastructure/database/schema/oauth-accounts.schema';
+import { Injectable } from "@nestjs/common";
+import { eq, and } from "drizzle-orm";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import {
+  users,
+  type User,
+  type NewUser,
+} from "../../../../infrastructure/database/schema/users.schema";
+import { type UserEntity, type Role, UserStatus } from "../../domain/entities/user.entity";
+import type { UserRepository } from "../../domain/repository/user.repository.interface";
+import { oauthAccounts } from "../../../../infrastructure/database/schema/oauth-accounts.schema";
 
 function toUserEntity(result: User): UserEntity {
   return {

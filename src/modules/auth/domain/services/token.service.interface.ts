@@ -1,4 +1,4 @@
-import type { TokenPair, JwtPayload } from '../value-objects/token.value-object';
+import type { TokenPair, JwtPayload } from "../value-objects/token.value-object";
 
 export interface TokenServiceInterface {
   generateAccessToken(userId: string, email: string, role: string): string;

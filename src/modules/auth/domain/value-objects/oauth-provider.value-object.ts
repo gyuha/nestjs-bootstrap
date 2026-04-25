@@ -1,6 +1,6 @@
 export enum OAuthProvider {
-  GOOGLE = 'GOOGLE',
-  KAKAO = 'KAKAO',
+  GOOGLE = "GOOGLE",
+  KAKAO = "KAKAO",
 }
 
 export interface OAuthTokens {

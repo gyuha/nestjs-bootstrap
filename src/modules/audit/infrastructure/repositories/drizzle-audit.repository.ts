@@ -1,9 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { eq, and, gte, lte, sql } from 'drizzle-orm';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { auditLogs, type AuditLog, type NewAuditLog } from '../../../../infrastructure/database/schema/audit-logs.schema';
-import type { AuditLogEntity, ActorType, AuditEventType } from '../../domain/entities/audit-log.entity';
-import type { AuditLogRepository, AuditLogQuery } from '../../domain/repositories/audit-log.repository.interface';
+import { Injectable } from "@nestjs/common";
+import { eq, and, gte, lte, sql } from "drizzle-orm";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import {
+  auditLogs,
+  type AuditLog,
+  type NewAuditLog,
+} from "../../../../infrastructure/database/schema/audit-logs.schema";
+import type {
+  AuditLogEntity,
+  ActorType,
+  AuditEventType,
+} from "../../domain/entities/audit-log.entity";
+import type {
+  AuditLogRepository,
+  AuditLogQuery,
+} from "../../domain/repositories/audit-log.repository.interface";
 
 function toAuditLogEntity(result: AuditLog): AuditLogEntity {
   return {

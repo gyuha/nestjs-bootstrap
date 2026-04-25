@@ -1,14 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import type { IDocumentConnector, RawDocument } from '../../domain/services/idocument-connector.interface';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { Injectable } from "@nestjs/common";
+import type {
+  IDocumentConnector,
+  RawDocument,
+} from "../../domain/services/idocument-connector.interface";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
-const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.pdf', '.docx'];
+const SUPPORTED_EXTENSIONS = [".md", ".txt", ".pdf", ".docx"];
 
 @Injectable()
 export class FileSystemConnector implements IDocumentConnector {
   supports(source: string): boolean {
-    return source === 'filesystem';
+    return source === "filesystem";
   }
 
   async fetch(sourcePath: string): Promise<RawDocument[]> {
@@ -44,12 +47,12 @@ export class FileSystemConnector implements IDocumentConnector {
 
   private async readFile(filePath: string): Promise<RawDocument | null> {
     try {
-      const content = await fs.promises.readFile(filePath, 'utf-8');
+      const content = await fs.promises.readFile(filePath, "utf-8");
       const ext = path.extname(filePath).toLowerCase();
 
       return {
         id: crypto.randomUUID(),
-        source: 'filesystem',
+        source: "filesystem",
         sourcePath: filePath,
         content: content,
         metadata: {

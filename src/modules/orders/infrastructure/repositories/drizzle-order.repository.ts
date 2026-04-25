@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { orders, type Order, type NewOrder } from '../../../../infrastructure/database/schema/orders.schema';
-import { orderItems } from '../../../../infrastructure/database/schema/order-items.schema';
-import type { OrderRepository } from '../../domain/repositories/order.repository.interface';
-import type { OrderEntity, OrderItemEntity } from '../../domain/entities/order.entity';
+import { Injectable } from "@nestjs/common";
+import { eq } from "drizzle-orm";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import {
+  orders,
+  type Order,
+  type NewOrder,
+} from "../../../../infrastructure/database/schema/orders.schema";
+import { orderItems } from "../../../../infrastructure/database/schema/order-items.schema";
+import type { OrderRepository } from "../../domain/repositories/order.repository.interface";
+import type { OrderEntity, OrderItemEntity } from "../../domain/entities/order.entity";
 
 @Injectable()
 export class DrizzleOrderRepository implements OrderRepository {
@@ -15,9 +19,12 @@ export class DrizzleOrderRepository implements OrderRepository {
     if (!orderResult[0]) return null;
 
     const order = orderResult[0];
-    const itemsResult = await this.db.db.select().from(orderItems).where(eq(orderItems.orderId, id));
+    const itemsResult = await this.db.db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, id));
 
-    const items: OrderItemEntity[] = itemsResult.map(item => ({
+    const items: OrderItemEntity[] = itemsResult.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
       unitPrice: parseFloat(item.unitPrice),
@@ -39,8 +46,11 @@ export class DrizzleOrderRepository implements OrderRepository {
 
     const result: OrderEntity[] = [];
     for (const order of orderResults) {
-      const itemsResult = await this.db.db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-      const items: OrderItemEntity[] = itemsResult.map(item => ({
+      const itemsResult = await this.db.db
+        .select()
+        .from(orderItems)
+        .where(eq(orderItems.orderId, order.id));
+      const items: OrderItemEntity[] = itemsResult.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
         unitPrice: parseFloat(item.unitPrice),
@@ -62,7 +72,7 @@ export class DrizzleOrderRepository implements OrderRepository {
     const newOrder: NewOrder = {
       id: entity.id,
       userId: entity.userId,
-      status: entity.status as 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
+      status: entity.status as "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED",
       totalAmount: entity.totalAmount.toString(),
     };
     await this.db.db.insert(orders).values(newOrder);
@@ -78,6 +88,12 @@ export class DrizzleOrderRepository implements OrderRepository {
   }
 
   async updateStatus(id: string, status: string): Promise<void> {
-    await this.db.db.update(orders).set({ status: status as 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED', updatedAt: new Date() }).where(eq(orders.id, id));
+    await this.db.db
+      .update(orders)
+      .set({
+        status: status as "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED",
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, id));
   }
 }

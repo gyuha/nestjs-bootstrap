@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import type { RedisService } from '../../../../infrastructure/redis/redis.service';
-import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { refreshTokens } from '../../../../infrastructure/database/schema/refresh-tokens.schema';
-import type { AuthTokenRepositoryInterface } from '../../domain/repositories/auth-token.repository.interface';
-import type { RefreshTokenRecord } from '../../domain/value-objects/token.value-object';
-import { eq, and, isNull } from 'drizzle-orm';
+import { Injectable } from "@nestjs/common";
+import type { RedisService } from "../../../../infrastructure/redis/redis.service";
+import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { refreshTokens } from "../../../../infrastructure/database/schema/refresh-tokens.schema";
+import type { AuthTokenRepositoryInterface } from "../../domain/repositories/auth-token.repository.interface";
+import type { RefreshTokenRecord } from "../../domain/value-objects/token.value-object";
+import { eq, and, isNull } from "drizzle-orm";
 
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
 
@@ -15,7 +15,12 @@ export class RedisPostgresTokenRepository implements AuthTokenRepositoryInterfac
     private readonly db: DrizzleService,
   ) {}
 
-  async storeRefreshToken(tokenHash: string, userId: string, deviceInfo: string | null, expiresAt: Date): Promise<void> {
+  async storeRefreshToken(
+    tokenHash: string,
+    userId: string,
+    deviceInfo: string | null,
+    expiresAt: Date,
+  ): Promise<void> {
     // Store in Redis for fast validation
     await this.redis.set(`refresh:${tokenHash}`, userId, REFRESH_TOKEN_TTL);
 

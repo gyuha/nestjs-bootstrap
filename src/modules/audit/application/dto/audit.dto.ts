@@ -1,8 +1,8 @@
 // src/modules/audit/application/dto/audit.dto.ts
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, IsDateString, IsInt, Min } from 'class-validator';
-import { Type } from 'class-transformer';
-import { AuditEventType } from '../../domain/value-objects/event-type.value-object';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsOptional, IsString, IsDateString, IsInt, Min } from "class-validator";
+import { Type } from "class-transformer";
+import { AuditEventType } from "../../domain/value-objects/event-type.value-object";
 
 export class QueryAuditLogsDto {
   @ApiPropertyOptional()

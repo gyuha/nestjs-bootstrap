@@ -1,18 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { LogEntry, LogFilters } from '../../domain/entities/api-log.entity';
-import { TokenUsageRecord, AggregatedMetrics } from '../../domain/entities/token-usage-log.entity';
-import { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { aiApiLogs } from '../../../../infrastructure/database/schema/ai-api-logs.schema';
-import { aiTokenUsage } from '../../../../infrastructure/database/schema/ai-token-usage.schema';
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { Injectable } from "@nestjs/common";
+import { LogEntry, LogFilters } from "../../domain/entities/api-log.entity";
+import { TokenUsageRecord, AggregatedMetrics } from "../../domain/entities/token-usage-log.entity";
+import { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { aiApiLogs } from "../../../../infrastructure/database/schema/ai-api-logs.schema";
+import { aiTokenUsage } from "../../../../infrastructure/database/schema/ai-token-usage.schema";
+import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 
-export const LOG_REPOSITORY = 'LOG_REPOSITORY';
+export const LOG_REPOSITORY = "LOG_REPOSITORY";
 
 export interface ILogRepository {
   save(entry: LogEntry): Promise<void>;
   saveTokenUsage(record: TokenUsageRecord): Promise<void>;
   findMany(filters: LogFilters): Promise<LogEntry[]>;
-  aggregateMetrics(filters: { userId?: string; provider?: string; startDate?: Date; endDate?: Date }): Promise<AggregatedMetrics>;
+  aggregateMetrics(filters: {
+    userId?: string;
+    provider?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<AggregatedMetrics>;
 }
 
 @Injectable()
@@ -28,7 +33,7 @@ export class PostgresLogRepository implements ILogRepository {
       path: entry.path,
       statusCode: entry.statusCode,
       latencyMs: entry.latencyMs,
-      provider: entry.provider as 'openai' | 'azure-openai',
+      provider: entry.provider as "openai" | "azure-openai",
       useRag: entry.useRag,
       ragHitRate: entry.ragHitRate,
       errorCode: entry.errorCode,
@@ -43,7 +48,7 @@ export class PostgresLogRepository implements ILogRepository {
       promptTokens: record.promptTokens,
       completionTokens: record.completionTokens,
       totalTokens: record.totalTokens,
-      provider: record.provider as 'openai' | 'azure-openai',
+      provider: record.provider as "openai" | "azure-openai",
       model: record.model,
       estimatedCostCents: record.estimatedCostCents,
     });
@@ -59,7 +64,7 @@ export class PostgresLogRepository implements ILogRepository {
       conditions.push(eq(aiApiLogs.sessionId, filters.sessionId));
     }
     if (filters.provider) {
-      conditions.push(eq(aiApiLogs.provider, filters.provider as 'openai' | 'azure-openai'));
+      conditions.push(eq(aiApiLogs.provider, filters.provider as "openai" | "azure-openai"));
     }
     if (filters.startDate) {
       conditions.push(gte(aiApiLogs.createdAt, filters.startDate));
@@ -93,14 +98,19 @@ export class PostgresLogRepository implements ILogRepository {
     }));
   }
 
-  async aggregateMetrics(filters: { userId?: string; provider?: string; startDate?: Date; endDate?: Date }): Promise<AggregatedMetrics> {
+  async aggregateMetrics(filters: {
+    userId?: string;
+    provider?: string;
+    startDate?: Date;
+    endDate?: Date;
+  }): Promise<AggregatedMetrics> {
     const conditions = [];
 
     if (filters.userId) {
       conditions.push(eq(aiApiLogs.userId, filters.userId));
     }
     if (filters.provider) {
-      conditions.push(eq(aiApiLogs.provider, filters.provider as 'openai' | 'azure-openai'));
+      conditions.push(eq(aiApiLogs.provider, filters.provider as "openai" | "azure-openai"));
     }
     if (filters.startDate) {
       conditions.push(gte(aiApiLogs.createdAt, filters.startDate));

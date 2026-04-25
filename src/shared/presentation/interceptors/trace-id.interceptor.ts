@@ -1,8 +1,13 @@
-import { Injectable, type NestInterceptor, type ExecutionContext, type CallHandler } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import { v4 as uuidv4 } from 'uuid';
+import {
+  Injectable,
+  type NestInterceptor,
+  type ExecutionContext,
+  type CallHandler,
+} from "@nestjs/common";
+import type { Observable } from "rxjs";
+import { v4 as uuidv4 } from "uuid";
 
-export const TRACE_ID_HEADER = 'x-trace-id';
+export const TRACE_ID_HEADER = "x-trace-id";
 
 @Injectable()
 export class TraceIdInterceptor implements NestInterceptor {

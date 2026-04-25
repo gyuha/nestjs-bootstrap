@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import type { OAuthServiceInterface } from '../../domain/services/oauth.service.interface';
-import { OAuthProvider } from '../../domain/value-objects/oauth-provider.value-object';
-import type { OAuthUserInfo } from '../../domain/entities/auth.entity';
-import axios from 'axios';
+import { Injectable } from "@nestjs/common";
+import type { OAuthServiceInterface } from "../../domain/services/oauth.service.interface";
+import { OAuthProvider } from "../../domain/value-objects/oauth-provider.value-object";
+import type { OAuthUserInfo } from "../../domain/entities/auth.entity";
+import axios from "axios";
 
 @Injectable()
 export class OAuthGoogleService implements OAuthServiceInterface {
@@ -11,24 +11,24 @@ export class OAuthGoogleService implements OAuthServiceInterface {
   private readonly redirectUri = process.env.GOOGLE_REDIRECT_URI!;
 
   getAuthUrl(provider: OAuthProvider): string {
-    if (provider !== OAuthProvider.GOOGLE) throw new Error('Invalid provider');
+    if (provider !== OAuthProvider.GOOGLE) throw new Error("Invalid provider");
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&response_type=code&scope=email%20profile`;
   }
 
   async getUserInfo(provider: OAuthProvider, code: string): Promise<OAuthUserInfo> {
-    if (provider !== OAuthProvider.GOOGLE) throw new Error('Invalid provider');
+    if (provider !== OAuthProvider.GOOGLE) throw new Error("Invalid provider");
 
-    const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
+    const tokenResponse = await axios.post("https://oauth2.googleapis.com/token", {
       client_id: this.clientId,
       client_secret: this.clientSecret,
       code,
       redirect_uri: this.redirectUri,
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
     });
 
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
 
-    const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+    const userInfoResponse = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 

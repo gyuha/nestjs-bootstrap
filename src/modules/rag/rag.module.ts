@@ -1,10 +1,16 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { RAGService } from './application/services/rag.service';
-import { FileSystemConnector } from './application/connectors/file-system.connector';
-import { DatabaseConnector } from './application/connectors/database.connector';
-import { PgVectorStoreService, VECTOR_STORE_SERVICE } from './infrastructure/vector-store/pg-vector-store.service';
-import { OpenAIEmbeddingService, EMBEDDING_SERVICE } from './infrastructure/embedding/openai-embedding.service';
-import { AiGatewayModule } from '../ai-gateway/ai-gateway.module';
+import { Module, forwardRef } from "@nestjs/common";
+import { RAGService } from "./application/services/rag.service";
+import { FileSystemConnector } from "./application/connectors/file-system.connector";
+import { DatabaseConnector } from "./application/connectors/database.connector";
+import {
+  PgVectorStoreService,
+  VECTOR_STORE_SERVICE,
+} from "./infrastructure/vector-store/pg-vector-store.service";
+import {
+  OpenAIEmbeddingService,
+  EMBEDDING_SERVICE,
+} from "./infrastructure/embedding/openai-embedding.service";
+import { AiGatewayModule } from "../ai-gateway/ai-gateway.module";
 
 @Module({
   imports: [forwardRef(() => AiGatewayModule)],

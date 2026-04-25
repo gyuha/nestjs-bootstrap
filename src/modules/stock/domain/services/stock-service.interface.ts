@@ -1,4 +1,4 @@
-import type { ProductEntity } from '../../../products/domain/entities/product.entity';
+import type { ProductEntity } from "../../../products/domain/entities/product.entity";
 
 export interface StockServiceInterface {
   validateAndDecrementStock(productId: string, quantity: number): Promise<ProductEntity>;

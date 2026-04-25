@@ -1,13 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { OAuthProvider } from '../../domain/value-objects/oauth-provider.value-object';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { OAuthProvider } from "../../domain/value-objects/oauth-provider.value-object";
 
 export class LoginPasswordDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: "user@example.com" })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'password123' })
+  @ApiProperty({ example: "password123" })
   @IsString()
   @IsNotEmpty()
   password: string;
@@ -18,7 +18,7 @@ export class LoginOAuthDto {
   @IsEnum(OAuthProvider)
   provider: OAuthProvider;
 
-  @ApiProperty({ description: 'OAuth authorization code' })
+  @ApiProperty({ description: "OAuth authorization code" })
   @IsString()
   @IsNotEmpty()
   code: string;
@@ -56,28 +56,28 @@ export class TokenRefreshResponseDto {
 }
 
 export class RegisterDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: "user@example.com" })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'Password123!' })
+  @ApiProperty({ example: "Password123!" })
   @IsString()
   password: string;
 
-  @ApiProperty({ example: 'John Doe' })
+  @ApiProperty({ example: "John Doe" })
   @IsString()
   @IsNotEmpty()
   name: string;
 }
 
 export class ResendVerificationDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: "user@example.com" })
   @IsEmail()
   email: string;
 }
 
 export class ForgotPasswordDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: "user@example.com" })
   @IsEmail()
   email: string;
 }
@@ -87,13 +87,13 @@ export class ResetPasswordDto {
   @IsString()
   token: string;
 
-  @ApiProperty({ example: 'NewPassword123!' })
+  @ApiProperty({ example: "NewPassword123!" })
   @IsString()
   newPassword: string;
 }
 
 export class MagicLinkRequestDto {
-  @ApiProperty({ example: 'user@example.com' })
+  @ApiProperty({ example: "user@example.com" })
   @IsEmail()
   email: string;
 }

@@ -1,20 +1,20 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import type { ChatUseCase } from '../../application/services/chat-use-case';
-import type { EmbedUseCase } from '../../application/services/embedding-use-case';
-import type { ChatRequestDto } from '../../application/dto/request/chat-request.dto';
-import type { EmbedRequestDto } from '../../application/dto/request/embed-request.dto';
-import { ApiKeyGuard } from '../guards/api-key.guard';
-import { TokenUsageInterceptor } from '../interceptors/token-usage.interceptor';
-import { UseInterceptors } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from "@nestjs/common";
+import type { ChatUseCase } from "../../application/services/chat-use-case";
+import type { EmbedUseCase } from "../../application/services/embedding-use-case";
+import type { ChatRequestDto } from "../../application/dto/request/chat-request.dto";
+import type { EmbedRequestDto } from "../../application/dto/request/embed-request.dto";
+import { ApiKeyGuard } from "../guards/api-key.guard";
+import { TokenUsageInterceptor } from "../interceptors/token-usage.interceptor";
+import { UseInterceptors } from "@nestjs/common";
 
-@Controller('api/v1/ai')
+@Controller("api/v1/ai")
 export class AiGatewayController {
   constructor(
     private readonly chatUseCase: ChatUseCase,
     private readonly embedUseCase: EmbedUseCase,
   ) {}
 
-  @Post('chat')
+  @Post("chat")
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(TokenUsageInterceptor)
   @HttpCode(HttpStatus.OK)
@@ -22,7 +22,7 @@ export class AiGatewayController {
     return this.chatUseCase.execute(dto);
   }
 
-  @Post('embed')
+  @Post("embed")
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(TokenUsageInterceptor)
   @HttpCode(HttpStatus.OK)
@@ -30,13 +30,13 @@ export class AiGatewayController {
     return this.embedUseCase.execute(dto);
   }
 
-  @Get('models')
+  @Get("models")
   @UseGuards(ApiKeyGuard)
   async models() {
     return {
       data: [
-        { id: 'gpt-4o', provider: 'openai', name: 'GPT-4o' },
-        { id: 'gpt-4o-mini', provider: 'openai', name: 'GPT-4o Mini' },
+        { id: "gpt-4o", provider: "openai", name: "GPT-4o" },
+        { id: "gpt-4o-mini", provider: "openai", name: "GPT-4o Mini" },
       ],
     };
   }

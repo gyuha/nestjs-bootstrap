@@ -1,4 +1,4 @@
-import { Role, UserStatus } from '../value-objects/role.value-object';
+import { Role, UserStatus } from "../value-objects/role.value-object";
 
 export { Role, UserStatus };
 

@@ -1,8 +1,8 @@
-import { ValueObject } from '../../../../shared/domain/value-objects/value-object';
+import { ValueObject } from "../../../../shared/domain/value-objects/value-object";
 
 export enum ProviderType {
-  OPENAI = 'openai',
-  AZURE_OPENAI = 'azure-openai',
+  OPENAI = "openai",
+  AZURE_OPENAI = "azure-openai",
 }
 
 export class ProviderTypeVO extends ValueObject<ProviderType> {

@@ -1,31 +1,40 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { HttpException, HttpStatus } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { createHash, randomBytes } from 'node:crypto';
-import { eq, sql } from 'drizzle-orm';
-import type { AuthResult } from '../domain/entities/auth.entity';
-import type { TokenPair } from '../domain/value-objects/token.value-object';
-import { OAuthProvider } from '../domain/value-objects/oauth-provider.value-object';
-import type { UserRepository } from '../../users/domain/repository/user.repository.interface';
-import type { JwtTokenService } from '../infrastructure/services/jwt-token.service';
-import type { AuthTokenRepositoryInterface } from '../domain/repositories/auth-token.repository.interface';
-import type { OAuthGoogleService } from '../infrastructure/services/oauth-google.service';
-import type { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.service';
-import type { DrizzleService } from '../../../infrastructure/database/drizzle.service';
-import { users } from '../../../infrastructure/database/schema/users.schema';
-import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-accounts.schema';
-import { passwordResetTokens } from '../../../infrastructure/database/schema/password-reset.schema';
-import { magicLinks } from '../../../infrastructure/database/schema/magic-links.schema';
-import { getPasswordResetEmailHtml, getPasswordResetEmailSubject } from '../../../shared/infrastructure/email/templates/password-reset-email';
-import { getMagicLinkEmailHtml, getMagicLinkEmailSubject } from '../../../shared/infrastructure/email/templates/magic-link-email';
-import { AuthException } from '../presentation/exceptions/auth.exception';
-import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
-import type { EnvService } from '../../../config/env.service';
-import type { EmailServiceInterface } from '../../../shared/infrastructure/email/email-service.interface';
-import { validatePassword } from '../../../shared/utils/password.validation';
-import { getVerificationEmailHtml, getVerificationEmailSubject } from '../../../shared/infrastructure/email/templates/verification-email';
+import { Injectable, Inject } from "@nestjs/common";
+import { HttpException, HttpStatus } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { createHash, randomBytes } from "node:crypto";
+import { eq, sql } from "drizzle-orm";
+import type { AuthResult } from "../domain/entities/auth.entity";
+import type { TokenPair } from "../domain/value-objects/token.value-object";
+import { OAuthProvider } from "../domain/value-objects/oauth-provider.value-object";
+import type { UserRepository } from "../../users/domain/repository/user.repository.interface";
+import type { JwtTokenService } from "../infrastructure/services/jwt-token.service";
+import type { AuthTokenRepositoryInterface } from "../domain/repositories/auth-token.repository.interface";
+import type { OAuthGoogleService } from "../infrastructure/services/oauth-google.service";
+import type { OAuthKakaoService } from "../infrastructure/services/oauth-kakao.service";
+import type { DrizzleService } from "../../../infrastructure/database/drizzle.service";
+import { users } from "../../../infrastructure/database/schema/users.schema";
+import { oauthAccounts } from "../../../infrastructure/database/schema/oauth-accounts.schema";
+import { passwordResetTokens } from "../../../infrastructure/database/schema/password-reset.schema";
+import { magicLinks } from "../../../infrastructure/database/schema/magic-links.schema";
+import {
+  getPasswordResetEmailHtml,
+  getPasswordResetEmailSubject,
+} from "../../../shared/infrastructure/email/templates/password-reset-email";
+import {
+  getMagicLinkEmailHtml,
+  getMagicLinkEmailSubject,
+} from "../../../shared/infrastructure/email/templates/magic-link-email";
+import { AuthException } from "../presentation/exceptions/auth.exception";
+import { Role, UserStatus } from "../../users/domain/value-objects/role.value-object";
+import type { EnvService } from "../../../config/env.service";
+import type { EmailServiceInterface } from "../../../shared/infrastructure/email/email-service.interface";
+import { validatePassword } from "../../../shared/utils/password.validation";
+import {
+  getVerificationEmailHtml,
+  getVerificationEmailSubject,
+} from "../../../shared/infrastructure/email/templates/verification-email";
 
-const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
+const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_LOGIN_ATTEMPTS = 10;
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -130,9 +139,13 @@ export class AuthApplicationService {
     await this._tokenRepo.revokeRefreshToken(tokenHash);
 
     // Generate new token pair
-    const expiresIn = this.env.get('REFRESH_TOKEN_EXPIRES_IN');
+    const expiresIn = this.env.get("REFRESH_TOKEN_EXPIRES_IN");
     const expiresAt = this.calculateExpiresAt(expiresIn);
-    const newTokenPair = await this.jwtTokenService.generateTokenPair(user.id, user.email, user.role);
+    const newTokenPair = await this.jwtTokenService.generateTokenPair(
+      user.id,
+      user.email,
+      user.role,
+    );
 
     // Store new refresh token
     await this._tokenRepo.storeRefreshToken(
@@ -150,7 +163,7 @@ export class AuthApplicationService {
     const validation = validatePassword(dto.password);
     if (!validation.isValid) {
       throw new HttpException(
-        { code: 'AUTH_WEAK_PASSWORD', message: validation.errors.join(', ') },
+        { code: "AUTH_WEAK_PASSWORD", message: validation.errors.join(", ") },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -185,7 +198,7 @@ export class AuthApplicationService {
     await this.db.db.insert(users).values(newUser);
 
     // Send verification email
-    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl = this.env.get("APP_URL") || "http://localhost:3000";
     const verificationUrl = `${baseUrl}/api/v1/auth/verify-email/${verificationToken}`;
     await this.emailService.send({
       to: dto.email,
@@ -234,7 +247,7 @@ export class AuthApplicationService {
       .where(eq(users.id, user.id));
 
     // Send email
-    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl = this.env.get("APP_URL") || "http://localhost:3000";
     const verificationUrl = `${baseUrl}/api/v1/auth/verify-email/${verificationToken}`;
     await this.emailService.send({
       to: email,
@@ -261,7 +274,7 @@ export class AuthApplicationService {
     });
 
     // Send email
-    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl = this.env.get("APP_URL") || "http://localhost:3000";
     const resetUrl = `${baseUrl}/api/v1/auth/reset-password/${token}`;
     await this.emailService.send({
       to: email,
@@ -275,7 +288,7 @@ export class AuthApplicationService {
     const validation = validatePassword(newPassword);
     if (!validation.isValid) {
       throw new HttpException(
-        { code: 'AUTH_WEAK_PASSWORD', message: validation.errors.join(', ') },
+        { code: "AUTH_WEAK_PASSWORD", message: validation.errors.join(", ") },
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -323,7 +336,7 @@ export class AuthApplicationService {
     });
 
     // Send email
-    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const baseUrl = this.env.get("APP_URL") || "http://localhost:3000";
     const magicLinkUrl = `${baseUrl}/api/v1/auth/magic-link/${token}`;
     await this.emailService.send({
       to: email,
@@ -358,7 +371,7 @@ export class AuthApplicationService {
   }
 
   private generateSecureToken(): string {
-    return randomBytes(32).toString('hex');
+    return randomBytes(32).toString("hex");
   }
 
   private async incrementFailedLoginAttempts(userId: string): Promise<void> {
@@ -384,13 +397,18 @@ export class AuthApplicationService {
   }
 
   private hashToken(token: string): string {
-    return createHash('sha256').update(token).digest('hex');
+    return createHash("sha256").update(token).digest("hex");
   }
 
-  private async generateAuthResult(userId: string, email: string, name: string, role: string): Promise<AuthResult> {
+  private async generateAuthResult(
+    userId: string,
+    email: string,
+    name: string,
+    role: string,
+  ): Promise<AuthResult> {
     const tokenPair = await this.jwtTokenService.generateTokenPair(userId, email, role);
 
-    const expiresIn = this.env.get('REFRESH_TOKEN_EXPIRES_IN');
+    const expiresIn = this.env.get("REFRESH_TOKEN_EXPIRES_IN");
     const expiresAt = this.calculateExpiresAt(expiresIn);
 
     await this._tokenRepo.storeRefreshToken(

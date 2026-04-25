@@ -1,14 +1,22 @@
-import { Injectable, Inject } from '@nestjs/common';
-import type { ProductEntity } from '../../domain/entities/product.entity';
-import type { ProductRepository } from '../../domain/repositories/product.repository.interface';
+import { Injectable, Inject } from "@nestjs/common";
+import type { ProductEntity } from "../../domain/entities/product.entity";
+import type { ProductRepository } from "../../domain/repositories/product.repository.interface";
 
-const PRODUCT_REPOSITORY = 'PRODUCT_REPOSITORY';
+const PRODUCT_REPOSITORY = "PRODUCT_REPOSITORY";
 
 @Injectable()
 export class ProductApplicationService {
   constructor(@Inject(PRODUCT_REPOSITORY) private readonly productRepo: ProductRepository) {}
 
-  async create(dto: { name: string; description?: string; price: number; quantity: number; lowStockThreshold?: number; location?: string; categoryId?: string }): Promise<ProductEntity> {
+  async create(dto: {
+    name: string;
+    description?: string;
+    price: number;
+    quantity: number;
+    lowStockThreshold?: number;
+    location?: string;
+    categoryId?: string;
+  }): Promise<ProductEntity> {
     const product: ProductEntity = {
       id: crypto.randomUUID(),
       name: dto.name,
@@ -36,7 +44,7 @@ export class ProductApplicationService {
 
   async update(id: string, dto: Partial<ProductEntity>): Promise<ProductEntity> {
     const product = await this.productRepo.findById(id);
-    if (!product) throw new Error('Product not found');
+    if (!product) throw new Error("Product not found");
     const updated = { ...product, ...dto, updatedAt: new Date() };
     await this.productRepo.update(updated);
     return updated;
@@ -48,9 +56,9 @@ export class ProductApplicationService {
 
   async adjustStock(id: string, quantity: number): Promise<ProductEntity> {
     const product = await this.productRepo.findById(id);
-    if (!product) throw new Error('Product not found');
+    if (!product) throw new Error("Product not found");
     const newQuantity = product.quantity + quantity;
-    if (newQuantity < 0) throw new Error('Insufficient stock');
+    if (newQuantity < 0) throw new Error("Insufficient stock");
     await this.productRepo.updateStock(id, newQuantity);
     return { ...product, quantity: newQuantity };
   }

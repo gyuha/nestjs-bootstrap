@@ -1,10 +1,20 @@
-import { Controller, Post, Get, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
-import { RAGService } from '../../../rag/application/services/rag.service';
-import { LoggingService } from '../../../monitoring/application/services/logging.service';
-import { MetricsService } from '../../../monitoring/application/services/metrics.service';
-import { LogFilters } from '../../../monitoring/domain/entities/api-log.entity';
-import { MetricFilters } from '../../../monitoring/application/services/metrics.service';
-import { ChunkStrategy } from '../../../rag/domain/value-objects/chunk-strategy.vo';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from "@nestjs/common";
+import { RAGService } from "../../../rag/application/services/rag.service";
+import { LoggingService } from "../../../monitoring/application/services/logging.service";
+import { MetricsService } from "../../../monitoring/application/services/metrics.service";
+import { LogFilters } from "../../../monitoring/domain/entities/api-log.entity";
+import { MetricFilters } from "../../../monitoring/application/services/metrics.service";
+import { ChunkStrategy } from "../../../rag/domain/value-objects/chunk-strategy.vo";
 
 export class IndexRequestDto {
   source!: string;
@@ -13,7 +23,7 @@ export class IndexRequestDto {
   chunkStrategy?: ChunkStrategy;
 }
 
-@Controller('api/v1/ai/admin')
+@Controller("api/v1/ai/admin")
 export class AiAdminController {
   constructor(
     private readonly ragService: RAGService,
@@ -21,7 +31,7 @@ export class AiAdminController {
     private readonly metricsService: MetricsService,
   ) {}
 
-  @Post('index')
+  @Post("index")
   @HttpCode(HttpStatus.OK)
   async indexDocuments(@Body() dto: IndexRequestDto) {
     await this.ragService.indexDocuments(dto.source, {
@@ -32,26 +42,26 @@ export class AiAdminController {
     return { success: true };
   }
 
-  @Delete('index/:source')
+  @Delete("index/:source")
   @HttpCode(HttpStatus.OK)
-  async deleteIndexedDocuments(@Param('_source') _source: string) {
+  async deleteIndexedDocuments(@Param("_source") _source: string) {
     // TODO: Implement deletion logic using _source
     return { success: true };
   }
 
-  @Get('logs')
+  @Get("logs")
   async getLogs(@Query() filters: LogFilters) {
     const logs = await this.loggingService.findLogs(filters);
     return { data: logs };
   }
 
-  @Get('metrics')
+  @Get("metrics")
   async getMetrics(@Query() filters: MetricFilters) {
     const metrics = await this.metricsService.aggregateMetrics(filters);
     return { data: metrics };
   }
 
-  @Get('metrics/prometheus')
+  @Get("metrics/prometheus")
   async getPrometheusMetrics(@Query() filters: MetricFilters) {
     const metrics = await this.metricsService.aggregateMetrics(filters);
     // Format as Prometheus text

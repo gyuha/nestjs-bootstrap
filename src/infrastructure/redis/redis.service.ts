@@ -1,13 +1,13 @@
-import { Injectable, type OnModuleDestroy } from '@nestjs/common';
-import Redis from 'ioredis';
-import type { EnvService } from '../../config/env.service';
+import { Injectable, type OnModuleDestroy } from "@nestjs/common";
+import Redis from "ioredis";
+import type { EnvService } from "../../config/env.service";
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
   private readonly client: Redis;
 
   constructor(env: EnvService) {
-    const url = env.get('REDIS_URL');
+    const url = env.get("REDIS_URL");
     this.client = new Redis(url);
   }
 

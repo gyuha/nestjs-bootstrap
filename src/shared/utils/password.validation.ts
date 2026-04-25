@@ -12,16 +12,16 @@ export function validatePassword(password: string): PasswordValidationResult {
     errors.push(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
   }
   if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
+    errors.push("Password must contain at least one lowercase letter");
   }
   if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
+    errors.push("Password must contain at least one uppercase letter");
   }
   if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
+    errors.push("Password must contain at least one number");
   }
   if (!/[@$!%*?&]/.test(password)) {
-    errors.push('Password must contain at least one special character (@$!%*?&)');
+    errors.push("Password must contain at least one special character (@$!%*?&)");
   }
 
   return { isValid: errors.length === 0, errors };

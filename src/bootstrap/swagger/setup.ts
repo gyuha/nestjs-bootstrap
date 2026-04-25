@@ -1,6 +1,6 @@
-import type { INestApplication } from '@nestjs/common';
-import { SwaggerModule } from '@nestjs/swagger';
-import { createDocumentBuilder, SWAGGER_API_VERSION } from './constants';
+import type { INestApplication } from "@nestjs/common";
+import { SwaggerModule } from "@nestjs/swagger";
+import { createDocumentBuilder, SWAGGER_API_VERSION } from "./constants";
 
 export function setupSwagger(app: INestApplication): void {
   const document = createDocumentBuilder().build();

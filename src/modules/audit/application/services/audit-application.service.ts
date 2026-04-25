@@ -1,9 +1,16 @@
-import { Injectable, Inject } from '@nestjs/common';
-import type { AuditLogEntity, ActorType, AuditEventType } from '../../domain/entities/audit-log.entity';
-import type { AuditLogRepository, AuditLogQuery } from '../../domain/repositories/audit-log.repository.interface';
-import type { EnvService } from '../../../../config/env.service';
+import { Injectable, Inject } from "@nestjs/common";
+import type {
+  AuditLogEntity,
+  ActorType,
+  AuditEventType,
+} from "../../domain/entities/audit-log.entity";
+import type {
+  AuditLogRepository,
+  AuditLogQuery,
+} from "../../domain/repositories/audit-log.repository.interface";
+import type { EnvService } from "../../../../config/env.service";
 
-const AUDIT_LOG_REPOSITORY = 'AUDIT_LOG_REPOSITORY';
+const AUDIT_LOG_REPOSITORY = "AUDIT_LOG_REPOSITORY";
 const CLEANUP_THRESHOLD_DAYS = 30;
 
 @Injectable()
@@ -36,7 +43,9 @@ export class AuditApplicationService {
     await this.auditRepo.save(entity);
   }
 
-  async queryLogs(filter: AuditLogQuery): Promise<{ data: AuditLogEntity[]; total: number; page: number; limit: number }> {
+  async queryLogs(
+    filter: AuditLogQuery,
+  ): Promise<{ data: AuditLogEntity[]; total: number; page: number; limit: number }> {
     const page = filter.page || 1;
     const limit = filter.limit || 20;
     const result = await this.auditRepo.query({ ...filter, page, limit });

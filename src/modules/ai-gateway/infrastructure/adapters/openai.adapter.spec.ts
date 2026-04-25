@@ -1,12 +1,12 @@
-import { OpenAIAdapter, type OpenAIAdapterConfig } from './openai.adapter';
-import { AIRequest } from '../../domain/entities/ai-request.entity';
-import type { ChatCompletion } from 'openai/resources/index';
-import type { CreateEmbeddingResponse } from 'openai/resources/index';
+import { OpenAIAdapter, type OpenAIAdapterConfig } from "./openai.adapter";
+import { AIRequest } from "../../domain/entities/ai-request.entity";
+import type { ChatCompletion } from "openai/resources/index";
+import type { CreateEmbeddingResponse } from "openai/resources/index";
 
 const mockChatCompletionsCreate = jest.fn();
 const mockEmbeddingsCreate = jest.fn();
 
-jest.mock('openai', () => {
+jest.mock("openai", () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => ({
@@ -22,25 +22,25 @@ jest.mock('openai', () => {
   };
 });
 
-describe('OpenAIAdapter', () => {
+describe("OpenAIAdapter", () => {
   let adapter: OpenAIAdapter;
   let config: OpenAIAdapterConfig;
 
   const mockChatCompletion: ChatCompletion = {
-    id: 'chatcmpl-123',
+    id: "chatcmpl-123",
     choices: [
       {
         index: 0,
         message: {
-          role: 'assistant',
-          content: 'Hello, how can I help you?',
+          role: "assistant",
+          content: "Hello, how can I help you?",
         },
-        finish_reason: 'stop',
+        finish_reason: "stop",
       },
     ],
     created: 1234567890,
-    model: 'gpt-4o',
-    object: 'chat.completion',
+    model: "gpt-4o",
+    object: "chat.completion",
     usage: {
       prompt_tokens: 10,
       completion_tokens: 20,
@@ -53,16 +53,16 @@ describe('OpenAIAdapter', () => {
       {
         embedding: [0.1, 0.2, 0.3],
         index: 0,
-        object: 'embedding',
+        object: "embedding",
       },
       {
         embedding: [0.4, 0.5, 0.6],
         index: 1,
-        object: 'embedding',
+        object: "embedding",
       },
     ],
-    model: 'text-embedding-3-small',
-    object: 'list',
+    model: "text-embedding-3-small",
+    object: "list",
     usage: {
       prompt_tokens: 8,
       completion_tokens: 0,
@@ -72,9 +72,9 @@ describe('OpenAIAdapter', () => {
 
   beforeEach(() => {
     config = {
-      apiKey: 'test-api-key',
-      organization: 'test-org',
-      defaultModel: 'gpt-4o',
+      apiKey: "test-api-key",
+      organization: "test-org",
+      defaultModel: "gpt-4o",
       timeoutMs: 30000,
     };
     adapter = new OpenAIAdapter(config);
@@ -84,16 +84,14 @@ describe('OpenAIAdapter', () => {
     jest.clearAllMocks();
   });
 
-  describe('chat', () => {
-    it('should send chat request and return AIResponse', async () => {
+  describe("chat", () => {
+    it("should send chat request and return AIResponse", async () => {
       mockChatCompletionsCreate.mockResolvedValue(mockChatCompletion);
 
       const request = new AIRequest({
-        id: 'req-1',
-        messages: [
-          { role: 'user', content: 'Hello' },
-        ],
-        model: 'gpt-4o',
+        id: "req-1",
+        messages: [{ role: "user", content: "Hello" }],
+        model: "gpt-4o",
         temperature: 0.7,
         maxTokens: 100,
       });
@@ -101,28 +99,28 @@ describe('OpenAIAdapter', () => {
       const response = await adapter.chat(request);
 
       expect(response).toBeDefined();
-      expect(response.id).toBe('chatcmpl-123');
-      expect(response.content).toBe('Hello, how can I help you?');
-      expect(response.model).toBe('gpt-4o');
+      expect(response.id).toBe("chatcmpl-123");
+      expect(response.content).toBe("Hello, how can I help you?");
+      expect(response.model).toBe("gpt-4o");
       expect(response.usage.promptTokens).toBe(10);
       expect(response.usage.completionTokens).toBe(20);
       expect(response.usage.totalTokens).toBe(30);
       expect(mockChatCompletionsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-4o',
-          messages: [{ role: 'user', content: 'Hello' }],
+          model: "gpt-4o",
+          messages: [{ role: "user", content: "Hello" }],
           temperature: 0.7,
           max_tokens: 100,
         }),
       );
     });
 
-    it('should use default values when not provided in request', async () => {
+    it("should use default values when not provided in request", async () => {
       mockChatCompletionsCreate.mockResolvedValue(mockChatCompletion);
 
       const request = new AIRequest({
-        id: 'req-1',
-        messages: [{ role: 'user', content: 'Hello' }],
+        id: "req-1",
+        messages: [{ role: "user", content: "Hello" }],
       });
 
       const response = await adapter.chat(request);
@@ -130,37 +128,37 @@ describe('OpenAIAdapter', () => {
       expect(response).toBeDefined();
       expect(mockChatCompletionsCreate).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: "gpt-4o",
           temperature: 0.7,
           max_tokens: 2048,
         }),
       );
     });
 
-    it('should handle undefined usage gracefully', async () => {
+    it("should handle undefined usage gracefully", async () => {
       const chatCompletionWithoutUsage: ChatCompletion = {
-        id: 'chatcmpl-no-usage',
+        id: "chatcmpl-no-usage",
         choices: [
           {
             index: 0,
             message: {
-              role: 'assistant',
-              content: 'Response without usage',
+              role: "assistant",
+              content: "Response without usage",
             },
-            finish_reason: 'stop',
+            finish_reason: "stop",
           },
         ],
         created: 1234567890,
-        model: 'gpt-4o',
-        object: 'chat.completion',
+        model: "gpt-4o",
+        object: "chat.completion",
         usage: undefined,
       } as unknown as ChatCompletion;
 
       mockChatCompletionsCreate.mockResolvedValue(chatCompletionWithoutUsage);
 
       const request = new AIRequest({
-        id: 'req-no-usage',
-        messages: [{ role: 'user', content: 'Test' }],
+        id: "req-no-usage",
+        messages: [{ role: "user", content: "Test" }],
       });
 
       const response = await adapter.chat(request);
@@ -172,16 +170,19 @@ describe('OpenAIAdapter', () => {
     });
   });
 
-  describe('embed', () => {
-    it('should create embeddings and return array of vectors', async () => {
+  describe("embed", () => {
+    it("should create embeddings and return array of vectors", async () => {
       mockEmbeddingsCreate.mockResolvedValue(mockEmbeddingResponse);
 
-      const texts = ['Hello world', 'OpenAI is great'];
+      const texts = ["Hello world", "OpenAI is great"];
       const result = await adapter.embed(texts);
 
-      expect(result).toEqual([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]);
+      expect(result).toEqual([
+        [0.1, 0.2, 0.3],
+        [0.4, 0.5, 0.6],
+      ]);
       expect(mockEmbeddingsCreate).toHaveBeenCalledWith({
-        model: 'text-embedding-3-small',
+        model: "text-embedding-3-small",
         input: texts,
       });
     });

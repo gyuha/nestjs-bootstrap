@@ -1,7 +1,7 @@
-import { registerAs } from '@nestjs/config';
-import { envSchema } from './env.schema';
+import { registerAs } from "@nestjs/config";
+import { envSchema } from "./env.schema";
 
-export const envConfig = registerAs('env', () => {
+export const envConfig = registerAs("env", () => {
   const raw = {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,

@@ -1,7 +1,7 @@
-import { AggregateRoot } from '../../../../shared/domain/aggregate-root';
+import { AggregateRoot } from "../../../../shared/domain/aggregate-root";
 
 export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -25,7 +25,7 @@ export class AIRequest extends AggregateRoot<AIRequestProps> {
   }
 
   get model(): string {
-    return this.props.model ?? 'gpt-4o';
+    return this.props.model ?? "gpt-4o";
   }
 
   get temperature(): number {
