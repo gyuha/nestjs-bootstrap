@@ -1,8 +1,8 @@
 // src/shared/presentation/interceptors/audit-logger.interceptor.ts
 import { Injectable, Inject, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
-import type { AuditApplicationService } from '../../../../modules/audit/application/services/audit-application.service';
-import type { AuditEventType, ActorType } from '../../../../modules/audit/domain/entities/audit-log.entity';
+import type { AuditApplicationService } from '../../../modules/audit/application/services/audit-application.service';
+import type { AuditEventType, ActorType } from '../../../modules/audit/domain/entities/audit-log.entity';
 
 const AUDIT_LOG_SERVICE = 'AUDIT_LOG_SERVICE';
 
