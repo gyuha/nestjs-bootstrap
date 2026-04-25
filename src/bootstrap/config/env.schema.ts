@@ -10,6 +10,12 @@ function booleanFromString(defaultValue: "true" | "false") {
 const optionalBooleanFromString = z.enum(["true", "false"]).transform((value) => value === "true");
 
 const nonBlankString = z.string().trim().min(1);
+function numericEnv<T extends z.ZodType>(schema: T) {
+  return z.preprocess(
+    (value) => (typeof value === "string" && value.trim().length === 0 ? undefined : value),
+    schema,
+  );
+}
 const tokenDuration = z
   .string()
   .trim()
@@ -72,9 +78,9 @@ const rawEnvSchema = z
     OPENAI_API_KEY: nonBlankString,
     OPENAI_CHAT_MODEL: nonBlankString.default("gpt-5-mini"),
     OPENAI_EMBEDDING_MODEL: nonBlankString.default("text-embedding-3-small"),
-    RAG_TOP_K: z.coerce.number().int().min(1).max(20).default(5),
-    RAG_MIN_SCORE: z.coerce.number().min(0).max(1).default(0.72),
-    RAG_MAX_CONTEXT_MESSAGES: z.coerce.number().int().min(0).max(30).default(8),
+    RAG_TOP_K: numericEnv(z.coerce.number().int().min(1).max(20)).default(5),
+    RAG_MIN_SCORE: numericEnv(z.coerce.number().min(0).max(1)).default(0.72),
+    RAG_MAX_CONTEXT_MESSAGES: numericEnv(z.coerce.number().int().min(0).max(30)).default(8),
     CHAT_ANONYMOUS_SESSION_TTL: duration.default("30d"),
   })
   .transform((env) => ({

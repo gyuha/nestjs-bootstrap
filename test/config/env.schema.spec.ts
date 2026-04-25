@@ -130,6 +130,38 @@ describe("env schema", () => {
     ).toThrow("Invalid environment");
   });
 
+  it("rejects blank rag numeric settings", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        RAG_TOP_K: "",
+      }),
+    ).toThrow("Invalid environment");
+
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        RAG_MIN_SCORE: "",
+      }),
+    ).toThrow("Invalid environment");
+
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        RAG_MAX_CONTEXT_MESSAGES: " ",
+      }),
+    ).toThrow("Invalid environment");
+  });
+
+  it("allows zero rag max context messages", () => {
+    const env = parseEnv({
+      ...validEnv,
+      RAG_MAX_CONTEXT_MESSAGES: "0",
+    });
+
+    expect(env.RAG_MAX_CONTEXT_MESSAGES).toBe(0);
+  });
+
   it("requires jwt and google oauth secrets", () => {
     expect(() => parseEnv(baseEnv)).toThrow("Invalid environment");
   });
