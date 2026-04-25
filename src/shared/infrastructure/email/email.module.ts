@@ -1,17 +1,19 @@
 import { Global, Module } from "@nestjs/common";
-import type { EnvService } from "../../../config/env.service";
+import { EnvService } from "../../../config/env.service";
 import { ConsoleEmailService } from "./console-email.service";
-import { EmailServiceInterface } from "./email-service.interface";
+import type { EmailServiceInterface } from "./email-service.interface";
 import { SmtpEmailService } from "./smtp-email.service";
+
+const EMAIL_SERVICE = 'EMAIL_SERVICE';
 
 @Global()
 @Module({
   providers: [
     {
-      provide: EmailServiceInterface,
+      provide: EMAIL_SERVICE,
       useFactory: (env: EnvService) => {
-        const provider = env.get("EMAIL_PROVIDER");
-        if (provider === "smtp") {
+        const provider = env.get('EMAIL_PROVIDER');
+        if (provider === 'smtp') {
           return new SmtpEmailService(env);
         }
         return new ConsoleEmailService();
@@ -19,6 +21,6 @@ import { SmtpEmailService } from "./smtp-email.service";
       inject: [EnvService],
     },
   ],
-  exports: [EmailServiceInterface],
+  exports: [EMAIL_SERVICE],
 })
 export class EmailModule {}
