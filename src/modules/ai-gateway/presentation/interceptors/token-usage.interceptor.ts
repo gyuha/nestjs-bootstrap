@@ -64,6 +64,7 @@ export class TokenUsageInterceptor implements NestInterceptor {
             path,
             statusCode: error.status ?? 500,
             latencyMs,
+            useRag: request.body?.useRag ?? false,
             error: error.message,
           }).catch(() => {});
         }

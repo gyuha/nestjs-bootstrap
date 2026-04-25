@@ -1,18 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { TokenUsageRecord, AggregatedMetrics } from '../../domain/entities/token-usage-log.entity';
+import { PostgresLogRepository, ILogRepository } from '../../infrastructure/repositories/postgres-log.repository';
 
-export interface TokenUsageRecord {
-  traceId: string;
+export interface MetricFilters {
   userId?: string;
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
   provider?: string;
-  model?: string;
+  startDate?: Date;
+  endDate?: Date;
 }
 
 @Injectable()
 export class MetricsService {
+  constructor(
+    @Inject(PostgresLogRepository) private readonly logRepository: ILogRepository,
+  ) {}
+
   async recordTokenUsage(record: TokenUsageRecord): Promise<void> {
-    console.log('[TokenUsage]', JSON.stringify(record));
+    await this.logRepository.saveTokenUsage(record);
+  }
+
+  async aggregateMetrics(filters: MetricFilters): Promise<AggregatedMetrics> {
+    return this.logRepository.aggregateMetrics(filters);
   }
 }

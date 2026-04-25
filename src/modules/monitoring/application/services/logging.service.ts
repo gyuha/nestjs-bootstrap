@@ -1,22 +1,18 @@
-import { Injectable } from '@nestjs/common';
-
-export interface LogEntry {
-  traceId: string;
-  sessionId?: string;
-  userId?: string;
-  method: string;
-  path: string;
-  statusCode: number;
-  latencyMs: number;
-  provider?: string;
-  model?: string;
-  useRag?: boolean;
-  error?: string;
-}
+import { Injectable, Inject } from '@nestjs/common';
+import { LogEntry, LogFilters } from '../../domain/entities/api-log.entity';
+import { PostgresLogRepository, ILogRepository } from '../../infrastructure/repositories/postgres-log.repository';
 
 @Injectable()
 export class LoggingService {
+  constructor(
+    @Inject(PostgresLogRepository) private readonly logRepository: ILogRepository,
+  ) {}
+
   async log(entry: LogEntry): Promise<void> {
-    console.log('[LogEntry]', JSON.stringify(entry));
+    await this.logRepository.save(entry);
+  }
+
+  async findLogs(filters: LogFilters): Promise<LogEntry[]> {
+    return this.logRepository.findMany(filters);
   }
 }
