@@ -1,5 +1,7 @@
 import { Role, UserStatus } from '../value-objects/role.value-object';
 
+export { Role, UserStatus };
+
 export interface UserEntity {
   id: string;
   email: string;

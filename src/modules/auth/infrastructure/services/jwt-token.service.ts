@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { TokenServiceInterface } from '../../domain/services/token.service.interface';
 import { TokenPair, JwtPayload } from '../../domain/value-objects/token.value-object';
 import { EnvService } from '../../../../config/env.service';
@@ -14,14 +14,15 @@ export class JwtTokenService implements TokenServiceInterface {
   ) {}
 
   generateAccessToken(userId: string, email: string, role: string): string {
-    return this.jwt.sign(
-      { sub: userId, email, role },
-      { secret: this.env.get('JWT_SECRET'), expiresIn: this.env.get('JWT_EXPIRES_IN') },
-    );
+    const options: JwtSignOptions = {
+      secret: this.env.get('JWT_SECRET') as string,
+      expiresIn: 900, // 15 minutes in seconds
+    };
+    return this.jwt.sign({ sub: userId, email, role }, options);
   }
 
   verifyAccessToken(token: string): JwtPayload {
-    return this.jwt.verify<JwtPayload>(token, { secret: this.env.get('JWT_SECRET') });
+    return this.jwt.verify<JwtPayload>(token, { secret: this.env.get('JWT_SECRET') as string });
   }
 
   generateRefreshToken(): string {

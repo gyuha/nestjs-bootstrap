@@ -1,26 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { AuthResult } from '../../domain/entities/auth.entity';
-import { TokenPair } from '../../domain/value-objects/token.value-object';
-import { OAuthProvider } from '../../domain/value-objects/oauth-provider.value-object';
-import { UserRepository } from '../../../users/domain/repository/user.repository.interface';
-import { JwtTokenService } from '../../infrastructure/services/jwt-token.service';
-import { AuthTokenRepositoryInterface } from '../../domain/repositories/auth-token.repository.interface';
-import { OAuthGoogleService } from '../../infrastructure/services/oauth-google.service';
-import { OAuthKakaoService } from '../../infrastructure/services/oauth-kakao.service';
-import { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { users } from '../../../../infrastructure/database/schema/users.schema';
-import { oauthAccounts } from '../../../../infrastructure/database/schema/oauth-accounts.schema';
-import { AuthException } from '../../presentation/exceptions/auth.exception';
-import { Role, UserStatus } from '../../../users/domain/value-objects/role.value-object';
-import { EnvService } from '../../../../config/env.service';
+import { AuthResult } from '../domain/entities/auth.entity';
+import { TokenPair } from '../domain/value-objects/token.value-object';
+import { OAuthProvider } from '../domain/value-objects/oauth-provider.value-object';
+import { UserRepository } from '../../users/domain/repository/user.repository.interface';
+import { JwtTokenService } from '../infrastructure/services/jwt-token.service';
+import { AuthTokenRepositoryInterface } from '../domain/repositories/auth-token.repository.interface';
+import { OAuthGoogleService } from '../infrastructure/services/oauth-google.service';
+import { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.service';
+import { DrizzleService } from '../../../infrastructure/database/drizzle.service';
+import { users } from '../../../infrastructure/database/schema/users.schema';
+import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-accounts.schema';
+import { AuthException } from '../presentation/exceptions/auth.exception';
+import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
+import { EnvService } from '../../../config/env.service';
+
+const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
 
 @Injectable()
 export class AuthApplicationService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly jwtTokenService: JwtTokenService,
-    private readonly tokenRepo: AuthTokenRepositoryInterface,
+    @Inject(AUTH_TOKEN_REPOSITORY) private readonly tokenRepo: AuthTokenRepositoryInterface,
     private readonly oauthGoogle: OAuthGoogleService,
     private readonly oauthKakao: OAuthKakaoService,
     private readonly db: DrizzleService,
@@ -57,10 +59,10 @@ export class AuthApplicationService {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      await this.db.db.insert(users, newUser);
+      await this.db.db.insert(users).values(newUser);
 
       // Create OAuth account link
-      await this.db.db.insert(oauthAccounts, {
+      await this.db.db.insert(oauthAccounts).values({
         id: crypto.randomUUID(),
         userId: newUser.id,
         provider: provider,

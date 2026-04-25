@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserRepository } from '../../domain/repository/user.repository.interface';
-import { UserEntity } from '../../domain/entities/user.entity';
+import { UserRepository } from '../domain/repository/user.repository.interface';
+import { UserEntity } from '../domain/entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
-import { Role, UserStatus } from '../../domain/value-objects/role.value-object';
-import { UserException } from '../../presentation/exceptions/user.exception';
+import { Role, UserStatus } from '../domain/value-objects/role.value-object';
+import { UserException } from '../presentation/exceptions/user.exception';
+
+const USER_REPOSITORY = 'USER_REPOSITORY';
 
 @Injectable()
 export class UsersApplicationService {
-  constructor(private readonly userRepo: UserRepository) {}
+  constructor(@Inject(USER_REPOSITORY) private readonly userRepo: UserRepository) {}
 
   async create(dto: CreateUserDto): Promise<UserEntity> {
     const existing = await this.userRepo.findByEmail(dto.email);

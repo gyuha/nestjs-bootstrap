@@ -19,12 +19,12 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
-import { UsersApplicationService } from '../../application/users-application.service';
-import { CreateUserDto, UpdateUserDto, UserResponseDto, UserQueryDto } from '../../application/dto/users.dto';
-import { Public } from '../../../auth/presentation/decorators/public.decorator';
-import { Roles } from '../../../auth/presentation/decorators/roles.decorator';
-import { RolesGuard } from '../../../auth/presentation/guards/roles.guard';
-import { JwtAuthGuard } from '../../../auth/presentation/guards/jwt-auth.guard';
+import { UsersApplicationService } from '../application/users-application.service';
+import { CreateUserDto, UpdateUserDto, UserResponseDto, UserQueryDto } from '../application/dto/users.dto';
+import { Public } from '../../auth/presentation/decorators/public.decorator';
+import { Roles } from '../../auth/presentation/decorators/roles.decorator';
+import { RolesGuard } from '../../auth/presentation/guards/roles.guard';
+import { JwtAuthGuard } from '../../auth/presentation/guards/jwt-auth.guard';
 import { ResponseEnvelopeInterceptor } from '../../../shared/presentation/interceptors/response-envelope.interceptor';
 
 @ApiTags('Users')

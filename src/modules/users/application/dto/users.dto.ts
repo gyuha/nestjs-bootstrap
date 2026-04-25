@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsInt, IsPositive } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Role, UserStatus } from '../../domain/value-objects/role.value-object';
 
 export class CreateUserDto {
@@ -80,12 +81,16 @@ export class UserQueryDto {
   status?: UserStatus;
 
   @ApiPropertyOptional({ default: 1 })
-  @IsString()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
   @IsOptional()
-  page?: string;
+  page?: number;
 
   @ApiPropertyOptional({ default: 20 })
-  @IsString()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
   @IsOptional()
-  limit?: string;
+  limit?: number;
 }

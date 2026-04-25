@@ -4,15 +4,17 @@ import { DrizzleUserRepository } from './infrastructure/repository/drizzle-user.
 import { DrizzleModule } from '../../infrastructure/database/drizzle.module';
 import { UsersApplicationService } from './application/users-application.service';
 import { UsersController } from './presentation/users.controller';
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../auth/infrastructure/auth.module';
+
+const USER_REPOSITORY = 'USER_REPOSITORY';
 
 @Module({
   imports: [DrizzleModule, AuthModule],
   providers: [
-    { provide: UserRepository, useClass: DrizzleUserRepository },
+    { provide: USER_REPOSITORY, useClass: DrizzleUserRepository },
     UsersApplicationService,
   ],
   controllers: [UsersController],
-  exports: [UserRepository],
+  exports: [USER_REPOSITORY],
 })
 export class UsersModule {}

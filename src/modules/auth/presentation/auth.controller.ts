@@ -8,16 +8,17 @@ import {
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AuthApplicationService } from '../../application/auth-application.service';
+import { AuthApplicationService } from '../application/auth-application.service';
 import {
   LoginPasswordDto,
   LoginOAuthDto,
   RefreshTokenDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
-} from '../../application/dto/auth.dto';
+} from '../application/dto/auth.dto';
 import { Public } from './decorators/public.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ResponseEnvelopeInterceptor } from '../../../shared/presentation/interceptors/response-envelope.interceptor';
 import { Request } from 'express';
 
 @ApiTags('Auth')

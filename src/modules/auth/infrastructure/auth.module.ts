@@ -10,12 +10,14 @@ import { JwtTokenService } from './services/jwt-token.service';
 import { OAuthGoogleService } from './services/oauth-google.service';
 import { OAuthKakaoService } from './services/oauth-kakao.service';
 import { RedisPostgresTokenRepository } from './repositories/redis-postgres-token.repository';
-import { AuthTokenRepositoryInterface } from '../../domain/repositories/auth-token.repository.interface';
+import { AuthTokenRepositoryInterface } from '../domain/repositories/auth-token.repository.interface';
 
 import { AuthController } from '../presentation/auth.controller';
 import { JwtAuthGuard } from '../presentation/guards/jwt-auth.guard';
 import { RolesGuard } from '../presentation/guards/roles.guard';
 import { ResponseEnvelopeInterceptor } from '../../../shared/presentation/interceptors/response-envelope.interceptor';
+
+const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
 
 @Module({
   imports: [
@@ -31,11 +33,11 @@ import { ResponseEnvelopeInterceptor } from '../../../shared/presentation/interc
     JwtTokenService,
     OAuthGoogleService,
     OAuthKakaoService,
-    { provide: AuthTokenRepositoryInterface, useClass: RedisPostgresTokenRepository },
+    { provide: AUTH_TOKEN_REPOSITORY, useClass: RedisPostgresTokenRepository },
     JwtAuthGuard,
     RolesGuard,
     ResponseEnvelopeInterceptor,
   ],
-  exports: [JwtTokenService, AuthTokenRepositoryInterface, JwtAuthGuard, RolesGuard],
+  exports: [JwtTokenService, AUTH_TOKEN_REPOSITORY, JwtAuthGuard, RolesGuard],
 })
 export class AuthModule {}

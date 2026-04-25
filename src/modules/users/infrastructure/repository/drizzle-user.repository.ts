@@ -1,11 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
-import { users } from '../../../../infrastructure/database/schema/users.schema';
-import { UserEntity } from '../../domain/entities/user.entity';
-import { UserStatus } from '../../domain/value-objects/role.value-object';
+import { users, type User, type NewUser } from '../../../../infrastructure/database/schema/users.schema';
+import { UserEntity, Role, UserStatus } from '../../domain/entities/user.entity';
 import { UserRepository } from '../../domain/repository/user.repository.interface';
 import { oauthAccounts } from '../../../../infrastructure/database/schema/oauth-accounts.schema';
+
+function toUserEntity(result: User): UserEntity {
+  return {
+    id: result.id,
+    email: result.email,
+    passwordHash: result.passwordHash,
+    name: result.name,
+    role: result.role as Role,
+    status: result.status as UserStatus,
+    createdAt: result.createdAt,
+    updatedAt: result.updatedAt,
+  };
+}
 
 @Injectable()
 export class DrizzleUserRepository implements UserRepository {
@@ -13,7 +25,7 @@ export class DrizzleUserRepository implements UserRepository {
 
   async findById(id: string): Promise<UserEntity | null> {
     const result = await this.db.db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0] || null;
+    return result[0] ? toUserEntity(result[0]) : null;
   }
 
   async findActiveById(id: string): Promise<UserEntity | null> {
@@ -22,12 +34,12 @@ export class DrizzleUserRepository implements UserRepository {
       .from(users)
       .where(and(eq(users.id, id), eq(users.status, UserStatus.ACTIVE)))
       .limit(1);
-    return result[0] || null;
+    return result[0] ? toUserEntity(result[0]) : null;
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     const result = await this.db.db.select().from(users).where(eq(users.email, email)).limit(1);
-    return result[0] || null;
+    return result[0] ? toUserEntity(result[0]) : null;
   }
 
   async findByOAuthProvider(provider: string, providerUserId: string): Promise<UserEntity | null> {
@@ -42,11 +54,18 @@ export class DrizzleUserRepository implements UserRepository {
         ),
       )
       .limit(1);
-    return result[0]?.user || null;
+    return result[0]?.user ? toUserEntity(result[0].user) : null;
   }
 
   async save(entity: UserEntity): Promise<void> {
-    await this.db.db.insert(users, entity);
+    const newUser: NewUser = {
+      email: entity.email,
+      passwordHash: entity.passwordHash,
+      name: entity.name,
+      role: entity.role,
+      status: entity.status,
+    };
+    await this.db.db.insert(users).values(newUser);
   }
 
   async update(entity: UserEntity): Promise<void> {
