@@ -110,6 +110,31 @@ describe("DrizzleRefreshTokenRepository", () => {
     await expect(repository.findValidByHash(newToken.tokenHash)).resolves.toEqual(newToken);
   });
 
+  it("returns an already revoked token without overwriting revoke metadata", async () => {
+    const user = await createUser("double-revoke@example.com");
+    const oldToken = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-double-revoke-old`,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const firstReplacement = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-double-revoke-first-replacement`,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const secondReplacement = await repository.create({
+      userId: user.id,
+      tokenHash: `${tokenPrefix}-double-revoke-second-replacement`,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    const firstRevoke = await repository.revoke(oldToken.id, firstReplacement.id);
+    const secondRevoke = await repository.revoke(oldToken.id, secondReplacement.id);
+
+    expect(secondRevoke).toEqual(firstRevoke);
+    expect(secondRevoke.replacedByTokenId).toBe(firstReplacement.id);
+  });
+
   it("revokes all currently unrevoked tokens for a user", async () => {
     const user = await createUser("revoke-all@example.com");
     const otherUser = await createUser("other@example.com");

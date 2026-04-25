@@ -3,7 +3,9 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type {
   AuthIdentityRepository,
   CreateAuthIdentityRepositoryInput,
+  DuplicateAuthIdentityConflict,
 } from "../domain/auth-identity.repository";
+import { DuplicateAuthIdentityError } from "../domain/auth-identity.repository";
 import type { AuthIdentity, AuthProvider } from "../domain/auth-identity.types";
 import { authIdentities, type schema } from "../../../shared/infrastructure/database/schema";
 
@@ -45,18 +47,64 @@ export class DrizzleAuthIdentityRepository implements AuthIdentityRepository {
   }
 
   async create(input: CreateAuthIdentityRepositoryInput): Promise<AuthIdentity> {
-    const [row] = await this.db
-      .insert(authIdentities)
-      .values({
-        userId: input.userId,
-        provider: input.provider,
-        providerUserId: input.providerUserId,
-        passwordHash: input.passwordHash,
-        emailVerified: input.emailVerified,
-      })
-      .returning();
+    const [row] = await this.insert(input);
 
     return this.toDomain(row);
+  }
+
+  private async insert(input: CreateAuthIdentityRepositoryInput) {
+    try {
+      return await this.db
+        .insert(authIdentities)
+        .values({
+          userId: input.userId,
+          provider: input.provider,
+          providerUserId: input.providerUserId,
+          passwordHash: input.passwordHash,
+          emailVerified: input.emailVerified,
+        })
+        .returning();
+    } catch (error) {
+      const conflict = this.getDuplicateConflict(error);
+
+      if (conflict) {
+        throw new DuplicateAuthIdentityError(conflict);
+      }
+
+      throw error;
+    }
+  }
+
+  private getDuplicateConflict(error: unknown): DuplicateAuthIdentityConflict | null {
+    const cause = this.getErrorCause(error);
+
+    if (cause?.code !== "23505") {
+      return null;
+    }
+
+    if (cause.constraint === "auth_identities_provider_provider_user_id_unique") {
+      return "providerIdentity";
+    }
+
+    if (cause.constraint === "auth_identities_user_id_provider_unique") {
+      return "userProvider";
+    }
+
+    return null;
+  }
+
+  private getErrorCause(error: unknown): { code?: string; constraint?: string } | null {
+    if (!error || typeof error !== "object" || !("cause" in error)) {
+      return null;
+    }
+
+    const cause = error.cause;
+
+    if (!cause || typeof cause !== "object") {
+      return null;
+    }
+
+    return cause;
   }
 
   private toDomain(row: AuthIdentityRow): AuthIdentity {

@@ -51,14 +51,24 @@ export class DrizzleRefreshTokenRepository implements RefreshTokenRepository {
         revokedAt: new Date(),
         replacedByTokenId,
       })
-      .where(eq(refreshTokens.id, tokenId))
+      .where(and(eq(refreshTokens.id, tokenId), isNull(refreshTokens.revokedAt)))
       .returning();
 
-    if (!row) {
+    if (row) {
+      return this.toDomain(row);
+    }
+
+    const [existing] = await this.db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.id, tokenId))
+      .limit(1);
+
+    if (!existing) {
       throw new Error(`Refresh token not found: ${tokenId}`);
     }
 
-    return this.toDomain(row);
+    return this.toDomain(existing);
   }
 
   async revokeAllForUser(userId: string): Promise<void> {

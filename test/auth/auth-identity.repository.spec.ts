@@ -3,6 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { DuplicateAuthIdentityError } from "../../src/modules/auth/domain/auth-identity.repository";
 import { DrizzleAuthIdentityRepository } from "../../src/modules/auth/infrastructure/auth-identity.drizzle-repository";
 import { migrateTestDatabase } from "../setup/test-database";
 import "../setup/test-env";
@@ -87,6 +88,52 @@ describe("DrizzleAuthIdentityRepository", () => {
 
     await expect(repository.findByProvider("google", googleSub)).resolves.toEqual(created);
     await expect(repository.findByUserAndProvider(user.id, "google")).resolves.toEqual(created);
+  });
+
+  it("throws a duplicate identity error when provider identity already exists", async () => {
+    const firstUser = await createUser("provider-duplicate-first@example.com");
+    const secondUser = await createUser("provider-duplicate-second@example.com");
+    const providerUserId = `${emailPrefix}-provider-duplicate@example.com`;
+
+    await repository.create({
+      userId: firstUser.id,
+      provider: "password",
+      providerUserId,
+      passwordHash: "first-password-hash",
+    });
+
+    await expect(
+      repository.create({
+        userId: secondUser.id,
+        provider: "password",
+        providerUserId,
+        passwordHash: "second-password-hash",
+      }),
+    ).rejects.toMatchObject({
+      constructor: DuplicateAuthIdentityError,
+      conflict: "providerIdentity",
+    });
+  });
+
+  it("throws a duplicate identity error when user already has provider identity", async () => {
+    const user = await createUser("user-provider-duplicate@example.com");
+
+    await repository.create({
+      userId: user.id,
+      provider: "google",
+      providerUserId: `google-sub-first-${randomUUID()}`,
+    });
+
+    await expect(
+      repository.create({
+        userId: user.id,
+        provider: "google",
+        providerUserId: `google-sub-second-${randomUUID()}`,
+      }),
+    ).rejects.toMatchObject({
+      constructor: DuplicateAuthIdentityError,
+      conflict: "userProvider",
+    });
   });
 
   async function createUser(emailSuffix: string) {
