@@ -1,4 +1,4 @@
-import { and, eq, ilike, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, eq, or, sql, type SQL } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PageResult } from "../../../shared/domain/pagination";
 import { User } from "../domain/user.entity";
@@ -48,7 +48,13 @@ export class DrizzleUserRepository implements UserRepository {
     const offset = (filter.page - 1) * filter.limit;
 
     const [items, totalRows] = await Promise.all([
-      this.db.select().from(users).where(where).limit(filter.limit).offset(offset),
+      this.db
+        .select()
+        .from(users)
+        .where(where)
+        .orderBy(asc(users.createdAt), asc(users.id))
+        .limit(filter.limit)
+        .offset(offset),
       this.db.select({ total: sql<number>`count(*)::int` }).from(users).where(where),
     ]);
 
@@ -92,8 +98,11 @@ export class DrizzleUserRepository implements UserRepository {
     }
 
     if (filter.search) {
-      const pattern = `%${filter.search}%`;
-      const searchCondition = or(ilike(users.email, pattern), ilike(users.displayName, pattern));
+      const pattern = `%${this.escapeLikePattern(filter.search)}%`;
+      const searchCondition = or(
+        sql`${users.email} ilike ${pattern} escape '\\'`,
+        sql`${users.displayName} ilike ${pattern} escape '\\'`,
+      );
 
       if (searchCondition) {
         conditions.push(searchCondition);
@@ -101,6 +110,10 @@ export class DrizzleUserRepository implements UserRepository {
     }
 
     return conditions.length > 0 ? and(...conditions) : undefined;
+  }
+
+  private escapeLikePattern(input: string): string {
+    return input.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
   }
 
   private toDomain(row: UserRow): User {

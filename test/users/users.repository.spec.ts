@@ -65,12 +65,16 @@ describe("DrizzleUserRepository", () => {
       displayName: "Before",
     });
 
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
     created.updateProfile({ displayName: "After", avatarUrl: "https://example.com/after.png" });
     created.changeRole("ADMIN");
     created.deactivate();
 
     const updated = await repository.update(created);
 
+    expect(updated.createdAt).toEqual(created.createdAt);
+    expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime());
     expect(updated.displayName).toBe("After");
     expect(updated.avatarUrl).toBe("https://example.com/after.png");
     expect(updated.role).toBe("ADMIN");
@@ -115,6 +119,66 @@ describe("DrizzleUserRepository", () => {
       total: 2,
     });
     expect(result.items.map((user) => user.id).sort()).toEqual([alpha.id, gamma.id].sort());
+  });
+
+  it("uses stable createdAt and id ordering for paginated lists", async () => {
+    const baseTime = new Date("2026-01-01T00:00:00.000Z");
+    const firstId = "00000000-0000-4000-8000-000000000001";
+    const secondId = "00000000-0000-4000-8000-000000000002";
+    const thirdId = "00000000-0000-4000-8000-000000000003";
+
+    await db.insert(users).values([
+      {
+        id: thirdId,
+        email: `${emailPrefix}-page-third@example.com`,
+        displayName: "Page Third",
+        createdAt: new Date(baseTime.getTime() + 2_000),
+        updatedAt: new Date(baseTime.getTime() + 2_000),
+      },
+      {
+        id: firstId,
+        email: `${emailPrefix}-page-first@example.com`,
+        displayName: "Page First",
+        createdAt: baseTime,
+        updatedAt: baseTime,
+      },
+      {
+        id: secondId,
+        email: `${emailPrefix}-page-second@example.com`,
+        displayName: "Page Second",
+        createdAt: new Date(baseTime.getTime() + 1_000),
+        updatedAt: new Date(baseTime.getTime() + 1_000),
+      },
+    ]);
+
+    const result = await repository.list({
+      page: 2,
+      limit: 1,
+      search: `${emailPrefix}-page`,
+    });
+
+    expect(result.items.map((user) => user.id)).toEqual([secondId]);
+    expect(result.total).toBe(3);
+  });
+
+  it("treats percent signs in search input as literal text", async () => {
+    const literal = await repository.create({
+      email: `${emailPrefix}-literal-percent@example.com`,
+      displayName: `${emailPrefix} Budget 100%`,
+    });
+    await repository.create({
+      email: `${emailPrefix}-wildcard-percent@example.com`,
+      displayName: `${emailPrefix} Budget 100 percent`,
+    });
+
+    const result = await repository.list({
+      page: 1,
+      limit: 10,
+      search: `${emailPrefix} Budget 100%`,
+    });
+
+    expect(result.items.map((user) => user.id)).toEqual([literal.id]);
+    expect(result.total).toBe(1);
   });
 
   it("returns empty pages when no users match", async () => {
