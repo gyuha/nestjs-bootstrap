@@ -10,6 +10,12 @@ export const envSchema = z.object({
   REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
   SWAGGER_ENABLED: z.enum(['true', 'false']).default('true'),
   CORS_ORIGIN: z.string().default('*'),
+  EMAIL_PROVIDER: z.enum(['console', 'smtp']).default('console'),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().default('noreply@nestjs-bootstrap.com'),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
