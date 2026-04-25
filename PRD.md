@@ -77,7 +77,7 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 
 ### 8.1 포함 범위
 
-- NestJS latest, TypeScript latest, Bun, Biome 기반 초기 프로젝트 구성
+- NestJS latest, TypeScript latest, pnpm, Biome 기반 초기 프로젝트 구성
 - Swagger / OpenAPI 문서화
 - Config validation 및 환경 분리
 - API versioning
@@ -109,7 +109,7 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 ### 9.1 프로젝트 부트스트랩
 
 - 프로젝트는 최신 NestJS와 TypeScript 기반으로 구성되어야 한다.
-- 패키지 매니저 및 실행 환경은 Bun을 기준으로 해야 한다.
+- 패키지 매니저 및 실행 환경은 pnpm을 기준으로 해야 한다.
 - 코드 포맷팅과 린팅은 Biome으로 통합해야 한다.
 - API 버저닝이 기본 활성화되어야 한다.
 - Swagger 문서가 개발 환경에서 접근 가능해야 한다.
@@ -210,7 +210,7 @@ NestJS DDD Bootstrap Project는 기능 추가가 쉬운 도메인 주도 개발(
 - 운영 DB는 PostgreSQL을 사용해야 한다.
 - 로컬 개발/경량 테스트 DB는 SQLite를 사용해야 한다.
 - 캐시 및 인증 임시 데이터 저장소는 Redis를 사용해야 한다.
-- 런타임/패키지 매니저는 Bun을 기준으로 해야 한다.
+- 런타임/패키지 매니저는 pnpm을 기준으로 해야 한다.
 - 코드 품질 도구는 Biome, Husky, Commitlint를 사용해야 한다.
 
 ## 12. 권장 폴더 구조
@@ -252,7 +252,7 @@ src/
 
 ### Phase 1. Foundation
 
-- NestJS, Bun, TypeScript, Biome 기반 초기 환경 구성
+- NestJS, pnpm, TypeScript, Biome 기반 초기 환경 구성
 - Config validation, API versioning, Swagger, 공통 bootstrap 구성
 - 공통 응답/에러/로깅/trace id 기반 마련
 - PostgreSQL, SQLite, Redis 연결 전략 수립
