@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { IDocumentConnector, RawDocument } from '../../domain/services/idocument-connector.interface';
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 const SUPPORTED_EXTENSIONS = ['.md', '.txt', '.pdf', '.docx'];
 

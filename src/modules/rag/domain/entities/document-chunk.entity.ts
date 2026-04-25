@@ -1,5 +1,4 @@
 import { Entity } from '../../../../shared/domain/entity';
-import type { DocumentProps } from './document.entity';
 
 export interface ChunkMetadata {
   documentId: string;
