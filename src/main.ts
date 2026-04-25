@@ -4,12 +4,14 @@ import { setupSwagger } from './bootstrap/swagger/setup';
 import { setupValidation } from './bootstrap/validation/setup';
 import { setupSecurity } from './bootstrap/security/setup';
 import { setupLogging } from './bootstrap/logging/setup';
+import { EnvService } from './config/env.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const env = app.get(EnvService);
 
   setupLogging(app);
-  setupSecurity(app);
+  setupSecurity(app, env);
   setupValidation(app);
   setupSwagger(app);
 
