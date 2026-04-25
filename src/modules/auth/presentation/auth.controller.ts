@@ -12,6 +12,8 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
+  ApiFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -66,7 +68,7 @@ export class AuthController {
   @Post("register")
   @ApiBody({ type: RegisterWithPasswordDto })
   @ApiOperation({ summary: "Register with email and password" })
-  @ApiOkResponse({ description: "Returns an access token, refresh token, and user profile." })
+  @ApiCreatedResponse({ description: "Returns an access token, refresh token, and user profile." })
   @ApiUnauthorizedResponse({ description: "The user is inactive or credentials are invalid." })
   async register(@Body() body: RegisterWithPasswordDto) {
     return this.runAuth(() => this.registerWithPassword.execute(body));
@@ -84,7 +86,7 @@ export class AuthController {
 
   @Get("google")
   @ApiOperation({ summary: "Start Google OAuth login" })
-  @ApiOkResponse({ description: "Redirects to Google's OAuth consent flow." })
+  @ApiFoundResponse({ description: "Redirects to Google's OAuth consent flow." })
   @UseGuards(GoogleAuthGuard)
   async google(): Promise<void> {}
 

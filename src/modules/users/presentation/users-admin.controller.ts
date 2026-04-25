@@ -19,6 +19,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConflictResponse,
+  ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -88,7 +89,7 @@ export class UsersAdminController {
   @Post()
   @ApiBody({ type: CreateUserByAdminDto })
   @ApiOperation({ summary: "Create a user as an admin" })
-  @ApiOkResponse({ description: "Returns the created user profile." })
+  @ApiCreatedResponse({ description: "Returns the created user profile." })
   @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
   @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
   @ApiConflictResponse({ description: "A user with the email address already exists." })
