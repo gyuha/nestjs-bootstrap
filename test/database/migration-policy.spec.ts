@@ -20,6 +20,24 @@ describe("migration policy", () => {
     ).toBe(true);
   });
 
+  it("blocks startup migrations in local when disabled", () => {
+    expect(
+      shouldRunMigrationsOnStartup({
+        env: "local",
+        runMigrationsOnStartup: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("blocks startup migrations in test when disabled", () => {
+    expect(
+      shouldRunMigrationsOnStartup({
+        env: "test",
+        runMigrationsOnStartup: false,
+      }),
+    ).toBe(false);
+  });
+
   it("blocks startup migrations in staging", () => {
     expect(
       shouldRunMigrationsOnStartup({

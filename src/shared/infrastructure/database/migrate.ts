@@ -13,11 +13,16 @@ async function run() {
   const pool = new Pool({ connectionString: databaseUrl });
   const db = drizzle(pool);
 
-  await migrate(db, {
-    migrationsFolder: "src/shared/infrastructure/database/migrations",
-  });
-
-  await pool.end();
+  try {
+    await migrate(db, {
+      migrationsFolder: "src/shared/infrastructure/database/migrations",
+    });
+  } finally {
+    await pool.end();
+  }
 }
 
-void run();
+void run().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});
