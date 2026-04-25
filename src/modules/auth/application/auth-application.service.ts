@@ -1,5 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { createHash, } from 'node:crypto';
+import { eq } from 'drizzle-orm';
 import type { AuthResult } from '../domain/entities/auth.entity';
 import type { TokenPair } from '../domain/value-objects/token.value-object';
 import { OAuthProvider } from '../domain/value-objects/oauth-provider.value-object';
@@ -14,29 +16,53 @@ import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-acc
 import { AuthException } from '../presentation/exceptions/auth.exception';
 import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
 import type { EnvService } from '../../../config/env.service';
+import type { EmailServiceInterface } from '../../../shared/infrastructure/email/email-service.interface';
 
 const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_LOGIN_ATTEMPTS = 10;
+const _VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const _RESET_TOKEN_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+const _MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
 
 @Injectable()
 export class AuthApplicationService {
   constructor(
     private readonly userRepo: UserRepository,
     private readonly jwtTokenService: JwtTokenService,
-    @Inject(AUTH_TOKEN_REPOSITORY) private readonly tokenRepo: AuthTokenRepositoryInterface,
+    @Inject(AUTH_TOKEN_REPOSITORY) private readonly _tokenRepo: AuthTokenRepositoryInterface,
     private readonly oauthGoogle: OAuthGoogleService,
     private readonly oauthKakao: OAuthKakaoService,
     private readonly db: DrizzleService,
     private readonly env: EnvService,
+    private readonly emailService: EmailServiceInterface,
   ) {}
 
   async loginWithPassword(email: string, password: string): Promise<AuthResult> {
     const user = await this.userRepo.findByEmail(email);
     if (!user) throw AuthException.invalidCredentials();
 
-    const isValid = await bcrypt.compare(password, user.passwordHash!);
-    if (!isValid) throw AuthException.invalidCredentials();
+    // Check account lockout
+    if (user.lockoutUntil && new Date(user.lockoutUntil) > new Date()) {
+      throw AuthException.accountLocked();
+    }
 
-    if (user.status !== UserStatus.ACTIVE) throw AuthException.accountInactive();
+    const isValid = await bcrypt.compare(password, user.passwordHash!);
+    if (!isValid) {
+      // Increment failed login attempts
+      await this.incrementFailedLoginAttempts(user.id);
+      // Reload user to get updated count
+      const updatedUser = await this.userRepo.findByEmail(email);
+      // Check if should lock
+      if (updatedUser && updatedUser.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS - 1) {
+        await this.lockAccount(user.id);
+        throw AuthException.accountLocked();
+      }
+      throw AuthException.invalidCredentials();
+    }
+
+    // Reset failed attempts on success
+    await this.resetFailedLoginAttempts(user.id);
 
     return this.generateAuthResult(user.id, user.email, user.name, user.role);
   }
@@ -107,6 +133,32 @@ export class AuthApplicationService {
     return newTokenPair;
   }
 
+  private async incrementFailedLoginAttempts(userId: string): Promise<void> {
+    await this.db.db
+      .update(users)
+      .set({ failedLoginAttempts: users.failedLoginAttempts + 1 })
+      .where(eq(users.id, userId));
+  }
+
+  private async lockAccount(userId: string): Promise<void> {
+    const lockoutUntil = new Date(Date.now() + LOCKOUT_DURATION_MS);
+    await this.db.db
+      .update(users)
+      .set({ lockoutUntil, failedLoginAttempts: MAX_LOGIN_ATTEMPTS })
+      .where(eq(users.id, userId));
+  }
+
+  private async resetFailedLoginAttempts(userId: string): Promise<void> {
+    await this.db.db
+      .update(users)
+      .set({ failedLoginAttempts: 0, lockoutUntil: null })
+      .where(eq(users.id, userId));
+  }
+
+  private hashToken(token: string): string {
+    return createHash('sha256').update(token).digest('hex');
+  }
+
   private async generateAuthResult(userId: string, email: string, name: string, role: string): Promise<AuthResult> {
     const tokenPair = await this.jwtTokenService.generateTokenPair(userId, email, role);
 
@@ -131,7 +183,7 @@ export class AuthApplicationService {
     const match = expiresIn.match(/^(\d+)([smhd])$/);
     if (!match) return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    const value = parseInt(match[1]);
+    const value = parseInt(match[1], 10);
     const unit = match[2];
     const multipliers: Record<string, number> = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
     return new Date(Date.now() + value * multipliers[unit]);
