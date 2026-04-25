@@ -22,6 +22,13 @@
       "when": 1777120703259,
       "tag": "0002_bizarre_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777125347713,
+      "tag": "0003_powerful_wraith",
+      "breakpoints": true
     }
   ]
 }
