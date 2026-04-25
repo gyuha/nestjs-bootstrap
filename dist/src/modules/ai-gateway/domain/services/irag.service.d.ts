@@ -1,9 +1,10 @@
 export interface SearchResult {
-    documentId: string;
-    content: string;
-    score?: number;
+  documentId: string;
+  chunkId: string;
+  content: string;
+  score?: number;
 }
 export interface IRAGService {
-    search(query: string, topK?: number): Promise<SearchResult[]>;
-    getSources(query: string): Promise<SearchResult[]>;
+  search(query: string, topK?: number): Promise<SearchResult[]>;
+  getSources(query: string): Promise<SearchResult[]>;
 }
