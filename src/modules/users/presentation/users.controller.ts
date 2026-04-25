@@ -21,10 +21,10 @@ import {
 } from "@nestjs/swagger";
 import { UsersApplicationService } from "../application/users-application.service";
 import {
-  type CreateUserDto,
-  type UpdateUserDto,
+  CreateUserDto,
+  UpdateUserDto,
   UserResponseDto,
-  type UserQueryDto,
+  UserQueryDto,
 } from "../application/dto/users.dto";
 import { Public } from "../../auth/presentation/decorators/public.decorator";
 import { Roles } from "../../auth/presentation/decorators/roles.decorator";

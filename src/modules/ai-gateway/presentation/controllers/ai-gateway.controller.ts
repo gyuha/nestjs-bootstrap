@@ -1,13 +1,23 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  UseInterceptors,
+} from "@nestjs/common";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { ChatUseCase } from "../../application/services/chat-use-case";
 import { EmbedUseCase } from "../../application/services/embedding-use-case";
-import type { ChatRequestDto } from "../../application/dto/request/chat-request.dto";
-import type { EmbedRequestDto } from "../../application/dto/request/embed-request.dto";
+import { ChatRequestDto } from "../../application/dto/request/chat-request.dto";
+import { EmbedRequestDto } from "../../application/dto/request/embed-request.dto";
 import { ApiKeyGuard } from "../guards/api-key.guard";
 import { TokenUsageInterceptor } from "../interceptors/token-usage.interceptor";
-import { UseInterceptors } from "@nestjs/common";
 
-@Controller("api/v1/ai")
+@ApiTags("AI Gateway")
+@Controller("ai")
 export class AiGatewayController {
   constructor(
     private readonly chatUseCase: ChatUseCase,
@@ -15,6 +25,8 @@ export class AiGatewayController {
   ) {}
 
   @Post("chat")
+  @ApiOperation({ summary: "Send a chat message" })
+  @ApiResponse({ status: 200, description: "Chat response" })
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(TokenUsageInterceptor)
   @HttpCode(HttpStatus.OK)
@@ -23,6 +35,8 @@ export class AiGatewayController {
   }
 
   @Post("embed")
+  @ApiOperation({ summary: "Embed text" })
+  @ApiResponse({ status: 200, description: "Embedding response" })
   @UseGuards(ApiKeyGuard)
   @UseInterceptors(TokenUsageInterceptor)
   @HttpCode(HttpStatus.OK)
@@ -31,6 +45,8 @@ export class AiGatewayController {
   }
 
   @Get("models")
+  @ApiOperation({ summary: "Get available AI models" })
+  @ApiResponse({ status: 200, description: "List of models" })
   @UseGuards(ApiKeyGuard)
   async models() {
     return {

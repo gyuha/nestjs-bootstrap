@@ -19,14 +19,14 @@ import {
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { AuthApplicationService } from "../application/auth-application.service";
 import {
-  type LoginPasswordDto,
-  type LoginOAuthDto,
-  type RefreshTokenDto,
-  type RegisterDto,
-  type ResendVerificationDto,
-  type ForgotPasswordDto,
-  type ResetPasswordDto,
-  type MagicLinkRequestDto,
+  LoginPasswordDto,
+  LoginOAuthDto,
+  RefreshTokenDto,
+  RegisterDto,
+  ResendVerificationDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  MagicLinkRequestDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
 } from "../application/dto/auth.dto";
