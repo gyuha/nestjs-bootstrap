@@ -5,17 +5,6 @@ import { ragChunks } from '../../../../infrastructure/database/schema/rag-chunks
 import type { VectorStoreServiceInterface } from '../../../rag/application/services/rag.service';
 import type { SearchResult } from '../../../rag/domain/services/irag.service';
 
-export interface VectorSearchResult {
-  id: string;
-  content: string;
-  score: number;
-  metadata: {
-    documentId: string;
-    source: string;
-    sourcePath: string | null;
-  };
-}
-
 export const VECTOR_STORE_SERVICE = 'VECTOR_STORE_SERVICE';
 
 interface ChunkMetadata {
@@ -41,9 +30,9 @@ export class PgVectorStoreService implements VectorStoreServiceInterface {
     queryEmbedding: number[],
     topK: number,
   ): Promise<SearchResult[]> {
-    // Use <=> operator for cosine similarity (distance)
-    // Smaller distance = higher similarity
-    // Results are ordered by distance ascending (most similar first)
+    // Use <=> operator for cosine distance
+    // Distance 0 = identical, 2 = opposite
+    // Convert distance to similarity score: score = 1 - (distance / 2)
     const results = await this.db.db
       .select({
         id: ragChunks.id,
@@ -51,18 +40,21 @@ export class PgVectorStoreService implements VectorStoreServiceInterface {
         documentId: ragChunks.documentId,
         source: ragChunks.source,
         sourcePath: ragChunks.sourcePath,
-        embedding: ragChunks.embedding,
+        distance: sql<number>`${ragChunks.embedding} <=> ${queryEmbedding}`,
       })
       .from(ragChunks)
       .orderBy(sql`${ragChunks.embedding} <=> ${queryEmbedding}`)
       .limit(topK);
 
     return results.map((row) => {
+      // cosine distance: 0 = identical, 2 = opposite
+      // similarity score: 1 = identical, 0 = opposite
+      const score = Math.max(0, 1 - row.distance / 2);
       return {
         chunkId: row.id,
         documentId: row.documentId,
         content: row.content,
-        score: 1, // Placeholder - actual score requires raw computation
+        score,
       };
     });
   }

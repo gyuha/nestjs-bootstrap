@@ -1,10 +1,11 @@
 import { pgTable, uuid, text, vector, timestamp, integer } from 'drizzle-orm/pg-core';
+import { EMBEDDING_DIMENSIONS } from '../../../modules/rag/domain/constants';
 
 export const ragChunks = pgTable('rag_chunks', {
   id: uuid('id').primaryKey().defaultRandom(),
   documentId: uuid('document_id').notNull(),
   content: text('content').notNull(),
-  embedding: vector('embedding', { dimensions: 1536 }).notNull(),
+  embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
 
   // Metadata
   source: text('source').notNull(),
