@@ -11,6 +11,7 @@ import { JwtTokenService } from "./services/jwt-token.service";
 import { OAuthGoogleService } from "./services/oauth-google.service";
 import { OAuthKakaoService } from "./services/oauth-kakao.service";
 import { RedisPostgresTokenRepository } from "./repositories/redis-postgres-token.repository";
+import { AuthApplicationService } from "../application/auth-application.service";
 
 import { AuthController } from "../presentation/auth.controller";
 import { JwtAuthGuard } from "../presentation/guards/jwt-auth.guard";
@@ -31,6 +32,7 @@ const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
   controllers: [AuthController],
   providers: [
     EnvService,
+    AuthApplicationService,
     JwtTokenService,
     OAuthGoogleService,
     OAuthKakaoService,

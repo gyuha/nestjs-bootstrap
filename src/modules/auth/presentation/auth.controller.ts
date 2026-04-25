@@ -17,7 +17,7 @@ import {
   ApiForbiddenResponse,
 } from "@nestjs/swagger";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import type { AuthApplicationService } from "../application/auth-application.service";
+import { AuthApplicationService } from "../application/auth-application.service";
 import {
   type LoginPasswordDto,
   type LoginOAuthDto,

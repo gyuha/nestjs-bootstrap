@@ -26,7 +26,6 @@ import {
 } from "../../../shared/infrastructure/email/templates/magic-link-email";
 import { AuthException } from "../presentation/exceptions/auth.exception";
 import { Role, UserStatus } from "../../users/domain/value-objects/role.value-object";
-import type { EnvService } from "../../../config/env.service";
 import type { EmailServiceInterface } from "../../../shared/infrastructure/email/email-service.interface";
 import { validatePassword } from "../../../shared/utils/password.validation";
 import {
@@ -34,7 +33,6 @@ import {
   getVerificationEmailSubject,
 } from "../../../shared/infrastructure/email/templates/verification-email";
 import { EnvService } from "../../../config/env.service";
-import type { EmailServiceInterface } from "../../../shared/infrastructure/email/email-service.interface";
 
 const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
 const USER_REPOSITORY = "USER_REPOSITORY";
