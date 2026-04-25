@@ -7,8 +7,9 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import type { AuthenticatedRequest } from "./request-user";
+import { USER_REPOSITORY, type UserRepository } from "../../users/domain/user.repository";
 import type { UserRole } from "../../users/domain/user.types";
+import type { AuthenticatedRequest } from "./request-user";
 
 type JwtAccessTokenPayload = {
   sub?: unknown;
@@ -24,6 +25,9 @@ export class JwtAuthGuard implements CanActivate {
   @Inject(ConfigService)
   private readonly config!: ConfigService;
 
+  @Inject(USER_REPOSITORY)
+  private readonly users!: UserRepository;
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
@@ -38,10 +42,15 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     const payload = await this.verifyToken(token);
+    const user = await this.users.findById(payload.sub);
+
+    if (!user || user.status !== "active") {
+      throw new UnauthorizedException("Authentication required");
+    }
 
     request.user = {
-      id: payload.sub,
-      role: payload.role,
+      id: user.id,
+      role: user.role,
       ...(payload.sessionId ? { sessionId: payload.sessionId } : {}),
     };
 

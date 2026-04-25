@@ -13,6 +13,7 @@ import { Argon2PasswordHasher } from "./infrastructure/argon2-password-hasher";
 import { DrizzleAuthIdentityRepository } from "./infrastructure/auth-identity.drizzle-repository";
 import { DrizzleRefreshTokenRepository } from "./infrastructure/refresh-token.drizzle-repository";
 import { AuthController } from "./presentation/auth.controller";
+import { JwtAuthGuard } from "./presentation/jwt-auth.guard";
 import { UsersModule } from "../users/users.module";
 import { DATABASE } from "../../shared/infrastructure/database/database.tokens";
 import type { schema } from "../../shared/infrastructure/database/schema";
@@ -47,6 +48,7 @@ import type { schema } from "../../shared/infrastructure/database/schema";
         return new DrizzleRefreshTokenRepository(database);
       },
     },
+    JwtAuthGuard,
     ...authUseCases,
   ],
   exports: [
