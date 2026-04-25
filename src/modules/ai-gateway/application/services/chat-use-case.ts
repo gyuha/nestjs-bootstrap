@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { IAIGatewayService } from '../../domain/services/iai-gateway.service';
+import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
 import { AIRequest } from '../../domain/entities/ai-request.entity';
-import { ChatRequestDto } from '../dto/request/chat-request.dto';
-import { ChatResponseDto } from '../dto/response/chat-response.dto';
-import { IRAGService, SearchResult } from '../../domain/services/irag.service';
+import type { ChatRequestDto } from '../dto/request/chat-request.dto';
+import type { ChatResponseDto } from '../dto/response/chat-response.dto';
+import type { IRAGService, SearchResult } from '../../domain/services/irag.service';
 
 @Injectable()
 export class ChatUseCase {
@@ -20,12 +20,17 @@ export class ChatUseCase {
 
     let context = '';
     if (dto.useRag) {
-      const searchResults = await this.ragService.search(dto.message, dto.topK ?? 5);
-      if (searchResults.length > 0) {
-        context = searchResults
-          .map((r: SearchResult) => `[Source: ${r.documentId}] ${r.content}`)
-          .join('\n\n');
-        messages.unshift({ role: 'system', content: `Context:\n${context}` });
+      try {
+        const searchResults = await this.ragService.search(dto.message, dto.topK ?? 5);
+        if (searchResults.length > 0) {
+          context = searchResults
+            .map((r: SearchResult) => `[Source: ${r.documentId}] ${r.content}`)
+            .join('\n\n');
+          messages.unshift({ role: 'system', content: `Context:\n${context}` });
+        }
+      } catch (error) {
+        // Log error but continue without RAG
+        console.error('RAG search failed:', error);
       }
     }
 

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean, IsNumber, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsNumber } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ChatRequestDto {
@@ -45,9 +45,4 @@ export class ChatRequestDto {
   @IsOptional()
   @IsNumber()
   topK?: number;
-
-  @ApiPropertyOptional({ description: 'AI provider to use' })
-  @IsOptional()
-  @IsString()
-  provider?: string;
 }
