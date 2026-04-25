@@ -3,7 +3,7 @@ import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { AuditApplicationService } from '../../application/services/audit-application.service';
-import { QueryAuditLogsDto, AuditLogListResponseDto } from '../../application/dto/audit.dto';
+import { type QueryAuditLogsDto, AuditLogListResponseDto } from '../../application/dto/audit.dto';
 import { JwtAuthGuard } from '../../../../modules/auth/presentation/guards/jwt-auth.guard';
 import { AuditAccessGuard } from '../guards/audit-access.guard';
 import { ResponseEnvelopeInterceptor } from '../../../../shared/presentation/interceptors/response-envelope.interceptor';

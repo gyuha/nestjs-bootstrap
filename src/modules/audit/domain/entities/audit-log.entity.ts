@@ -1,4 +1,4 @@
-import { AuditEventType } from '../value-objects/event-type.value-object';
+import type { AuditEventType } from '../value-objects/event-type.value-object';
 
 export type { AuditEventType };
 export type ActorType = 'USER' | 'ADMIN' | 'SYSTEM';
