@@ -39,6 +39,10 @@ const bcrypt = require("bcrypt");
 const node_crypto_1 = require("node:crypto");
 const drizzle_orm_1 = require("drizzle-orm");
 const oauth_provider_value_object_1 = require("../domain/value-objects/oauth-provider.value-object");
+const jwt_token_service_1 = require("../infrastructure/services/jwt-token.service");
+const oauth_google_service_1 = require("../infrastructure/services/oauth-google.service");
+const oauth_kakao_service_1 = require("../infrastructure/services/oauth-kakao.service");
+const drizzle_service_1 = require("../../../infrastructure/database/drizzle.service");
 const users_schema_1 = require("../../../infrastructure/database/schema/users.schema");
 const oauth_accounts_schema_1 = require("../../../infrastructure/database/schema/oauth-accounts.schema");
 const password_reset_schema_1 = require("../../../infrastructure/database/schema/password-reset.schema");
@@ -50,6 +54,8 @@ const role_value_object_1 = require("../../users/domain/value-objects/role.value
 const password_validation_1 = require("../../../shared/utils/password.validation");
 const verification_email_1 = require("../../../shared/infrastructure/email/templates/verification-email");
 const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
+const USER_REPOSITORY = "USER_REPOSITORY";
+const EMAIL_SERVICE = "EMAIL_SERVICE";
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 10;
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000;
@@ -370,14 +376,16 @@ exports.AuthApplicationService = AuthApplicationService;
 exports.AuthApplicationService = AuthApplicationService = __decorate(
   [
     (0, common_1.Injectable)(),
+    __param(0, (0, common_1.Inject)(USER_REPOSITORY)),
     __param(2, (0, common_1.Inject)(AUTH_TOKEN_REPOSITORY)),
+    __param(7, (0, common_1.Inject)(EMAIL_SERVICE)),
     __metadata("design:paramtypes", [
       Object,
-      Function,
+      jwt_token_service_1.JwtTokenService,
       Object,
-      Function,
-      Function,
-      Function,
+      oauth_google_service_1.OAuthGoogleService,
+      oauth_kakao_service_1.OAuthKakaoService,
+      drizzle_service_1.DrizzleService,
       Function,
       Object,
     ]),

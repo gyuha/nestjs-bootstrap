@@ -1,1 +1,0 @@
-{"version":3,"file":"magic-link-email.js","sourceRoot":"","sources":["../../../../../../src/shared/infrastructure/email/templates/magic-link-email.ts"],"names":[],"mappings":";;AAAA,sDAOC;AAED,4DAEC;AAXD,SAAgB,qBAAqB,CAAC,YAAoB;IACxD,OAAO;;;eAGM,YAAY;;GAExB,CAAC;AACJ,CAAC;AAED,SAAgB,wBAAwB;IACtC,OAAO,oCAAoC,CAAC;AAC9C,CAAC"}

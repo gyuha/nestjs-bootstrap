@@ -1,5 +1,5 @@
 import { type OnModuleDestroy } from "@nestjs/common";
-import type { EnvService } from "../../config/env.service";
+import { EnvService } from "../../config/env.service";
 export declare class RedisService implements OnModuleDestroy {
   private readonly client;
   constructor(env: EnvService);

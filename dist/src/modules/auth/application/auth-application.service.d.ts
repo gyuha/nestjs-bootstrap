@@ -2,11 +2,11 @@ import type { AuthResult } from "../domain/entities/auth.entity";
 import type { TokenPair } from "../domain/value-objects/token.value-object";
 import { OAuthProvider } from "../domain/value-objects/oauth-provider.value-object";
 import type { UserRepository } from "../../users/domain/repository/user.repository.interface";
-import type { JwtTokenService } from "../infrastructure/services/jwt-token.service";
+import { JwtTokenService } from "../infrastructure/services/jwt-token.service";
 import type { AuthTokenRepositoryInterface } from "../domain/repositories/auth-token.repository.interface";
-import type { OAuthGoogleService } from "../infrastructure/services/oauth-google.service";
-import type { OAuthKakaoService } from "../infrastructure/services/oauth-kakao.service";
-import type { DrizzleService } from "../../../infrastructure/database/drizzle.service";
+import { OAuthGoogleService } from "../infrastructure/services/oauth-google.service";
+import { OAuthKakaoService } from "../infrastructure/services/oauth-kakao.service";
+import { DrizzleService } from "../../../infrastructure/database/drizzle.service";
 import type { EnvService } from "../../../config/env.service";
 import type { EmailServiceInterface } from "../../../shared/infrastructure/email/email-service.interface";
 export declare class AuthApplicationService {

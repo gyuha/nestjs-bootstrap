@@ -7,11 +7,11 @@ import type { AuthResult } from "../domain/entities/auth.entity";
 import type { TokenPair } from "../domain/value-objects/token.value-object";
 import { OAuthProvider } from "../domain/value-objects/oauth-provider.value-object";
 import type { UserRepository } from "../../users/domain/repository/user.repository.interface";
-import type { JwtTokenService } from "../infrastructure/services/jwt-token.service";
+import { JwtTokenService } from "../infrastructure/services/jwt-token.service";
 import type { AuthTokenRepositoryInterface } from "../domain/repositories/auth-token.repository.interface";
-import type { OAuthGoogleService } from "../infrastructure/services/oauth-google.service";
-import type { OAuthKakaoService } from "../infrastructure/services/oauth-kakao.service";
-import type { DrizzleService } from "../../../infrastructure/database/drizzle.service";
+import { OAuthGoogleService } from "../infrastructure/services/oauth-google.service";
+import { OAuthKakaoService } from "../infrastructure/services/oauth-kakao.service";
+import { DrizzleService } from "../../../infrastructure/database/drizzle.service";
 import { users } from "../../../infrastructure/database/schema/users.schema";
 import { oauthAccounts } from "../../../infrastructure/database/schema/oauth-accounts.schema";
 import { passwordResetTokens } from "../../../infrastructure/database/schema/password-reset.schema";
@@ -33,8 +33,12 @@ import {
   getVerificationEmailHtml,
   getVerificationEmailSubject,
 } from "../../../shared/infrastructure/email/templates/verification-email";
+import { EnvService } from "../../../config/env.service";
+import type { EmailServiceInterface } from "../../../shared/infrastructure/email/email-service.interface";
 
 const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
+const USER_REPOSITORY = "USER_REPOSITORY";
+const EMAIL_SERVICE = "EMAIL_SERVICE";
 const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_LOGIN_ATTEMPTS = 10;
 const VERIFICATION_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -44,14 +48,14 @@ const MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
 @Injectable()
 export class AuthApplicationService {
   constructor(
-    private readonly userRepo: UserRepository,
+    @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
     private readonly jwtTokenService: JwtTokenService,
     @Inject(AUTH_TOKEN_REPOSITORY) private readonly _tokenRepo: AuthTokenRepositoryInterface,
     private readonly oauthGoogle: OAuthGoogleService,
     private readonly oauthKakao: OAuthKakaoService,
     private readonly db: DrizzleService,
     private readonly env: EnvService,
-    private readonly emailService: EmailServiceInterface,
+    @Inject(EMAIL_SERVICE) private readonly emailService: EmailServiceInterface,
   ) {}
 
   async loginWithPassword(email: string, password: string): Promise<AuthResult> {
