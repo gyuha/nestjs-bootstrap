@@ -15,6 +15,13 @@
       "when": 1777116807306,
       "tag": "0001_large_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777118351078,
+      "tag": "0002_nappy_wild_pack",
+      "breakpoints": true
     }
   ]
 }

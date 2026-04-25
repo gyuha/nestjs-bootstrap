@@ -22,4 +22,10 @@ __exportStar(require("./password-reset.schema"), exports);
 var magic_links_schema_1 = require("./magic-links.schema");
 Object.defineProperty(exports, "magicLinks", { enumerable: true, get: function () { return magic_links_schema_1.magicLinks; } });
 __exportStar(require("./audit-logs.schema"), exports);
+__exportStar(require("./products.schema"), exports);
+__exportStar(require("./categories.schema"), exports);
+__exportStar(require("./promotions.schema"), exports);
+__exportStar(require("./orders.schema"), exports);
+__exportStar(require("./order-items.schema"), exports);
+__exportStar(require("./stock-movements.schema"), exports);
 //# sourceMappingURL=index.js.map
