@@ -1,0 +1,12 @@
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - b
+  - bcrypt
+  - d
+  - e
+  - esbuild
+  - i
+  - l
+  - s
+  - u

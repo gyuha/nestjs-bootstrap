@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { EnvService } from "../../../config/env.service";
@@ -11,7 +11,6 @@ import { JwtTokenService } from "./services/jwt-token.service";
 import { OAuthGoogleService } from "./services/oauth-google.service";
 import { OAuthKakaoService } from "./services/oauth-kakao.service";
 import { RedisPostgresTokenRepository } from "./repositories/redis-postgres-token.repository";
-import { AuthTokenRepositoryInterface } from "../domain/repositories/auth-token.repository.interface";
 
 import { AuthController } from "../presentation/auth.controller";
 import { JwtAuthGuard } from "../presentation/guards/jwt-auth.guard";
@@ -26,7 +25,7 @@ const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
     JwtModule.register({}),
     DrizzleModule,
     RedisModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
     EmailModule,
   ],
   controllers: [AuthController],

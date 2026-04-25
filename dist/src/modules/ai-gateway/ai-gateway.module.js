@@ -46,10 +46,16 @@ exports.AiGatewayModule = AiGatewayModule = __decorate(
       providers: [
         chat_use_case_1.ChatUseCase,
         embedding_use_case_1.EmbedUseCase,
-        openai_adapter_1.OpenAIAdapter,
         {
           provide: ai_gateway_service_token_1.AI_GATEWAY_SERVICE,
-          useClass: openai_adapter_1.OpenAIAdapter,
+          useFactory: () =>
+            new openai_adapter_1.OpenAIAdapter({
+              apiKey: process.env.OPENAI_API_KEY ?? "sk-local-dev-placeholder",
+              organization: process.env.OPENAI_ORGANIZATION,
+              defaultModel: process.env.OPENAI_CHAT_MODEL ?? "gpt-4o-mini",
+              embeddingModel: process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-small",
+              timeoutMs: 30_000,
+            }),
         },
         token_usage_interceptor_1.TokenUsageInterceptor,
       ],

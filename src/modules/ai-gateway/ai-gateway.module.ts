@@ -15,10 +15,16 @@ import { AI_GATEWAY_SERVICE } from "./domain/services/ai-gateway-service.token";
   providers: [
     ChatUseCase,
     EmbedUseCase,
-    OpenAIAdapter,
     {
       provide: AI_GATEWAY_SERVICE,
-      useClass: OpenAIAdapter,
+      useFactory: () =>
+        new OpenAIAdapter({
+          apiKey: process.env.OPENAI_API_KEY ?? "sk-local-dev-placeholder",
+          organization: process.env.OPENAI_ORGANIZATION,
+          defaultModel: process.env.OPENAI_CHAT_MODEL ?? "gpt-4o-mini",
+          embeddingModel: process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-small",
+          timeoutMs: 30_000,
+        }),
     },
     TokenUsageInterceptor,
   ],

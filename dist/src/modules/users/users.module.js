@@ -32,7 +32,10 @@ exports.UsersModule = UsersModule;
 exports.UsersModule = UsersModule = __decorate(
   [
     (0, common_1.Module)({
-      imports: [drizzle_module_1.DrizzleModule, auth_module_1.AuthModule],
+      imports: [
+        drizzle_module_1.DrizzleModule,
+        (0, common_1.forwardRef)(() => auth_module_1.AuthModule),
+      ],
       providers: [
         { provide: USER_REPOSITORY, useClass: drizzle_user_repository_1.DrizzleUserRepository },
         users_application_service_1.UsersApplicationService,

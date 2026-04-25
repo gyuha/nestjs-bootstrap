@@ -47,7 +47,7 @@ exports.AuthModule = AuthModule = __decorate(
         jwt_1.JwtModule.register({}),
         drizzle_module_1.DrizzleModule,
         redis_module_1.RedisModule,
-        users_module_1.UsersModule,
+        (0, common_1.forwardRef)(() => users_module_1.UsersModule),
         email_module_1.EmailModule,
       ],
       controllers: [auth_controller_1.AuthController],
