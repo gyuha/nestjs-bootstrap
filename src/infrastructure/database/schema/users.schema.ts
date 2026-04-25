@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, pgEnum, boolean, integer } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('role', ['USER', 'ADMIN']);
 export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE']);
@@ -12,6 +12,11 @@ export const users = pgTable('users', {
   status: statusEnum('status').notNull().default('ACTIVE'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  emailVerified: boolean('email_verified').notNull().default(false),
+  lockoutUntil: timestamp('lockout_until'),
+  failedLoginAttempts: integer('failed_login_attempts').notNull().default(0),
+  verificationToken: varchar('verification_token', { length: 255 }),
+  verificationTokenExpiry: timestamp('verification_token_expiry'),
 });
 
 export type User = typeof users.$inferSelect;
