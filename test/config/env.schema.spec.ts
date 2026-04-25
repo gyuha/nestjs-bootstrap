@@ -17,8 +17,43 @@ describe("env schema", () => {
 
     expect(env.NODE_ENV).toBe("test");
     expect(env.PORT).toBe(3000);
+    expect(env.SWAGGER_ENABLED).toBe(true);
     expect(env.CORS_ORIGINS).toBe("http://localhost:3000");
     expect(env.RUN_MIGRATIONS_ON_STARTUP).toBe(true);
+  });
+
+  it("defaults swagger to enabled in local and test", () => {
+    const localEnv = parseEnv({
+      ...validEnv,
+      NODE_ENV: "local",
+      SWAGGER_ENABLED: undefined,
+    });
+    const testEnv = parseEnv({
+      ...validEnv,
+      NODE_ENV: "test",
+      SWAGGER_ENABLED: undefined,
+    });
+
+    expect(localEnv.SWAGGER_ENABLED).toBe(true);
+    expect(testEnv.SWAGGER_ENABLED).toBe(true);
+  });
+
+  it("defaults swagger to disabled in production-like environments", () => {
+    const stagingEnv = parseEnv({
+      ...validEnv,
+      NODE_ENV: "staging",
+      SWAGGER_ENABLED: undefined,
+      RUN_MIGRATIONS_ON_STARTUP: "false",
+    });
+    const productionEnv = parseEnv({
+      ...validEnv,
+      NODE_ENV: "production",
+      SWAGGER_ENABLED: undefined,
+      RUN_MIGRATIONS_ON_STARTUP: "false",
+    });
+
+    expect(stagingEnv.SWAGGER_ENABLED).toBe(false);
+    expect(productionEnv.SWAGGER_ENABLED).toBe(false);
   });
 
   it("parses comma-separated cors origins", () => {

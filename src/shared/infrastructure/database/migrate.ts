@@ -27,26 +27,32 @@ function getMigrationsFolder() {
   return migrationsFolder;
 }
 
-async function run() {
-  const databaseUrl = process.env.DATABASE_URL;
-
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is required to run migrations");
-  }
-
+export async function runMigrations(databaseUrl: string, migrationsFolder = getMigrationsFolder()) {
   const pool = new Pool({ connectionString: databaseUrl });
   const db = drizzle(pool);
 
   try {
     await migrate(db, {
-      migrationsFolder: getMigrationsFolder(),
+      migrationsFolder,
     });
   } finally {
     await pool.end();
   }
 }
 
-void run().catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+export async function runMigrationsFromEnv() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required to run migrations");
+  }
+
+  await runMigrations(databaseUrl);
+}
+
+if (require.main === module) {
+  void runMigrationsFromEnv().catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

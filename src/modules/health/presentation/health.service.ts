@@ -8,6 +8,8 @@ type ServiceHealth = {
   status: "ok" | "down";
 };
 
+const HEALTH_CHECK_TIMEOUT_MS = 1_000;
+
 @Injectable()
 export class HealthService {
   @Inject(POSTGRES_POOL)
@@ -34,24 +36,41 @@ export class HealthService {
   }
 
   private async checkPostgres(): Promise<ServiceHealth> {
-    try {
+    return this.withTimeout(async () => {
       await this.pool.query("select 1");
-      return { status: "ok" };
-    } catch {
-      return { status: "down" };
-    }
+    });
   }
 
   private async checkRedis(): Promise<ServiceHealth> {
-    try {
+    return this.withTimeout(async () => {
       if (this.redis.status === "wait") {
         await this.redis.connect();
       }
 
       await this.redis.ping();
+    });
+  }
+
+  private async withTimeout(check: () => Promise<void>): Promise<ServiceHealth> {
+    let timeout: NodeJS.Timeout | undefined;
+
+    try {
+      await Promise.race([
+        check(),
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(() => {
+            reject(new Error("Health check timed out"));
+          }, HEALTH_CHECK_TIMEOUT_MS);
+        }),
+      ]);
+
       return { status: "ok" };
     } catch {
       return { status: "down" };
+    } finally {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
     }
   }
 }

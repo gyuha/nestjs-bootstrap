@@ -36,6 +36,7 @@ pnpm docker:down
 The compose app does not run migrations on startup. Run migrations manually before starting the app, or run the same command as a deployment job:
 
 ```bash
+docker build -t nestjs-bootstrap:local .
 docker run --rm \
   -e DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/nestjs_bootstrap \
   nestjs-bootstrap:local \
@@ -60,4 +61,4 @@ pnpm db:migrate:prod
 pnpm db:studio
 ```
 
-`pnpm db:migrate` is the local TypeScript runner. `pnpm db:migrate:prod` runs the compiled migration runner from `dist` and is safe for production containers. Startup migrations are disabled for compose and production; run migrations through an explicit command or separate deployment job.
+`pnpm db:migrate` is the local TypeScript runner. `pnpm db:migrate:prod` runs the compiled migration runner from `dist`, so run `pnpm build` first when using it outside containers. Startup migrations are allowed only in `local` and `test`; compose and production should run migrations through an explicit command or separate deployment job.
