@@ -3,6 +3,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppConfigModule } from "./bootstrap/config/config.module";
 import { HealthModule } from "./modules/health/health.module";
+import { UsersModule } from "./modules/users/users.module";
 import { DatabaseModule } from "./shared/infrastructure/database/database.module";
 import { RedisModule } from "./shared/infrastructure/redis/redis.module";
 
@@ -18,6 +19,7 @@ import { RedisModule } from "./shared/infrastructure/redis/redis.module";
     DatabaseModule,
     RedisModule,
     HealthModule,
+    UsersModule,
   ],
   providers: [
     {

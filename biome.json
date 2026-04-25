@@ -6,6 +6,11 @@
     "indentWidth": 2,
     "lineWidth": 100
   },
+  "javascript": {
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
   "files": {
     "includes": ["**", "!node_modules", "!dist", "!coverage"]
   },
