@@ -17,7 +17,26 @@ describe("env schema", () => {
 
     expect(env.NODE_ENV).toBe("test");
     expect(env.PORT).toBe(3000);
+    expect(env.CORS_ORIGINS).toBe("http://localhost:3000");
     expect(env.RUN_MIGRATIONS_ON_STARTUP).toBe(true);
+  });
+
+  it("parses comma-separated cors origins", () => {
+    const env = parseEnv({
+      ...validEnv,
+      CORS_ORIGINS: "http://localhost:3000,https://example.com",
+    });
+
+    expect(env.CORS_ORIGINS).toBe("http://localhost:3000,https://example.com");
+  });
+
+  it("trims comma-separated cors origins", () => {
+    const env = parseEnv({
+      ...validEnv,
+      CORS_ORIGINS: " http://localhost:3000, https://example.com ",
+    });
+
+    expect(env.CORS_ORIGINS).toBe("http://localhost:3000,https://example.com");
   });
 
   it("rejects an invalid database url", () => {
@@ -37,5 +56,33 @@ describe("env schema", () => {
         RUN_MIGRATIONS_ON_STARTUP: "true",
       }),
     ).toThrow("RUN_MIGRATIONS_ON_STARTUP cannot be true in production");
+  });
+
+  it("rejects startup migrations in staging", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        NODE_ENV: "staging",
+        RUN_MIGRATIONS_ON_STARTUP: "true",
+      }),
+    ).toThrow("RUN_MIGRATIONS_ON_STARTUP cannot be true in production");
+  });
+
+  it("rejects invalid cors origins", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        CORS_ORIGINS: "http://localhost:3000,not-a-url",
+      }),
+    ).toThrow("CORS_ORIGINS must contain valid URLs");
+  });
+
+  it("rejects blank cors origin entries", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        CORS_ORIGINS: "http://localhost:3000,",
+      }),
+    ).toThrow("CORS_ORIGINS cannot contain blank entries");
   });
 });
