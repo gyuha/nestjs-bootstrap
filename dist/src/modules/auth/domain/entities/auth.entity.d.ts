@@ -1,20 +1,20 @@
-import type { OAuthProvider } from '../value-objects/oauth-provider.value-object';
+import type { OAuthProvider } from "../value-objects/oauth-provider.value-object";
 export interface AuthResult {
-    user: {
-        id: string;
-        email: string;
-        name: string;
-        role: string;
-    };
-    accessToken: string;
-    refreshToken: string;
-}
-export interface OAuthUserInfo {
-    provider: OAuthProvider;
-    providerUserId: string;
+  user: {
+    id: string;
     email: string;
     name: string;
-    accessToken: string;
-    refreshToken?: string;
-    expiresAt?: Date;
+    role: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+}
+export interface OAuthUserInfo {
+  provider: OAuthProvider;
+  providerUserId: string;
+  email: string;
+  name: string;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: Date;
 }

@@ -1,44 +1,44 @@
-import { OAuthProvider } from '../../domain/value-objects/oauth-provider.value-object';
+import { OAuthProvider } from "../../domain/value-objects/oauth-provider.value-object";
 export declare class LoginPasswordDto {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 export declare class LoginOAuthDto {
-    provider: OAuthProvider;
-    code: string;
+  provider: OAuthProvider;
+  code: string;
 }
 export declare class RefreshTokenDto {
-    refreshToken: string;
+  refreshToken: string;
 }
 export declare class AuthResponseDto {
-    accessToken: string;
-    refreshToken: string;
-    user: {
-        id: string;
-        email: string;
-        name: string;
-        role: string;
-    };
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
 }
 export declare class TokenRefreshResponseDto {
-    accessToken: string;
-    refreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }
 export declare class RegisterDto {
-    email: string;
-    password: string;
-    name: string;
+  email: string;
+  password: string;
+  name: string;
 }
 export declare class ResendVerificationDto {
-    email: string;
+  email: string;
 }
 export declare class ForgotPasswordDto {
-    email: string;
+  email: string;
 }
 export declare class ResetPasswordDto {
-    token: string;
-    newPassword: string;
+  token: string;
+  newPassword: string;
 }
 export declare class MagicLinkRequestDto {
-    email: string;
+  email: string;
 }

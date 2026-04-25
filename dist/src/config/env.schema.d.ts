@@ -1,5 +1,6 @@
-import { z } from 'zod';
-export declare const envSchema: z.ZodObject<{
+import { z } from "zod";
+export declare const envSchema: z.ZodObject<
+  {
     NODE_ENV: z.ZodDefault<z.ZodEnum<["development", "test", "production"]>>;
     PORT: z.ZodDefault<z.ZodString>;
     DATABASE_URL: z.ZodString;
@@ -16,7 +17,10 @@ export declare const envSchema: z.ZodObject<{
     SMTP_USER: z.ZodOptional<z.ZodString>;
     SMTP_PASS: z.ZodOptional<z.ZodString>;
     EMAIL_FROM: z.ZodDefault<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
+  },
+  "strip",
+  z.ZodTypeAny,
+  {
     NODE_ENV: "development" | "test" | "production";
     PORT: string;
     DATABASE_URL: string;
@@ -33,7 +37,8 @@ export declare const envSchema: z.ZodObject<{
     SMTP_PORT?: string | undefined;
     SMTP_USER?: string | undefined;
     SMTP_PASS?: string | undefined;
-}, {
+  },
+  {
     DATABASE_URL: string;
     REDIS_URL: string;
     JWT_SECRET: string;
@@ -50,5 +55,6 @@ export declare const envSchema: z.ZodObject<{
     SMTP_USER?: string | undefined;
     SMTP_PASS?: string | undefined;
     EMAIL_FROM?: string | undefined;
-}>;
+  }
+>;
 export type EnvConfig = z.infer<typeof envSchema>;
