@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
+import { AI_GATEWAY_SERVICE } from '../../domain/services/ai-gateway-service.token';
 import { AIRequest } from '../../domain/entities/ai-request.entity';
 import type { ChatRequestDto } from '../dto/request/chat-request.dto';
 import type { ChatResponseDto } from '../dto/response/chat-response.dto';
@@ -8,7 +9,7 @@ import type { IRAGService, SearchResult } from '../../domain/services/irag.servi
 @Injectable()
 export class ChatUseCase {
   constructor(
-    private readonly aiGateway: IAIGatewayService,
+    @Inject(AI_GATEWAY_SERVICE) private readonly aiGateway: IAIGatewayService,
     private readonly ragService: IRAGService,
   ) {}
 
