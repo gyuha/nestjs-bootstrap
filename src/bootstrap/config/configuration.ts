@@ -27,5 +27,18 @@ export function configuration() {
         callbackUrl: env.GOOGLE_CALLBACK_URL,
       },
     },
+    ai: {
+      openAiApiKey: env.OPENAI_API_KEY,
+      chatModel: env.OPENAI_CHAT_MODEL,
+      embeddingModel: env.OPENAI_EMBEDDING_MODEL,
+    },
+    rag: {
+      topK: env.RAG_TOP_K,
+      minScore: env.RAG_MIN_SCORE,
+      maxContextMessages: env.RAG_MAX_CONTEXT_MESSAGES,
+    },
+    chat: {
+      anonymousSessionTtl: env.CHAT_ANONYMOUS_SESSION_TTL,
+    },
   };
 }

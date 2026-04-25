@@ -16,6 +16,7 @@ const tokenDuration = z
   .regex(/^\d+[smhd]$/, {
     message: "Expected a duration like 15m, 12h, or 30d",
   });
+const duration = tokenDuration;
 
 const corsOrigins = z
   .string()
@@ -68,6 +69,13 @@ const rawEnvSchema = z
     GOOGLE_CLIENT_ID: nonBlankString,
     GOOGLE_CLIENT_SECRET: nonBlankString,
     GOOGLE_CALLBACK_URL: z.string().url(),
+    OPENAI_API_KEY: nonBlankString,
+    OPENAI_CHAT_MODEL: nonBlankString.default("gpt-5-mini"),
+    OPENAI_EMBEDDING_MODEL: nonBlankString.default("text-embedding-3-small"),
+    RAG_TOP_K: z.coerce.number().int().min(1).max(20).default(5),
+    RAG_MIN_SCORE: z.coerce.number().min(0).max(1).default(0.72),
+    RAG_MAX_CONTEXT_MESSAGES: z.coerce.number().int().min(0).max(30).default(8),
+    CHAT_ANONYMOUS_SESSION_TTL: duration.default("30d"),
   })
   .transform((env) => ({
     ...env,

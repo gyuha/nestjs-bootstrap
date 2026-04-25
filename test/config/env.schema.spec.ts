@@ -17,6 +17,7 @@ const baseEnv = {
   CORS_ORIGINS: "http://localhost:3000",
   SWAGGER_ENABLED: "true",
   RUN_MIGRATIONS_ON_STARTUP: "true",
+  OPENAI_API_KEY: "sk-test-key",
 };
 
 const validEnv = {
@@ -94,6 +95,41 @@ describe("env schema", () => {
     expect(env.REFRESH_TOKEN_EXPIRES_IN).toBe("30d");
   });
 
+  it("parses rag and openai configuration", () => {
+    const env = parseEnv({
+      ...validEnv,
+      OPENAI_API_KEY: "sk-test-key",
+      OPENAI_CHAT_MODEL: "gpt-5-mini",
+      OPENAI_EMBEDDING_MODEL: "text-embedding-3-small",
+      RAG_TOP_K: "5",
+      RAG_MIN_SCORE: "0.72",
+      RAG_MAX_CONTEXT_MESSAGES: "8",
+      CHAT_ANONYMOUS_SESSION_TTL: "30d",
+    });
+
+    expect(env.OPENAI_CHAT_MODEL).toBe("gpt-5-mini");
+    expect(env.RAG_TOP_K).toBe(5);
+    expect(env.RAG_MIN_SCORE).toBe(0.72);
+  });
+
+  it("rejects invalid rag retrieval settings", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        OPENAI_API_KEY: "sk-test-key",
+        RAG_TOP_K: "0",
+      }),
+    ).toThrow("Invalid environment");
+
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        OPENAI_API_KEY: "sk-test-key",
+        RAG_MIN_SCORE: "2",
+      }),
+    ).toThrow("Invalid environment");
+  });
+
   it("requires jwt and google oauth secrets", () => {
     expect(() => parseEnv(baseEnv)).toThrow("Invalid environment");
   });
@@ -157,6 +193,33 @@ describe("env schema", () => {
         clientSecret: authEnv.GOOGLE_CLIENT_SECRET,
         callbackUrl: authEnv.GOOGLE_CALLBACK_URL,
       },
+    });
+  });
+
+  it("exposes ai, rag, and chat configuration", () => {
+    process.env = {
+      ...validEnv,
+      OPENAI_API_KEY: "sk-test-key",
+      RAG_TOP_K: "7",
+      RAG_MIN_SCORE: "0.65",
+      RAG_MAX_CONTEXT_MESSAGES: "12",
+      CHAT_ANONYMOUS_SESSION_TTL: "14d",
+    };
+
+    const config = configuration();
+
+    expect(config.ai).toEqual({
+      openAiApiKey: "sk-test-key",
+      chatModel: "gpt-5-mini",
+      embeddingModel: "text-embedding-3-small",
+    });
+    expect(config.rag).toEqual({
+      topK: 7,
+      minScore: 0.65,
+      maxContextMessages: 12,
+    });
+    expect(config.chat).toEqual({
+      anonymousSessionTtl: "14d",
     });
   });
 

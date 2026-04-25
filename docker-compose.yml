@@ -16,11 +16,18 @@ services:
       CORS_ORIGINS: http://localhost:3000
       SWAGGER_ENABLED: "true"
       RUN_MIGRATIONS_ON_STARTUP: "false"
+      OPENAI_API_KEY: sk-local-placeholder
+      OPENAI_CHAT_MODEL: gpt-5-mini
+      OPENAI_EMBEDDING_MODEL: text-embedding-3-small
+      RAG_TOP_K: 5
+      RAG_MIN_SCORE: 0.72
+      RAG_MAX_CONTEXT_MESSAGES: 8
+      CHAT_ANONYMOUS_SESSION_TTL: 30d
     ports:
       - "3000:3000"
 
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
