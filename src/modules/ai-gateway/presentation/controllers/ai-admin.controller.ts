@@ -34,8 +34,8 @@ export class AiAdminController {
 
   @Delete('index/:source')
   @HttpCode(HttpStatus.OK)
-  async deleteIndexedDocuments(@Param('source') source: string) {
-    // Implementation to delete indexed documents from a source
+  async deleteIndexedDocuments(@Param('_source') _source: string) {
+    // TODO: Implement deletion logic using _source
     return { success: true };
   }
 
