@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppConfigModule } from "./bootstrap/config/config.module";
+import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { UsersModule } from "./modules/users/users.module";
 import { DatabaseModule } from "./shared/infrastructure/database/database.module";
@@ -20,6 +21,7 @@ import { RedisModule } from "./shared/infrastructure/redis/redis.module";
     RedisModule,
     HealthModule,
     UsersModule,
+    AuthModule,
   ],
   providers: [
     {
