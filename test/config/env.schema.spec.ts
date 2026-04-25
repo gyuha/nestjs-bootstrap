@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { configuration } from "../../src/bootstrap/config/configuration";
 import { parseEnv } from "../../src/bootstrap/config/env.schema";
 
 const authEnv = {
@@ -23,7 +24,13 @@ const validEnv = {
   ...authEnv,
 };
 
+const originalEnv = process.env;
+
 describe("env schema", () => {
+  afterEach(() => {
+    process.env = originalEnv;
+  });
+
   it("parses a valid environment", () => {
     const env = parseEnv(validEnv);
 
@@ -89,6 +96,52 @@ describe("env schema", () => {
 
   it("requires jwt and google oauth secrets", () => {
     expect(() => parseEnv(baseEnv)).toThrow("Invalid environment");
+  });
+
+  it("rejects whitespace-only auth secrets", () => {
+    const whitespaceSecretEnv = {
+      ...validEnv,
+      JWT_ACCESS_TOKEN_SECRET: " ".repeat(32),
+      GOOGLE_CLIENT_ID: " ",
+      GOOGLE_CLIENT_SECRET: " ",
+    };
+
+    expect(() => parseEnv(whitespaceSecretEnv)).toThrow("Invalid environment");
+  });
+
+  it("rejects blank token expiry values", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        JWT_ACCESS_TOKEN_EXPIRES_IN: " ",
+      }),
+    ).toThrow("Invalid environment");
+
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        REFRESH_TOKEN_EXPIRES_IN: "",
+      }),
+    ).toThrow("Invalid environment");
+  });
+
+  it("exposes auth configuration", () => {
+    process.env = {
+      ...validEnv,
+      JWT_ACCESS_TOKEN_EXPIRES_IN: "10m",
+      REFRESH_TOKEN_EXPIRES_IN: "14d",
+    };
+
+    expect(configuration().auth).toEqual({
+      accessTokenSecret: authEnv.JWT_ACCESS_TOKEN_SECRET,
+      accessTokenExpiresIn: "10m",
+      refreshTokenExpiresIn: "14d",
+      google: {
+        clientId: authEnv.GOOGLE_CLIENT_ID,
+        clientSecret: authEnv.GOOGLE_CLIENT_SECRET,
+        callbackUrl: authEnv.GOOGLE_CALLBACK_URL,
+      },
+    });
   });
 
   it("trims comma-separated cors origins", () => {
