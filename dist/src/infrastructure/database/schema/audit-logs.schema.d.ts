@@ -164,3 +164,5 @@ export declare const auditLogs: import("drizzle-orm/pg-core").PgTableWithColumns
     };
     dialect: "pg";
 }>;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;

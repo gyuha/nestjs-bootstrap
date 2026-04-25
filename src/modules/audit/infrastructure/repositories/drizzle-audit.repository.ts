@@ -76,7 +76,8 @@ export class DrizzleAuditRepository implements AuditLogRepository {
   async deleteOlderThan(date: Date): Promise<number> {
     const result = await this.db.db
       .delete(auditLogs)
-      .where(sql`${auditLogs.createdAt} < ${date}`);
-    return result.rowCount ?? 0;
+      .where(sql`${auditLogs.createdAt} < ${date}`)
+      .returning({ id: auditLogs.id });
+    return result.length;
   }
 }
