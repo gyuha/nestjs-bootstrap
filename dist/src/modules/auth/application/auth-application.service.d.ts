@@ -31,6 +31,8 @@ export declare class AuthApplicationService {
     resendVerificationEmail(email: string): Promise<void>;
     forgotPassword(email: string): Promise<void>;
     resetPassword(token: string, newPassword: string): Promise<void>;
+    requestMagicLink(email: string): Promise<void>;
+    loginWithMagicLink(token: string): Promise<AuthResult>;
     private generateSecureToken;
     private incrementFailedLoginAttempts;
     private lockAccount;

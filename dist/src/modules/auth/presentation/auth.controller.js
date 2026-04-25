@@ -70,6 +70,18 @@ let AuthController = class AuthController {
         await this.authService.resetPassword(dto.token, dto.newPassword);
         return { message: 'Password reset successfully' };
     }
+    async requestMagicLink(dto) {
+        await this.authService.requestMagicLink(dto.email);
+        return { message: 'If the email exists, a magic link has been sent' };
+    }
+    async loginWithMagicLink(token) {
+        const result = await this.authService.loginWithMagicLink(token);
+        return {
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+            user: result.user,
+        };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -158,6 +170,26 @@ __decorate([
     __metadata("design:paramtypes", [Function]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "resetPassword", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('magic-link'),
+    (0, swagger_1.ApiOperation)({ summary: 'Request magic link' }),
+    (0, swagger_1.ApiResponse)({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Function]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "requestMagicLink", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Get)('magic-link/:token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Login with magic link' }),
+    (0, swagger_1.ApiResponse)({ status: 200, type: auth_dto_1.AuthResponseDto }),
+    __param(0, (0, common_1.Param)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "loginWithMagicLink", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),

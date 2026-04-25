@@ -17,6 +17,7 @@ import {
   type ResendVerificationDto,
   type ForgotPasswordDto,
   type ResetPasswordDto,
+  type MagicLinkRequestDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
 } from '../application/dto/auth.dto';
@@ -126,5 +127,27 @@ export class AuthController {
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
     await this.authService.resetPassword(dto.token, dto.newPassword);
     return { message: 'Password reset successfully' };
+  }
+
+  @Public()
+  @Post('magic-link')
+  @ApiOperation({ summary: 'Request magic link' })
+  @ApiResponse({ status: 200 })
+  async requestMagicLink(@Body() dto: MagicLinkRequestDto): Promise<{ message: string }> {
+    await this.authService.requestMagicLink(dto.email);
+    return { message: 'If the email exists, a magic link has been sent' };
+  }
+
+  @Public()
+  @Get('magic-link/:token')
+  @ApiOperation({ summary: 'Login with magic link' })
+  @ApiResponse({ status: 200, type: AuthResponseDto })
+  async loginWithMagicLink(@Param('token') token: string): Promise<AuthResponseDto> {
+    const result = await this.authService.loginWithMagicLink(token);
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: result.user,
+    };
   }
 }

@@ -15,7 +15,9 @@ import type { DrizzleService } from '../../../infrastructure/database/drizzle.se
 import { users } from '../../../infrastructure/database/schema/users.schema';
 import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-accounts.schema';
 import { passwordResetTokens } from '../../../infrastructure/database/schema/password-reset.schema';
+import { magicLinks } from '../../../infrastructure/database/schema/magic-links.schema';
 import { getPasswordResetEmailHtml, getPasswordResetEmailSubject } from '../../../shared/infrastructure/email/templates/password-reset-email';
+import { getMagicLinkEmailHtml, getMagicLinkEmailSubject } from '../../../shared/infrastructure/email/templates/magic-link-email';
 import { AuthException } from '../presentation/exceptions/auth.exception';
 import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
 import type { EnvService } from '../../../config/env.service';
@@ -301,6 +303,58 @@ export class AuthApplicationService {
 
     // Delete used token
     await this.db.db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, resetRecord.id));
+  }
+
+  async requestMagicLink(email: string): Promise<void> {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) return; // Silent fail for security
+
+    // Generate magic link token
+    const token = this.generateSecureToken();
+    const tokenHash = this.hashToken(token);
+    const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRY_MS);
+
+    // Store token
+    await this.db.db.insert(magicLinks).values({
+      id: crypto.randomUUID(),
+      email,
+      tokenHash,
+      expiresAt,
+    });
+
+    // Send email
+    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const magicLinkUrl = `${baseUrl}/api/v1/auth/magic-link/${token}`;
+    await this.emailService.send({
+      to: email,
+      subject: getMagicLinkEmailSubject(),
+      html: getMagicLinkEmailHtml(magicLinkUrl),
+    });
+  }
+
+  async loginWithMagicLink(token: string): Promise<AuthResult> {
+    const tokenHash = this.hashToken(token);
+
+    // Find magic link
+    const results = await this.db.db
+      .select()
+      .from(magicLinks)
+      .where(eq(magicLinks.tokenHash, tokenHash))
+      .limit(1);
+
+    const magicLinkRecord = results[0];
+    if (!magicLinkRecord) throw AuthException.invalidMagicLink();
+    if (new Date(magicLinkRecord.expiresAt) < new Date()) throw AuthException.invalidMagicLink();
+
+    // Find user
+    const user = await this.userRepo.findByEmail(magicLinkRecord.email);
+    if (!user) throw AuthException.invalidMagicLink();
+
+    // Delete used magic link (single use)
+    await this.db.db.delete(magicLinks).where(eq(magicLinks.id, magicLinkRecord.id));
+
+    // Generate auth result
+    return this.generateAuthResult(user.id, user.email, user.name, user.role);
   }
 
   private generateSecureToken(): string {

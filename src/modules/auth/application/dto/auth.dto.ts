@@ -91,3 +91,9 @@ export class ResetPasswordDto {
   @IsString()
   newPassword: string;
 }
+
+export class MagicLinkRequestDto {
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail()
+  email: string;
+}

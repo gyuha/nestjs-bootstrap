@@ -22,7 +22,9 @@ const oauth_provider_value_object_1 = require("../domain/value-objects/oauth-pro
 const users_schema_1 = require("../../../infrastructure/database/schema/users.schema");
 const oauth_accounts_schema_1 = require("../../../infrastructure/database/schema/oauth-accounts.schema");
 const password_reset_schema_1 = require("../../../infrastructure/database/schema/password-reset.schema");
+const magic_links_schema_1 = require("../../../infrastructure/database/schema/magic-links.schema");
 const password_reset_email_1 = require("../../../shared/infrastructure/email/templates/password-reset-email");
+const magic_link_email_1 = require("../../../shared/infrastructure/email/templates/magic-link-email");
 const auth_exception_1 = require("../presentation/exceptions/auth.exception");
 const role_value_object_1 = require("../../users/domain/value-objects/role.value-object");
 const password_validation_1 = require("../../../shared/utils/password.validation");
@@ -230,6 +232,45 @@ let AuthApplicationService = class AuthApplicationService {
             .set({ passwordHash, updatedAt: new Date() })
             .where((0, drizzle_orm_1.eq)(users_schema_1.users.id, resetRecord.userId));
         await this.db.db.delete(password_reset_schema_1.passwordResetTokens).where((0, drizzle_orm_1.eq)(password_reset_schema_1.passwordResetTokens.id, resetRecord.id));
+    }
+    async requestMagicLink(email) {
+        const user = await this.userRepo.findByEmail(email);
+        if (!user)
+            return;
+        const token = this.generateSecureToken();
+        const tokenHash = this.hashToken(token);
+        const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRY_MS);
+        await this.db.db.insert(magic_links_schema_1.magicLinks).values({
+            id: crypto.randomUUID(),
+            email,
+            tokenHash,
+            expiresAt,
+        });
+        const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+        const magicLinkUrl = `${baseUrl}/api/v1/auth/magic-link/${token}`;
+        await this.emailService.send({
+            to: email,
+            subject: (0, magic_link_email_1.getMagicLinkEmailSubject)(),
+            html: (0, magic_link_email_1.getMagicLinkEmailHtml)(magicLinkUrl),
+        });
+    }
+    async loginWithMagicLink(token) {
+        const tokenHash = this.hashToken(token);
+        const results = await this.db.db
+            .select()
+            .from(magic_links_schema_1.magicLinks)
+            .where((0, drizzle_orm_1.eq)(magic_links_schema_1.magicLinks.tokenHash, tokenHash))
+            .limit(1);
+        const magicLinkRecord = results[0];
+        if (!magicLinkRecord)
+            throw auth_exception_1.AuthException.invalidMagicLink();
+        if (new Date(magicLinkRecord.expiresAt) < new Date())
+            throw auth_exception_1.AuthException.invalidMagicLink();
+        const user = await this.userRepo.findByEmail(magicLinkRecord.email);
+        if (!user)
+            throw auth_exception_1.AuthException.invalidMagicLink();
+        await this.db.db.delete(magic_links_schema_1.magicLinks).where((0, drizzle_orm_1.eq)(magic_links_schema_1.magicLinks.id, magicLinkRecord.id));
+        return this.generateAuthResult(user.id, user.email, user.name, user.role);
     }
     generateSecureToken() {
         return (0, node_crypto_1.randomBytes)(32).toString('hex');

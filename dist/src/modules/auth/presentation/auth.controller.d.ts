@@ -1,5 +1,5 @@
 import type { AuthApplicationService } from '../application/auth-application.service';
-import { type LoginPasswordDto, type LoginOAuthDto, type RefreshTokenDto, type RegisterDto, type ResendVerificationDto, type ForgotPasswordDto, type ResetPasswordDto, AuthResponseDto, TokenRefreshResponseDto } from '../application/dto/auth.dto';
+import { type LoginPasswordDto, type LoginOAuthDto, type RefreshTokenDto, type RegisterDto, type ResendVerificationDto, type ForgotPasswordDto, type ResetPasswordDto, type MagicLinkRequestDto, AuthResponseDto, TokenRefreshResponseDto } from '../application/dto/auth.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthApplicationService);
@@ -19,4 +19,8 @@ export declare class AuthController {
     resetPassword(dto: ResetPasswordDto): Promise<{
         message: string;
     }>;
+    requestMagicLink(dto: MagicLinkRequestDto): Promise<{
+        message: string;
+    }>;
+    loginWithMagicLink(token: string): Promise<AuthResponseDto>;
 }
