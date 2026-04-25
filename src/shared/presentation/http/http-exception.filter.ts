@@ -22,13 +22,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception instanceof HttpException ? exception.getResponse() : undefined;
 
     const message =
-      typeof exceptionResponse === "object" &&
-      exceptionResponse !== null &&
-      "message" in exceptionResponse
-        ? exceptionResponse.message
-        : statusCode === HttpStatus.INTERNAL_SERVER_ERROR
-          ? "Internal server error"
-          : "Request failed";
+      typeof exceptionResponse === "string"
+        ? exceptionResponse
+        : typeof exceptionResponse === "object" &&
+            exceptionResponse !== null &&
+            "message" in exceptionResponse
+          ? exceptionResponse.message
+          : statusCode === HttpStatus.INTERNAL_SERVER_ERROR
+            ? "Internal server error"
+            : "Request failed";
 
     response.status(statusCode).json({
       traceId: request.traceId,
