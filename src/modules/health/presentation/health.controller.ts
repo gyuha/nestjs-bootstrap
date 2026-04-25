@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from "@nestjs/swagger";
+import { SkipThrottle } from "@nestjs/throttler";
 import type { Response } from "express";
 import { type Observable, map } from "rxjs";
 import { SkipResponseEnvelope } from "../../../shared/presentation/http/skip-response-envelope.decorator";
@@ -38,6 +39,7 @@ class HealthStatusInterceptor implements NestInterceptor {
 @ApiTags("health")
 @Controller({ path: "health", version: "1" })
 @SkipResponseEnvelope()
+@SkipThrottle()
 @UseInterceptors(HealthStatusInterceptor)
 export class HealthController {
   @Inject(HealthService)
