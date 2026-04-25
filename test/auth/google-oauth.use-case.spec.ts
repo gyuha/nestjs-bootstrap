@@ -227,9 +227,7 @@ function createRefreshTokenRepository() {
   } as never;
 }
 
-class InMemoryUserRepository
-  implements Pick<UserRepository, "create" | "findById" | "findByEmail">
-{
+class InMemoryUserRepository implements UserRepository {
   private readonly users: User[] = [];
 
   async create(input: CreateUserRepositoryInput): Promise<User> {
@@ -245,6 +243,14 @@ class InMemoryUserRepository
 
   async findByEmail(email: string): Promise<User | null> {
     return this.users.find((user) => user.email === email.toLowerCase()) ?? null;
+  }
+
+  async list(): Promise<never> {
+    throw new Error("Not implemented in GoogleLogin tests");
+  }
+
+  async update(): Promise<never> {
+    throw new Error("Not implemented in GoogleLogin tests");
   }
 
   all(): User[] {

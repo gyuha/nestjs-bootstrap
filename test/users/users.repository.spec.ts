@@ -59,6 +59,18 @@ describe("DrizzleUserRepository", () => {
     await expect(repository.findByEmail(`${emailPrefix}-missing@example.com`)).resolves.toBeNull();
   });
 
+  it("normalizes email addresses for create and lookup", async () => {
+    const created = await repository.create({
+      email: `${emailPrefix}-MixedCase@Example.COM`,
+      displayName: "Mixed Email User",
+    });
+
+    expect(created.email).toBe(`${emailPrefix}-mixedcase@example.com`);
+    await expect(repository.findByEmail(`${emailPrefix}-MIXEDCASE@example.com`)).resolves.toEqual(
+      created,
+    );
+  });
+
   it("updates persisted users", async () => {
     const created = await repository.create({
       email: `${emailPrefix}-update@example.com`,

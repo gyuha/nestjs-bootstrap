@@ -15,6 +15,13 @@
       "when": 1777113856479,
       "tag": "0001_sour_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777120703259,
+      "tag": "0002_bizarre_hellion",
+      "breakpoints": true
     }
   ]
 }

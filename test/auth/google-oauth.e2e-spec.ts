@@ -19,6 +19,44 @@ import {
 
 const emailPrefix = `google-oauth-e2e-${randomUUID().slice(0, 8)}`;
 
+describe("Google OAuth state", () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    migrateTestDatabase();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleRef.createNestApplication();
+    applyBootstrap(app);
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app?.close();
+  });
+
+  it("sets a signed OAuth state cookie and redirects with the same state", async () => {
+    const response = await request(app.getHttpServer()).get("/api/v1/auth/google").expect(302);
+    const setCookie = response.headers["set-cookie"]?.[0] ?? "";
+    const location = response.headers.location ?? "";
+    const redirectedState = new URL(location).searchParams.get("state");
+    const cookieState = /google_oauth_state=([^;]+)/.exec(setCookie)?.[1];
+
+    expect(redirectedState).toBeTruthy();
+    expect(cookieState).toBe(encodeURIComponent(redirectedState ?? ""));
+    expect(setCookie).toContain("HttpOnly");
+    expect(setCookie).toContain("SameSite=Lax");
+  });
+
+  it("rejects callbacks without a matching OAuth state cookie", async () => {
+    await request(app.getHttpServer())
+      .get("/api/v1/auth/google/callback")
+      .query({ code: "fake-code", state: "invalid-state" })
+      .expect(401);
+  });
+});
+
 describe("Google OAuth API", () => {
   let app: INestApplication;
   let db: NodePgDatabase<typeof schema>;
@@ -26,7 +64,7 @@ describe("Google OAuth API", () => {
   beforeAll(async () => {
     migrateTestDatabase();
     vi.spyOn(GoogleAuthGuard.prototype, "canActivate").mockImplementation(
-      (context: ExecutionContext) => {
+      async (context: ExecutionContext) => {
         const httpRequest = context.switchToHttp().getRequest();
         httpRequest.user = {
           providerUserId: httpRequest.query.sub ?? "google-sub-e2e",

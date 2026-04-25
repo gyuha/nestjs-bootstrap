@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   foreignKey,
@@ -7,6 +8,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -23,16 +25,20 @@ export const timestampColumns = () => ({
     .$onUpdate(() => new Date()),
 });
 
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  email: varchar("email", { length: 320 }).notNull().unique(),
-  displayName: varchar("display_name", { length: 120 }).notNull(),
-  avatarUrl: text("avatar_url"),
-  bio: text("bio"),
-  status: userStatus("status").notNull().default("active"),
-  role: userRole("role").notNull().default("USER"),
-  ...timestampColumns(),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: varchar("email", { length: 320 }).notNull().unique(),
+    displayName: varchar("display_name", { length: 120 }).notNull(),
+    avatarUrl: text("avatar_url"),
+    bio: text("bio"),
+    status: userStatus("status").notNull().default("active"),
+    role: userRole("role").notNull().default("USER"),
+    ...timestampColumns(),
+  },
+  (table) => [uniqueIndex("users_email_lower_unique").on(sql`lower(${table.email})`)],
+);
 
 export const authIdentities = pgTable(
   "auth_identities",

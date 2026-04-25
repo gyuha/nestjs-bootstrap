@@ -31,7 +31,7 @@ export class User {
 
     return new User(
       input.id ?? randomUUID(),
-      input.email,
+      normalizeEmail(input.email),
       input.displayName,
       input.avatarUrl ?? null,
       input.bio ?? null,
@@ -87,4 +87,8 @@ export class User {
   deactivate(): void {
     this.changeStatus("inactive");
   }
+}
+
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
 }

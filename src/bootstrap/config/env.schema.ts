@@ -10,6 +10,12 @@ function booleanFromString(defaultValue: "true" | "false") {
 const optionalBooleanFromString = z.enum(["true", "false"]).transform((value) => value === "true");
 
 const nonBlankString = z.string().trim().min(1);
+const tokenDuration = z
+  .string()
+  .trim()
+  .regex(/^\d+[smhd]$/, {
+    message: "Expected a duration like 15m, 12h, or 30d",
+  });
 
 const corsOrigins = z
   .string()
@@ -57,8 +63,8 @@ const rawEnvSchema = z
     SWAGGER_ENABLED: optionalBooleanFromString.optional(),
     RUN_MIGRATIONS_ON_STARTUP: booleanFromString("false"),
     JWT_ACCESS_TOKEN_SECRET: z.string().trim().min(32),
-    JWT_ACCESS_TOKEN_EXPIRES_IN: nonBlankString.default("15m"),
-    REFRESH_TOKEN_EXPIRES_IN: nonBlankString.default("30d"),
+    JWT_ACCESS_TOKEN_EXPIRES_IN: tokenDuration.default("15m"),
+    REFRESH_TOKEN_EXPIRES_IN: tokenDuration.default("30d"),
     GOOGLE_CLIENT_ID: nonBlankString,
     GOOGLE_CLIENT_SECRET: nonBlankString,
     GOOGLE_CALLBACK_URL: z.string().url(),

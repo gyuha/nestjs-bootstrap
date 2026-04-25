@@ -1,7 +1,7 @@
 import { and, asc, eq, or, sql, type SQL } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PageResult } from "../../../shared/domain/pagination";
-import { User } from "../domain/user.entity";
+import { normalizeEmail, User } from "../domain/user.entity";
 import type {
   CreateUserRepositoryInput,
   ListUsersFilter,
@@ -19,7 +19,7 @@ export class DrizzleUserRepository implements UserRepository {
     const [row] = await this.db
       .insert(users)
       .values({
-        email: input.email,
+        email: normalizeEmail(input.email),
         displayName: input.displayName,
         avatarUrl: input.avatarUrl,
         bio: input.bio,
@@ -38,7 +38,11 @@ export class DrizzleUserRepository implements UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const [row] = await this.db.select().from(users).where(eq(users.email, email)).limit(1);
+    const [row] = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.email, normalizeEmail(email)))
+      .limit(1);
 
     return row ? this.toDomain(row) : null;
   }

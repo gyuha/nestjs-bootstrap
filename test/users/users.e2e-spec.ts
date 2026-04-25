@@ -151,6 +151,28 @@ describe("Users API", () => {
     });
   });
 
+  it("normalizes admin-created user emails", async () => {
+    const admin = await createUser(db, {
+      email: `${emailPrefix}-create-admin@example.com`,
+      displayName: "Create Admin",
+      role: "ADMIN",
+    });
+    currentAuthenticatedUser = { id: admin.id, role: "ADMIN" };
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/users")
+      .send({
+        email: `${emailPrefix}-Created@Example.COM`,
+        displayName: "Created User",
+      })
+      .expect(201);
+
+    expect(response.body.data).toMatchObject({
+      email: `${emailPrefix}-created@example.com`,
+      displayName: "Created User",
+    });
+  });
+
   it("allows admins to change user status", async () => {
     const admin = await createUser(db, {
       email: `${emailPrefix}-status-admin@example.com`,

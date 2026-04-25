@@ -125,6 +125,22 @@ describe("env schema", () => {
     ).toThrow("Invalid environment");
   });
 
+  it("rejects unsupported token expiry formats", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        JWT_ACCESS_TOKEN_EXPIRES_IN: "15 minutes",
+      }),
+    ).toThrow("Invalid environment");
+
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        REFRESH_TOKEN_EXPIRES_IN: "30days",
+      }),
+    ).toThrow("Invalid environment");
+  });
+
   it("exposes auth configuration", () => {
     process.env = {
       ...validEnv,
