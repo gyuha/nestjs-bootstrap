@@ -10,6 +10,8 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiTags } from "@nestjs/swagger";
+import type { GoogleLoginInput } from "../application/google-login.use-case";
+import { GoogleLogin } from "../application/google-login.use-case";
 import {
   GetAuthenticatedUser,
   LoginWithPassword,
@@ -22,6 +24,7 @@ import {
   InvalidAuthCredentialsError,
   InvalidRefreshTokenError,
 } from "../application/auth.errors";
+import { GoogleAuthGuard } from "../infrastructure/google-oauth.strategy";
 import { CurrentUser } from "./current-user.decorator";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import type { AuthenticatedUser } from "./request-user";
@@ -40,6 +43,9 @@ export class AuthController {
 
   @Inject(LoginWithPassword)
   private readonly loginWithPassword!: LoginWithPassword;
+
+  @Inject(GoogleLogin)
+  private readonly googleLogin!: GoogleLogin;
 
   @Inject(RefreshSession)
   private readonly refreshSession!: RefreshSession;
@@ -61,6 +67,16 @@ export class AuthController {
   @ApiBody({ type: LoginWithPasswordDto })
   async login(@Body() body: LoginWithPasswordDto) {
     return this.runAuth(() => this.loginWithPassword.execute(body));
+  }
+
+  @Get("google")
+  @UseGuards(GoogleAuthGuard)
+  async google(): Promise<void> {}
+
+  @Get("google/callback")
+  @UseGuards(GoogleAuthGuard)
+  async googleCallback(@CurrentUser() profile: GoogleLoginInput) {
+    return this.runAuth(() => this.googleLogin.execute(profile));
   }
 
   @Post("refresh")

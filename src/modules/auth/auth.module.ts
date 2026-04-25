@@ -6,11 +6,13 @@ import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { authUseCases } from "./application/auth.use-cases";
 import { RefreshTokenService } from "./application/refresh-token.service";
 import { TokenService } from "./application/token.service";
+import { GoogleLogin } from "./application/google-login.use-case";
 import { AUTH_IDENTITY_REPOSITORY } from "./domain/auth-identity.repository";
 import { PASSWORD_HASHER } from "./domain/password-hasher";
 import { REFRESH_TOKEN_REPOSITORY } from "./domain/refresh-token.repository";
 import { Argon2PasswordHasher } from "./infrastructure/argon2-password-hasher";
 import { DrizzleAuthIdentityRepository } from "./infrastructure/auth-identity.drizzle-repository";
+import { GoogleAuthGuard, GoogleOAuthStrategy } from "./infrastructure/google-oauth.strategy";
 import { DrizzleRefreshTokenRepository } from "./infrastructure/refresh-token.drizzle-repository";
 import { AuthController } from "./presentation/auth.controller";
 import { JwtAuthGuard } from "./presentation/jwt-auth.guard";
@@ -48,11 +50,15 @@ import type { schema } from "../../shared/infrastructure/database/schema";
         return new DrizzleRefreshTokenRepository(database);
       },
     },
+    GoogleAuthGuard,
+    GoogleOAuthStrategy,
     JwtAuthGuard,
+    GoogleLogin,
     ...authUseCases,
   ],
   exports: [
     AUTH_IDENTITY_REPOSITORY,
+    GoogleLogin,
     ...authUseCases,
     PASSWORD_HASHER,
     REFRESH_TOKEN_REPOSITORY,
