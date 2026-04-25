@@ -15,6 +15,8 @@ import {
   type RefreshTokenDto,
   type RegisterDto,
   type ResendVerificationDto,
+  type ForgotPasswordDto,
+  type ResetPasswordDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
 } from '../application/dto/auth.dto';
@@ -106,5 +108,23 @@ export class AuthController {
   async resendVerification(@Body() dto: ResendVerificationDto): Promise<{ message: string }> {
     await this.authService.resendVerificationEmail(dto.email);
     return { message: 'Verification email sent' };
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset email' })
+  @ApiResponse({ status: 200 })
+  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+    await this.authService.forgotPassword(dto.email);
+    return { message: 'If the email exists, a reset link has been sent' };
+  }
+
+  @Public()
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with token' })
+  @ApiResponse({ status: 200 })
+  async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    await this.authService.resetPassword(dto.token, dto.newPassword);
+    return { message: 'Password reset successfully' };
   }
 }

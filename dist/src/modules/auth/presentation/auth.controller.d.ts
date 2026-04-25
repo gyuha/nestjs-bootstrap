@@ -1,5 +1,5 @@
 import type { AuthApplicationService } from '../application/auth-application.service';
-import { type LoginPasswordDto, type LoginOAuthDto, type RefreshTokenDto, type RegisterDto, type ResendVerificationDto, AuthResponseDto, TokenRefreshResponseDto } from '../application/dto/auth.dto';
+import { type LoginPasswordDto, type LoginOAuthDto, type RefreshTokenDto, type RegisterDto, type ResendVerificationDto, type ForgotPasswordDto, type ResetPasswordDto, AuthResponseDto, TokenRefreshResponseDto } from '../application/dto/auth.dto';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthApplicationService);
@@ -11,6 +11,12 @@ export declare class AuthController {
         message: string;
     }>;
     resendVerification(dto: ResendVerificationDto): Promise<{
+        message: string;
+    }>;
+    forgotPassword(dto: ForgotPasswordDto): Promise<{
+        message: string;
+    }>;
+    resetPassword(dto: ResetPasswordDto): Promise<{
         message: string;
     }>;
 }

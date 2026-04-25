@@ -29,6 +29,8 @@ export declare class AuthApplicationService {
     }): Promise<AuthResult>;
     verifyEmail(token: string): Promise<void>;
     resendVerificationEmail(email: string): Promise<void>;
+    forgotPassword(email: string): Promise<void>;
+    resetPassword(token: string, newPassword: string): Promise<void>;
     private generateSecureToken;
     private incrementFailedLoginAttempts;
     private lockAccount;

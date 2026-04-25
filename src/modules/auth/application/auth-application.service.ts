@@ -14,6 +14,8 @@ import type { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.s
 import type { DrizzleService } from '../../../infrastructure/database/drizzle.service';
 import { users } from '../../../infrastructure/database/schema/users.schema';
 import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-accounts.schema';
+import { passwordResetTokens } from '../../../infrastructure/database/schema/password-reset.schema';
+import { getPasswordResetEmailHtml, getPasswordResetEmailSubject } from '../../../shared/infrastructure/email/templates/password-reset-email';
 import { AuthException } from '../presentation/exceptions/auth.exception';
 import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
 import type { EnvService } from '../../../config/env.service';
@@ -237,6 +239,68 @@ export class AuthApplicationService {
       subject: getVerificationEmailSubject(),
       html: getVerificationEmailHtml(verificationUrl),
     });
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.userRepo.findByEmail(email);
+    if (!user) return; // Silent fail for security
+
+    // Generate reset token
+    const token = this.generateSecureToken();
+    const tokenHash = this.hashToken(token);
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+
+    // Store token
+    await this.db.db.insert(passwordResetTokens).values({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    });
+
+    // Send email
+    const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+    const resetUrl = `${baseUrl}/api/v1/auth/reset-password/${token}`;
+    await this.emailService.send({
+      to: email,
+      subject: getPasswordResetEmailSubject(),
+      html: getPasswordResetEmailHtml(resetUrl),
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    // Validate password complexity
+    const validation = validatePassword(newPassword);
+    if (!validation.isValid) {
+      throw new HttpException(
+        { code: 'AUTH_WEAK_PASSWORD', message: validation.errors.join(', ') },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Find token
+    const tokenHash = this.hashToken(token);
+    const results = await this.db.db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.tokenHash, tokenHash))
+      .limit(1);
+
+    const resetRecord = results[0];
+    if (!resetRecord) throw AuthException.invalidResetToken();
+    if (new Date(resetRecord.expiresAt) < new Date()) throw AuthException.resetTokenExpired();
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+
+    // Update user password
+    await this.db.db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, resetRecord.userId));
+
+    // Delete used token
+    await this.db.db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, resetRecord.id));
   }
 
   private generateSecureToken(): string {

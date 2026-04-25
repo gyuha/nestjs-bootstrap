@@ -21,6 +21,8 @@ const drizzle_orm_1 = require("drizzle-orm");
 const oauth_provider_value_object_1 = require("../domain/value-objects/oauth-provider.value-object");
 const users_schema_1 = require("../../../infrastructure/database/schema/users.schema");
 const oauth_accounts_schema_1 = require("../../../infrastructure/database/schema/oauth-accounts.schema");
+const password_reset_schema_1 = require("../../../infrastructure/database/schema/password-reset.schema");
+const password_reset_email_1 = require("../../../shared/infrastructure/email/templates/password-reset-email");
 const auth_exception_1 = require("../presentation/exceptions/auth.exception");
 const role_value_object_1 = require("../../users/domain/value-objects/role.value-object");
 const password_validation_1 = require("../../../shared/utils/password.validation");
@@ -184,6 +186,50 @@ let AuthApplicationService = class AuthApplicationService {
             subject: (0, verification_email_1.getVerificationEmailSubject)(),
             html: (0, verification_email_1.getVerificationEmailHtml)(verificationUrl),
         });
+    }
+    async forgotPassword(email) {
+        const user = await this.userRepo.findByEmail(email);
+        if (!user)
+            return;
+        const token = this.generateSecureToken();
+        const tokenHash = this.hashToken(token);
+        const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+        await this.db.db.insert(password_reset_schema_1.passwordResetTokens).values({
+            id: crypto.randomUUID(),
+            userId: user.id,
+            tokenHash,
+            expiresAt,
+        });
+        const baseUrl = this.env.get('APP_URL') || 'http://localhost:3000';
+        const resetUrl = `${baseUrl}/api/v1/auth/reset-password/${token}`;
+        await this.emailService.send({
+            to: email,
+            subject: (0, password_reset_email_1.getPasswordResetEmailSubject)(),
+            html: (0, password_reset_email_1.getPasswordResetEmailHtml)(resetUrl),
+        });
+    }
+    async resetPassword(token, newPassword) {
+        const validation = (0, password_validation_1.validatePassword)(newPassword);
+        if (!validation.isValid) {
+            throw new common_2.HttpException({ code: 'AUTH_WEAK_PASSWORD', message: validation.errors.join(', ') }, common_2.HttpStatus.BAD_REQUEST);
+        }
+        const tokenHash = this.hashToken(token);
+        const results = await this.db.db
+            .select()
+            .from(password_reset_schema_1.passwordResetTokens)
+            .where((0, drizzle_orm_1.eq)(password_reset_schema_1.passwordResetTokens.tokenHash, tokenHash))
+            .limit(1);
+        const resetRecord = results[0];
+        if (!resetRecord)
+            throw auth_exception_1.AuthException.invalidResetToken();
+        if (new Date(resetRecord.expiresAt) < new Date())
+            throw auth_exception_1.AuthException.resetTokenExpired();
+        const passwordHash = await bcrypt.hash(newPassword, 12);
+        await this.db.db
+            .update(users_schema_1.users)
+            .set({ passwordHash, updatedAt: new Date() })
+            .where((0, drizzle_orm_1.eq)(users_schema_1.users.id, resetRecord.userId));
+        await this.db.db.delete(password_reset_schema_1.passwordResetTokens).where((0, drizzle_orm_1.eq)(password_reset_schema_1.passwordResetTokens.id, resetRecord.id));
     }
     generateSecureToken() {
         return (0, node_crypto_1.randomBytes)(32).toString('hex');

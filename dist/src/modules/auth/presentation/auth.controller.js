@@ -62,6 +62,14 @@ let AuthController = class AuthController {
         await this.authService.resendVerificationEmail(dto.email);
         return { message: 'Verification email sent' };
     }
+    async forgotPassword(dto) {
+        await this.authService.forgotPassword(dto.email);
+        return { message: 'If the email exists, a reset link has been sent' };
+    }
+    async resetPassword(dto) {
+        await this.authService.resetPassword(dto.token, dto.newPassword);
+        return { message: 'Password reset successfully' };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -130,6 +138,26 @@ __decorate([
     __metadata("design:paramtypes", [Function]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "resendVerification", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('forgot-password'),
+    (0, swagger_1.ApiOperation)({ summary: 'Request password reset email' }),
+    (0, swagger_1.ApiResponse)({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Function]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, public_decorator_1.Public)(),
+    (0, common_1.Post)('reset-password'),
+    (0, swagger_1.ApiOperation)({ summary: 'Reset password with token' }),
+    (0, swagger_1.ApiResponse)({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Function]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),
