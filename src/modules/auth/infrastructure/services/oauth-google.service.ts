@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { OAuthServiceInterface } from '../../domain/services/oauth.service.interface';
+import type { OAuthServiceInterface } from '../../domain/services/oauth.service.interface';
 import { OAuthProvider } from '../../domain/value-objects/oauth-provider.value-object';
-import { OAuthUserInfo } from '../../domain/entities/auth.entity';
+import type { OAuthUserInfo } from '../../domain/entities/auth.entity';
 import axios from 'axios';
 
 @Injectable()

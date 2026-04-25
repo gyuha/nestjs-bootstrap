@@ -1,12 +1,11 @@
-import { applyVersioning, NestExpressApplication, VersioningType } from '@nestjs/common';
+import { VersioningType, type INestApplication } from '@nestjs/common';
 
 export const API_VERSION = 'v1';
 export const API_VERSION_PREFIX = `api/${API_VERSION}`;
 
-export function setupApiVersioning(app: NestExpressApplication): void {
-  applyVersioning({
+export function setupApiVersioning(app: INestApplication): void {
+  app.enableVersioning({
     type: VersioningType.URI,
-    prefix: API_VERSION_PREFIX,
-    version: API_VERSION,
+    defaultVersion: API_VERSION,
   });
 }

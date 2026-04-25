@@ -1,4 +1,4 @@
-import { UserEntity } from '../../modules/users/domain/entities/user.entity';
+import type { UserEntity } from '../../modules/users/domain/entities/user.entity';
 import { Role, UserStatus } from '../../modules/users/domain/value-objects/role.value-object';
 
 export function createTestUser(overrides: Partial<UserEntity> = {}): UserEntity {

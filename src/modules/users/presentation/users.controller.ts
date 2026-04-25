@@ -19,8 +19,8 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
-import { UsersApplicationService } from '../application/users-application.service';
-import { CreateUserDto, UpdateUserDto, UserResponseDto, UserQueryDto } from '../application/dto/users.dto';
+import type { UsersApplicationService } from '../application/users-application.service';
+import { type CreateUserDto, type UpdateUserDto, UserResponseDto, type UserQueryDto } from '../application/dto/users.dto';
 import { Public } from '../../auth/presentation/decorators/public.decorator';
 import { Roles } from '../../auth/presentation/decorators/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/guards/roles.guard';

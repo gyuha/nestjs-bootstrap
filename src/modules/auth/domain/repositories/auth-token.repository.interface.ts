@@ -1,4 +1,4 @@
-import { RefreshTokenRecord } from '../value-objects/token.value-object';
+import type { RefreshTokenRecord } from '../value-objects/token.value-object';
 
 export interface AuthTokenRepositoryInterface {
   storeRefreshToken(tokenHash: string, userId: string, deviceInfo: string | null, expiresAt: Date): Promise<void>;

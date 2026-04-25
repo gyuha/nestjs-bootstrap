@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
-import { TokenServiceInterface } from '../../domain/services/token.service.interface';
-import { TokenPair, JwtPayload } from '../../domain/value-objects/token.value-object';
-import { EnvService } from '../../../../config/env.service';
+import type { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import type { TokenServiceInterface } from '../../domain/services/token.service.interface';
+import type { TokenPair, JwtPayload } from '../../domain/value-objects/token.value-object';
+import type { EnvService } from '../../../../config/env.service';
 import { createHash, randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 

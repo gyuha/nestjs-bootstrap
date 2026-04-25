@@ -1,19 +1,19 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { AuthResult } from '../domain/entities/auth.entity';
-import { TokenPair } from '../domain/value-objects/token.value-object';
+import type { AuthResult } from '../domain/entities/auth.entity';
+import type { TokenPair } from '../domain/value-objects/token.value-object';
 import { OAuthProvider } from '../domain/value-objects/oauth-provider.value-object';
-import { UserRepository } from '../../users/domain/repository/user.repository.interface';
-import { JwtTokenService } from '../infrastructure/services/jwt-token.service';
-import { AuthTokenRepositoryInterface } from '../domain/repositories/auth-token.repository.interface';
-import { OAuthGoogleService } from '../infrastructure/services/oauth-google.service';
-import { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.service';
-import { DrizzleService } from '../../../infrastructure/database/drizzle.service';
+import type { UserRepository } from '../../users/domain/repository/user.repository.interface';
+import type { JwtTokenService } from '../infrastructure/services/jwt-token.service';
+import type { AuthTokenRepositoryInterface } from '../domain/repositories/auth-token.repository.interface';
+import type { OAuthGoogleService } from '../infrastructure/services/oauth-google.service';
+import type { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.service';
+import type { DrizzleService } from '../../../infrastructure/database/drizzle.service';
 import { users } from '../../../infrastructure/database/schema/users.schema';
 import { oauthAccounts } from '../../../infrastructure/database/schema/oauth-accounts.schema';
 import { AuthException } from '../presentation/exceptions/auth.exception';
 import { Role, UserStatus } from '../../users/domain/value-objects/role.value-object';
-import { EnvService } from '../../../config/env.service';
+import type { EnvService } from '../../../config/env.service';
 
 const AUTH_TOKEN_REPOSITORY = 'AUTH_TOKEN_REPOSITORY';
 

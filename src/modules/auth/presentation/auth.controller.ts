@@ -8,11 +8,11 @@ import {
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { AuthApplicationService } from '../application/auth-application.service';
+import type { AuthApplicationService } from '../application/auth-application.service';
 import {
-  LoginPasswordDto,
-  LoginOAuthDto,
-  RefreshTokenDto,
+  type LoginPasswordDto,
+  type LoginOAuthDto,
+  type RefreshTokenDto,
   AuthResponseDto,
   TokenRefreshResponseDto,
 } from '../application/dto/auth.dto';

@@ -1,14 +1,14 @@
 import {
-  ExceptionFilter,
+  type ExceptionFilter,
   Catch,
-  ArgumentsHost,
+  type ArgumentsHost,
   HttpException,
   HttpStatus,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { ErrorResponseDto } from '../dto/response-envelope.dto';
+import type { ErrorResponseDto } from '../dto/response-envelope.dto';
 
 @Injectable()
 @Catch()

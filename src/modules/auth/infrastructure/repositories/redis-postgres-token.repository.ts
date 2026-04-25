@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from '../../../../infrastructure/redis/redis.service';
-import { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
+import type { RedisService } from '../../../../infrastructure/redis/redis.service';
+import type { DrizzleService } from '../../../../infrastructure/database/drizzle.service';
 import { refreshTokens } from '../../../../infrastructure/database/schema/refresh-tokens.schema';
-import { AuthTokenRepositoryInterface } from '../../domain/repositories/auth-token.repository.interface';
-import { RefreshTokenRecord } from '../../domain/value-objects/token.value-object';
+import type { AuthTokenRepositoryInterface } from '../../domain/repositories/auth-token.repository.interface';
+import type { RefreshTokenRecord } from '../../domain/value-objects/token.value-object';
 import { eq, and, isNull } from 'drizzle-orm';
 
 const REFRESH_TOKEN_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
@@ -20,7 +20,7 @@ export class RedisPostgresTokenRepository implements AuthTokenRepositoryInterfac
     await this.redis.set(`refresh:${tokenHash}`, userId, REFRESH_TOKEN_TTL);
 
     // Store metadata in PostgreSQL for revocation/audit
-    await this.db.db.insert(refreshTokens, {
+    await this.db.db.insert(refreshTokens).values({
       tokenHash,
       userId,
       deviceInfo,

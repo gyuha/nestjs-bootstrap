@@ -1,9 +1,9 @@
-import { NestExpressApplication } from '@nestjs/platform-express';
+import type { INestApplication } from '@nestjs/common';
 import helmet from 'helmet';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { EnvService } from '../../config/env.service';
+import type { EnvService } from '../../config/env.service';
 
-export function setupSecurity(app: NestExpressApplication, env: EnvService): void {
+export function setupSecurity(app: INestApplication, env: EnvService): void {
   app.use(helmet());
 
   app.enableCors({

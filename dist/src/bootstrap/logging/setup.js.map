@@ -1,0 +1,1 @@
+{"version":3,"file":"setup.js","sourceRoot":"","sources":["../../../../src/bootstrap/logging/setup.ts"],"names":[],"mappings":";;AAKA,oCAGC;AAPD,sGAAiG;AACjG,oGAAgG;AAChG,mGAAgG;AAEhG,SAAgB,YAAY,CAAC,GAAqB;IAChD,GAAG,CAAC,qBAAqB,CAAC,IAAI,yCAAkB,EAAE,EAAE,IAAI,wCAAkB,EAAE,CAAC,CAAC;IAC9E,GAAG,CAAC,gBAAgB,CAAC,IAAI,6CAAqB,EAAE,CAAC,CAAC;AACpD,CAAC"}

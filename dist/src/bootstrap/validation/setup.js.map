@@ -1,0 +1,1 @@
+{"version":3,"file":"setup.js","sourceRoot":"","sources":["../../../../src/bootstrap/validation/setup.ts"],"names":[],"mappings":";;AAGA,0CASC;AAXD,2CAAgD;AAEhD,SAAgB,eAAe,CAAC,GAAqB;IACnD,GAAG,CAAC,cAAc,CAChB,IAAI,uBAAc,CAAC;QACjB,SAAS,EAAE,IAAI;QACf,oBAAoB,EAAE,IAAI;QAC1B,SAAS,EAAE,IAAI;QACf,gBAAgB,EAAE,EAAE,wBAAwB,EAAE,IAAI,EAAE;KACrD,CAAC,CACH,CAAC;AACJ,CAAC"}

@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserRepository } from '../domain/repository/user.repository.interface';
-import { UserEntity } from '../domain/entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from './dto/users.dto';
+import type { UserRepository } from '../domain/repository/user.repository.interface';
+import type { UserEntity } from '../domain/entities/user.entity';
+import type { CreateUserDto, UpdateUserDto } from './dto/users.dto';
 import { Role, UserStatus } from '../domain/value-objects/role.value-object';
 import { UserException } from '../presentation/exceptions/user.exception';
 

@@ -1,7 +1,7 @@
-import { NestExpressApplication } from '@nestjs/platform-express';
+import type { INestApplication } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
 
-export function setupValidation(app: NestExpressApplication): void {
+export function setupValidation(app: INestApplication): void {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
