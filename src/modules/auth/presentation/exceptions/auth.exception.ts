@@ -35,4 +35,39 @@ export class AuthException extends HttpException {
       HttpStatus.FORBIDDEN,
     );
   }
+
+  static accountLocked() {
+    return new HttpException(
+      { code: 'AUTH_ACCOUNT_LOCKED', message: 'Account is temporarily locked due to too many failed login attempts' },
+      HttpStatus.LOCKED,
+    );
+  }
+
+  static emailNotVerified() {
+    return new HttpException(
+      { code: 'AUTH_EMAIL_NOT_VERIFIED', message: 'Please verify your email address' },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+
+  static invalidResetToken() {
+    return new HttpException(
+      { code: 'AUTH_INVALID_RESET_TOKEN', message: 'Invalid password reset token' },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  static resetTokenExpired() {
+    return new HttpException(
+      { code: 'AUTH_RESET_TOKEN_EXPIRED', message: 'Password reset token has expired' },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  static invalidMagicLink() {
+    return new HttpException(
+      { code: 'AUTH_INVALID_MAGIC_LINK', message: 'Invalid or expired magic link' },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
 }
