@@ -26,8 +26,20 @@ API:
 ## Docker
 
 ```bash
-pnpm docker:up
+docker compose build app
+docker compose up -d postgres redis
+docker compose run --rm app pnpm db:migrate:prod
+docker compose up app
 pnpm docker:down
+```
+
+The compose app does not run migrations on startup. Run migrations manually before starting the app, or run the same command as a deployment job:
+
+```bash
+docker run --rm \
+  -e DATABASE_URL=postgres://postgres:postgres@host.docker.internal:5432/nestjs_bootstrap \
+  nestjs-bootstrap:local \
+  pnpm db:migrate:prod
 ```
 
 ## Quality
@@ -44,7 +56,8 @@ pnpm test:e2e
 ```bash
 pnpm db:generate
 pnpm db:migrate
+pnpm db:migrate:prod
 pnpm db:studio
 ```
 
-Startup migrations are allowed in `local` and `test`. `staging` and `production` must run migrations through `pnpm db:migrate` or a separate deployment job.
+`pnpm db:migrate` is the local TypeScript runner. `pnpm db:migrate:prod` runs the compiled migration runner from `dist` and is safe for production containers. Startup migrations are disabled for compose and production; run migrations through an explicit command or separate deployment job.

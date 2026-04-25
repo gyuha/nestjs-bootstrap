@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "commonjs",
+  "packageManager": "pnpm@10.28.2",
   "scripts": {
     "dev": "nest start --watch",
     "start": "node dist/main.js",
@@ -14,9 +15,11 @@
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/shared/infrastructure/database/migrate.ts",
+    "db:migrate:prod": "node dist/shared/infrastructure/database/migrate.js",
     "db:studio": "drizzle-kit studio",
     "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down --remove-orphans"
+    "docker:down": "docker compose down --remove-orphans",
+    "prepare": "husky"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "latest",

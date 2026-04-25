@@ -15,7 +15,7 @@ services:
       REDIS_URL: redis://redis:6379
       CORS_ORIGINS: http://localhost:3000
       SWAGGER_ENABLED: "true"
-      RUN_MIGRATIONS_ON_STARTUP: "true"
+      RUN_MIGRATIONS_ON_STARTUP: "false"
     ports:
       - "3000:3000"
 
