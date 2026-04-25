@@ -12,6 +12,7 @@ import { OAuthGoogleService } from "./services/oauth-google.service";
 import { OAuthKakaoService } from "./services/oauth-kakao.service";
 import { RedisPostgresTokenRepository } from "./repositories/redis-postgres-token.repository";
 import { AuthApplicationService } from "../application/auth-application.service";
+import { JwtStrategy } from "./strategies/jwt.strategy";
 
 import { AuthController } from "../presentation/auth.controller";
 import { JwtAuthGuard } from "../presentation/guards/jwt-auth.guard";
@@ -34,6 +35,7 @@ const AUTH_TOKEN_REPOSITORY = "AUTH_TOKEN_REPOSITORY";
     EnvService,
     AuthApplicationService,
     JwtTokenService,
+    JwtStrategy,
     OAuthGoogleService,
     OAuthKakaoService,
     { provide: AUTH_TOKEN_REPOSITORY, useClass: RedisPostgresTokenRepository },

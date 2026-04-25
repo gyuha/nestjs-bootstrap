@@ -1,4 +1,5 @@
 import { Module, forwardRef } from "@nestjs/common";
+import { DrizzleModule } from "../../infrastructure/database/drizzle.module";
 import { RAGService } from "./application/services/rag.service";
 import { FileSystemConnector } from "./application/connectors/file-system.connector";
 import { DatabaseConnector } from "./application/connectors/database.connector";
@@ -13,7 +14,7 @@ import {
 import { AiGatewayModule } from "../ai-gateway/ai-gateway.module";
 
 @Module({
-  imports: [forwardRef(() => AiGatewayModule)],
+  imports: [DrizzleModule, forwardRef(() => AiGatewayModule)],
   providers: [
     RAGService,
     FileSystemConnector,

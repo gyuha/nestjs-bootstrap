@@ -8,7 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import type { AuditApplicationService } from "../../application/services/audit-application.service";
+import { AuditApplicationService } from "../../application/services/audit-application.service";
 import { type QueryAuditLogsDto, AuditLogListResponseDto } from "../../application/dto/audit.dto";
 import { JwtAuthGuard } from "../../../../modules/auth/presentation/guards/jwt-auth.guard";
 import { AuditAccessGuard } from "../guards/audit-access.guard";

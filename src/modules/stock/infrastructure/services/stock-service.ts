@@ -1,6 +1,6 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { eq } from "drizzle-orm";
-import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
 import { products } from "../../../../infrastructure/database/schema/products.schema";
 import { stockMovements } from "../../../../infrastructure/database/schema/stock-movements.schema";
 import type { StockServiceInterface } from "../../domain/services/stock-service.interface";

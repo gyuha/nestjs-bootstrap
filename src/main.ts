@@ -21,6 +21,7 @@ async function bootstrap() {
 
   app.useGlobalGuards(app.get(JwtAuthGuard), app.get(RolesGuard));
 
-  await app.listen(3000);
+  const port = Number(env.get("PORT") ?? 3000);
+  await app.listen(port);
 }
 bootstrap();

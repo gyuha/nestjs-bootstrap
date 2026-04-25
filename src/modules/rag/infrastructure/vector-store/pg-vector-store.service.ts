@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
-import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
 import { ragChunks } from "../../../../infrastructure/database/schema/rag-chunks.schema";
 import type { VectorStoreServiceInterface } from "../../../rag/application/services/rag.service";
 import type { SearchResult } from "../../../rag/domain/services/irag.service";

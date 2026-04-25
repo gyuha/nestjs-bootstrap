@@ -4,13 +4,14 @@ import { AI_GATEWAY_SERVICE } from "../../domain/services/ai-gateway-service.tok
 import { AIRequest } from "../../domain/entities/ai-request.entity";
 import type { ChatRequestDto } from "../dto/request/chat-request.dto";
 import type { ChatResponseDto } from "../dto/response/chat-response.dto";
-import type { IRAGService, SearchResult } from "../../domain/services/irag.service";
+import type { SearchResult } from "../../domain/services/irag.service";
+import { RAGService } from "../../../rag/application/services/rag.service";
 
 @Injectable()
 export class ChatUseCase {
   constructor(
     @Inject(AI_GATEWAY_SERVICE) private readonly aiGateway: IAIGatewayService,
-    private readonly ragService: IRAGService,
+    private readonly ragService: RAGService,
   ) {}
 
   async execute(dto: ChatRequestDto): Promise<ChatResponseDto> {

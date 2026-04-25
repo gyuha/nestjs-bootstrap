@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { eq, and } from "drizzle-orm";
-import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
 import {
   users,
   type User,

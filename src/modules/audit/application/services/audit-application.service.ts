@@ -8,7 +8,7 @@ import type {
   AuditLogRepository,
   AuditLogQuery,
 } from "../../domain/repositories/audit-log.repository.interface";
-import type { EnvService } from "../../../../config/env.service";
+import { EnvService } from "../../../../config/env.service";
 
 const AUDIT_LOG_REPOSITORY = "AUDIT_LOG_REPOSITORY";
 const CLEANUP_THRESHOLD_DAYS = 30;

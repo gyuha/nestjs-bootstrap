@@ -1,6 +1,6 @@
 import { Injectable, type OnModuleDestroy } from "@nestjs/common";
 import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import postgres = require("postgres");
 import { EnvService } from "../../config/env.service";
 
 @Injectable()

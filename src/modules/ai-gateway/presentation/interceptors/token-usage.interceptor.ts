@@ -6,8 +6,8 @@ import {
   Optional,
 } from "@nestjs/common";
 import { tap, catchError } from "rxjs/operators";
-import type { LoggingService } from "../../../monitoring/application/services/logging.service";
-import type { MetricsService } from "../../../monitoring/application/services/metrics.service";
+import { LoggingService } from "../../../monitoring/application/services/logging.service";
+import { MetricsService } from "../../../monitoring/application/services/metrics.service";
 
 @Injectable()
 export class TokenUsageInterceptor implements NestInterceptor {

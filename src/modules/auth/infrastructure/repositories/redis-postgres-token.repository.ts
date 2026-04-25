@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import type { RedisService } from "../../../../infrastructure/redis/redis.service";
-import type { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
+import { RedisService } from "../../../../infrastructure/redis/redis.service";
+import { DrizzleService } from "../../../../infrastructure/database/drizzle.service";
 import { refreshTokens } from "../../../../infrastructure/database/schema/refresh-tokens.schema";
 import type { AuthTokenRepositoryInterface } from "../../domain/repositories/auth-token.repository.interface";
 import type { RefreshTokenRecord } from "../../domain/value-objects/token.value-object";

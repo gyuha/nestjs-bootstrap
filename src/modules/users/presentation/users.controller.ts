@@ -19,7 +19,7 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
 } from "@nestjs/swagger";
-import type { UsersApplicationService } from "../application/users-application.service";
+import { UsersApplicationService } from "../application/users-application.service";
 import {
   type CreateUserDto,
   type UpdateUserDto,
