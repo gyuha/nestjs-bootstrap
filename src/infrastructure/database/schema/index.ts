@@ -10,3 +10,5 @@ export * from './promotions.schema';
 export * from './orders.schema';
 export * from './order-items.schema';
 export * from './stock-movements.schema';
+export * from './ai-api-logs.schema';
+export * from './ai-token-usage.schema';
