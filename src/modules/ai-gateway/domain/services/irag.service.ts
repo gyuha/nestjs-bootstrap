@@ -1,5 +1,6 @@
 export interface SearchResult {
   documentId: string;
+  chunkId: string;
   content: string;
   score?: number;
 }
