@@ -1,6 +1,7 @@
 import {
   boolean,
   foreignKey,
+  index,
   pgEnum,
   pgTable,
   text,
@@ -14,10 +15,13 @@ export const userRole = pgEnum("user_role", ["USER", "ADMIN"]);
 export const userStatus = pgEnum("user_status", ["active", "inactive"]);
 export const authProvider = pgEnum("auth_provider", ["password", "google"]);
 
-const timestamps = {
+export const timestampColumns = () => ({
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-};
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -27,7 +31,7 @@ export const users = pgTable("users", {
   bio: text("bio"),
   status: userStatus("status").notNull().default("active"),
   role: userRole("role").notNull().default("USER"),
-  ...timestamps,
+  ...timestampColumns(),
 });
 
 export const authIdentities = pgTable(
@@ -38,10 +42,10 @@ export const authIdentities = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     provider: authProvider("provider").notNull(),
-    providerUserId: varchar("provider_user_id", { length: 255 }).notNull(),
+    providerUserId: varchar("provider_user_id", { length: 320 }).notNull(),
     passwordHash: text("password_hash"),
     emailVerified: boolean("email_verified").notNull().default(false),
-    ...timestamps,
+    ...timestampColumns(),
   },
   (table) => [
     unique("auth_identities_provider_provider_user_id_unique").on(
@@ -68,6 +72,7 @@ export const refreshTokens = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    index("refresh_tokens_user_id_idx").on(table.userId),
     foreignKey({
       columns: [table.replacedByTokenId],
       foreignColumns: [table.id],
