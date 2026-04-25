@@ -1,5 +1,6 @@
-import { IAIGatewayService } from '../../domain/services/iai-gateway.service';
-import { AIRequest } from '../../domain/entities/ai-request.entity';
+import type { OnModuleDestroy } from '@nestjs/common';
+import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
+import type { AIRequest } from '../../domain/entities/ai-request.entity';
 import { AIResponse } from '../../domain/entities/ai-response.entity';
 import { TokenUsage } from '../../domain/entities/token-usage.entity';
 import OpenAI from 'openai';
@@ -8,10 +9,11 @@ export interface OpenAIAdapterConfig {
   apiKey: string;
   organization?: string;
   defaultModel?: string;
+  embeddingModel?: string;
   timeoutMs?: number;
 }
 
-export class OpenAIAdapter implements IAIGatewayService {
+export class OpenAIAdapter implements IAIGatewayService, OnModuleDestroy {
   private client: OpenAI;
 
   constructor(private config: OpenAIAdapterConfig) {
@@ -24,7 +26,7 @@ export class OpenAIAdapter implements IAIGatewayService {
 
   async chat(request: AIRequest): Promise<AIResponse> {
     const response = await this.client.chat.completions.create({
-      model: request.model,
+      model: request.model ?? this.config.defaultModel,
       messages: request.messages.map(m => ({ role: m.role, content: m.content })),
       temperature: request.temperature,
       max_tokens: request.maxTokens,
@@ -48,9 +50,13 @@ export class OpenAIAdapter implements IAIGatewayService {
 
   async embed(texts: string[]): Promise<number[][]> {
     const response = await this.client.embeddings.create({
-      model: 'text-embedding-3-small',
+      model: this.config.embeddingModel ?? 'text-embedding-3-small',
       input: texts,
     });
     return response.data.map(d => d.embedding);
+  }
+
+  onModuleDestroy() {
+    this.client.close();
   }
 }

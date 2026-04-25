@@ -1,5 +1,6 @@
-import { IAIGatewayService } from '../../domain/services/iai-gateway.service';
-import { AIRequest } from '../../domain/entities/ai-request.entity';
+import type { OnModuleDestroy } from '@nestjs/common';
+import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
+import type { AIRequest } from '../../domain/entities/ai-request.entity';
 import { AIResponse } from '../../domain/entities/ai-response.entity';
 import { TokenUsage } from '../../domain/entities/token-usage.entity';
 import OpenAI from 'openai';
@@ -12,7 +13,7 @@ export interface AzureOpenAIAdapterConfig {
   model?: string;
 }
 
-export class AzureOpenAIAdapter implements IAIGatewayService {
+export class AzureOpenAIAdapter implements IAIGatewayService, OnModuleDestroy {
   private client: OpenAI;
 
   constructor(private config: AzureOpenAIAdapterConfig) {
@@ -53,5 +54,9 @@ export class AzureOpenAIAdapter implements IAIGatewayService {
       input: texts,
     });
     return response.data.map(d => d.embedding);
+  }
+
+  onModuleDestroy() {
+    this.client.close();
   }
 }
