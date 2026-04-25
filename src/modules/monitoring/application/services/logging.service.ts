@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { LogEntry, LogFilters } from '../../domain/entities/api-log.entity';
-import { PostgresLogRepository, ILogRepository } from '../../infrastructure/repositories/postgres-log.repository';
+import { LOG_REPOSITORY, ILogRepository } from '../../infrastructure/repositories/postgres-log.repository';
 
 @Injectable()
 export class LoggingService {
   constructor(
-    @Inject(PostgresLogRepository) private readonly logRepository: ILogRepository,
+    @Inject(LOG_REPOSITORY) private readonly logRepository: ILogRepository,
   ) {}
 
   async log(entry: LogEntry): Promise<void> {

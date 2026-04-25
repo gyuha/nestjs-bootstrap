@@ -28,4 +28,7 @@ __exportStar(require("./promotions.schema"), exports);
 __exportStar(require("./orders.schema"), exports);
 __exportStar(require("./order-items.schema"), exports);
 __exportStar(require("./stock-movements.schema"), exports);
+__exportStar(require("./ai-api-logs.schema"), exports);
+__exportStar(require("./ai-token-usage.schema"), exports);
+__exportStar(require("./rag-chunks.schema"), exports);
 //# sourceMappingURL=index.js.map
