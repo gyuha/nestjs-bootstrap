@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuditEventType = void 0;
+exports.AuditEventType = {
+    LOGIN: 'LOGIN',
+    LOGOUT: 'LOGOUT',
+    LOGIN_FAILED: 'LOGIN_FAILED',
+    PASSWORD_CHANGE: 'PASSWORD_CHANGE',
+    EMAIL_VERIFY: 'EMAIL_VERIFY',
+    USER_CREATE: 'USER_CREATE',
+    USER_UPDATE: 'USER_UPDATE',
+    USER_DELETE: 'USER_DELETE',
+    ROLE_CHANGE: 'ROLE_CHANGE',
+    ACCOUNT_LOCK: 'ACCOUNT_LOCK',
+    ACCOUNT_UNLOCK: 'ACCOUNT_UNLOCK',
+    API_CALL: 'API_CALL',
+    MAGIC_LINK_REQUEST: 'MAGIC_LINK_REQUEST',
+    PASSWORD_RESET_REQUEST: 'PASSWORD_RESET_REQUEST',
+};
+//# sourceMappingURL=event-type.value-object.js.map

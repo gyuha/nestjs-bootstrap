@@ -1,5 +1,6 @@
 import { AuditEventType } from '../value-objects/event-type.value-object';
 
+export type { AuditEventType };
 export type ActorType = 'USER' | 'ADMIN' | 'SYSTEM';
 
 export interface AuditLogEntity {

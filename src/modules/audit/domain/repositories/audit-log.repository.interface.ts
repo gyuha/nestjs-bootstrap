@@ -1,4 +1,4 @@
-import type { AuditLogEntity, ActorType, AuditEventType } from '../entities/audit-log.entity';
+import type { AuditLogEntity, AuditEventType } from '../entities/audit-log.entity';
 
 export interface AuditLogQuery {
   userId?: string;
