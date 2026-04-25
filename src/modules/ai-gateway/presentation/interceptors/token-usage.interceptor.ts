@@ -1,14 +1,13 @@
 import {
-  CallHandler,
-  ExecutionContext,
+  type CallHandler,
+  type ExecutionContext,
   Injectable,
-  NestInterceptor,
+  type NestInterceptor,
   Optional,
 } from '@nestjs/common';
-import type { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { LoggingService } from '../../../monitoring/application/services/logging.service';
-import { MetricsService } from '../../../monitoring/application/services/metrics.service';
+import { tap, catchError } from 'rxjs/operators';
+import type { LoggingService } from '../../../monitoring/application/services/logging.service';
+import type { MetricsService } from '../../../monitoring/application/services/metrics.service';
 
 @Injectable()
 export class TokenUsageInterceptor implements NestInterceptor {
@@ -17,7 +16,7 @@ export class TokenUsageInterceptor implements NestInterceptor {
     @Optional() private readonly metricsService?: MetricsService,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.switchToHttp().getRequest();
     const { method, url } = request;
     const path = request.route?.path || url;
@@ -53,6 +52,22 @@ export class TokenUsageInterceptor implements NestInterceptor {
             useRag: request.body?.useRag ?? false,
           });
         }
+      }),
+      catchError((error) => {
+        const latencyMs = Date.now() - startTime;
+        if (this.loggingService) {
+          this.loggingService.log({
+            traceId: crypto.randomUUID(),
+            sessionId: request.body?.sessionId,
+            userId: request.user?.id,
+            method,
+            path,
+            statusCode: error.status ?? 500,
+            latencyMs,
+            error: error.message,
+          }).catch(() => {});
+        }
+        throw error;
       }),
     );
   }

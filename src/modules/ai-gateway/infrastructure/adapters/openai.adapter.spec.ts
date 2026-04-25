@@ -1,4 +1,4 @@
-import { OpenAIAdapter, OpenAIAdapterConfig } from './openai.adapter';
+import { OpenAIAdapter, type OpenAIAdapterConfig } from './openai.adapter';
 import { AIRequest } from '../../domain/entities/ai-request.entity';
 import type { ChatCompletion } from 'openai/resources/index';
 import type { CreateEmbeddingResponse } from 'openai/resources/index';

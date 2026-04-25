@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { IAIGatewayService } from '../../domain/services/iai-gateway.service';
-import { EmbedRequestDto } from '../dto/request/embed-request.dto';
+import type { IAIGatewayService } from '../../domain/services/iai-gateway.service';
+import type { EmbedRequestDto } from '../dto/request/embed-request.dto';
 
 export interface EmbedResultDto {
   embeddings: number[][];

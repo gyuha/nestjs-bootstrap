@@ -1,18 +1,18 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { Injectable, type CanActivate, type ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
 export const API_KEY = 'api-key';
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
-
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const apiKey = request.headers['x-api-key'];
 
-    // Get the expected API key from config or use a default for development
-    const expectedApiKey = process.env.AI_GATEWAY_API_KEY || 'dev-api-key';
+    const expectedApiKey = process.env.AI_GATEWAY_API_KEY;
+
+    if (!expectedApiKey) {
+      throw new UnauthorizedException('AI_GATEWAY_API_KEY environment variable is not configured');
+    }
 
     if (apiKey !== expectedApiKey) {
       throw new UnauthorizedException('Invalid API key');

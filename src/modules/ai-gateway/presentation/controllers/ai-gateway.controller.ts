@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ChatUseCase } from '../../application/services/chat-use-case';
-import { EmbedUseCase } from '../../application/services/embedding-use-case';
+import type { ChatUseCase } from '../../application/services/chat-use-case';
+import type { EmbedUseCase } from '../../application/services/embedding-use-case';
 import type { ChatRequestDto } from '../../application/dto/request/chat-request.dto';
 import type { EmbedRequestDto } from '../../application/dto/request/embed-request.dto';
 import { ApiKeyGuard } from '../guards/api-key.guard';
@@ -31,6 +31,7 @@ export class AiGatewayController {
   }
 
   @Get('models')
+  @UseGuards(ApiKeyGuard)
   async models() {
     return {
       data: [

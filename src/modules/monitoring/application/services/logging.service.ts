@@ -11,6 +11,7 @@ export interface LogEntry {
   provider?: string;
   model?: string;
   useRag?: boolean;
+  error?: string;
 }
 
 @Injectable()

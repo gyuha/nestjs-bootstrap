@@ -15,5 +15,6 @@ export interface ChatResponseDto {
   sources: SourceDocument[];
   usage: TokenUsageDto;
   model: string;
+  provider: string;
   latencyMs: number;
 }

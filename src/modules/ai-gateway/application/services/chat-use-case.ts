@@ -55,7 +55,28 @@ export class ChatUseCase {
         totalTokens: response.usage.totalTokens,
       },
       model: response.model,
+      provider: this.extractProvider(response.model),
       latencyMs: response.latencyMs,
     };
+  }
+
+  private extractProvider(model: string): string {
+    const modelLower = model.toLowerCase();
+    if (modelLower.startsWith('gpt-') || modelLower.startsWith('o1') || modelLower.startsWith('o3')) {
+      return 'openai';
+    }
+    if (modelLower.startsWith('claude-')) {
+      return 'anthropic';
+    }
+    if (modelLower.startsWith('gemini-') || modelLower.startsWith('gemma-')) {
+      return 'google';
+    }
+    if (modelLower.startsWith('mistral-')) {
+      return 'mistral';
+    }
+    if (modelLower.startsWith('meta-') || modelLower.startsWith('llama-')) {
+      return 'meta';
+    }
+    return 'unknown';
   }
 }
