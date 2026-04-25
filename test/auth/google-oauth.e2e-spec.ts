@@ -96,6 +96,29 @@ describe("Google OAuth API", () => {
     });
   });
 
+  it("rejects an unverified Google callback without creating a user or identity", async () => {
+    const email = `${emailPrefix}-unverified-callback@example.com`;
+
+    await request(app.getHttpServer())
+      .get("/api/v1/auth/google/callback")
+      .query({
+        sub: "google-sub-unverified-callback",
+        email,
+        email_verified: "false",
+        name: "Unverified Callback",
+      })
+      .expect(401);
+
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [identity] = await db
+      .select()
+      .from(authIdentities)
+      .where(eq(authIdentities.providerUserId, "google-sub-unverified-callback"));
+
+    expect(user).toBeUndefined();
+    expect(identity).toBeUndefined();
+  });
+
   it("initiates the Google OAuth route through the configured guard", async () => {
     await request(app.getHttpServer()).get("/api/v1/auth/google").expect(200);
   });

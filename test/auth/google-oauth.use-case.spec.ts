@@ -130,6 +130,22 @@ describe("GoogleLogin", () => {
     expect(identities.findByUserAndProvider(passwordUser.id, "google")).resolves.toBeNull();
   });
 
+  it("rejects a new unverified Google profile without creating a user or identity", async () => {
+    await expect(
+      useCase.execute(
+        googleProfile({
+          providerUserId: "google-sub-new-unverified",
+          email: "new-unverified@example.com",
+          emailVerified: false,
+          displayName: "New Unverified",
+        }),
+      ),
+    ).rejects.toBeInstanceOf(InvalidAuthCredentialsError);
+
+    expect(users.all()).toHaveLength(0);
+    expect(identities.all()).toHaveLength(0);
+  });
+
   it("creates a user and Google identity for a new verified Google profile", async () => {
     const response = await useCase.execute(
       googleProfile({

@@ -48,6 +48,11 @@ export class GoogleLogin {
       ...input,
       email: normalizeEmail(input.email),
     };
+
+    if (!profile.emailVerified) {
+      throw new InvalidAuthCredentialsError();
+    }
+
     const identity = await this.identities.findByProvider(googleProvider, profile.providerUserId);
 
     if (identity) {
@@ -61,10 +66,6 @@ export class GoogleLogin {
     }
 
     const existingUser = await this.users.findByEmail(profile.email);
-
-    if (existingUser && !profile.emailVerified) {
-      throw new InvalidAuthCredentialsError();
-    }
 
     const user =
       existingUser ??
