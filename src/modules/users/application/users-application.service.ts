@@ -25,6 +25,11 @@ export class UsersApplicationService {
       name: dto.name,
       role: dto.role || Role.USER,
       status: UserStatus.ACTIVE,
+      emailVerified: false,
+      lockoutUntil: null,
+      failedLoginAttempts: 0,
+      verificationToken: null,
+      verificationTokenExpiry: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

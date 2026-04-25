@@ -18,6 +18,21 @@ class AuthException extends common_1.HttpException {
     static forbidden() {
         return new common_1.HttpException({ code: 'AUTH_FORBIDDEN', message: 'Forbidden' }, common_1.HttpStatus.FORBIDDEN);
     }
+    static accountLocked() {
+        return new common_1.HttpException({ code: 'AUTH_ACCOUNT_LOCKED', message: 'Account is temporarily locked due to too many failed login attempts' }, common_1.HttpStatus.LOCKED);
+    }
+    static emailNotVerified() {
+        return new common_1.HttpException({ code: 'AUTH_EMAIL_NOT_VERIFIED', message: 'Please verify your email address' }, common_1.HttpStatus.FORBIDDEN);
+    }
+    static invalidResetToken() {
+        return new common_1.HttpException({ code: 'AUTH_INVALID_RESET_TOKEN', message: 'Invalid password reset token' }, common_1.HttpStatus.BAD_REQUEST);
+    }
+    static resetTokenExpired() {
+        return new common_1.HttpException({ code: 'AUTH_RESET_TOKEN_EXPIRED', message: 'Password reset token has expired' }, common_1.HttpStatus.BAD_REQUEST);
+    }
+    static invalidMagicLink() {
+        return new common_1.HttpException({ code: 'AUTH_INVALID_MAGIC_LINK', message: 'Invalid or expired magic link' }, common_1.HttpStatus.BAD_REQUEST);
+    }
 }
 exports.AuthException = AuthException;
 //# sourceMappingURL=auth.exception.js.map

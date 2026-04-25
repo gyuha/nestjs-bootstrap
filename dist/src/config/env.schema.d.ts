@@ -9,16 +9,28 @@ export declare const envSchema: z.ZodObject<{
     REFRESH_TOKEN_EXPIRES_IN: z.ZodDefault<z.ZodString>;
     SWAGGER_ENABLED: z.ZodDefault<z.ZodEnum<["true", "false"]>>;
     CORS_ORIGIN: z.ZodDefault<z.ZodString>;
+    EMAIL_PROVIDER: z.ZodDefault<z.ZodEnum<["console", "smtp"]>>;
+    SMTP_HOST: z.ZodOptional<z.ZodString>;
+    SMTP_PORT: z.ZodOptional<z.ZodString>;
+    SMTP_USER: z.ZodOptional<z.ZodString>;
+    SMTP_PASS: z.ZodOptional<z.ZodString>;
+    EMAIL_FROM: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    DATABASE_URL: string;
     NODE_ENV: "development" | "test" | "production";
     PORT: string;
+    DATABASE_URL: string;
     REDIS_URL: string;
     JWT_SECRET: string;
     JWT_EXPIRES_IN: string;
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    EMAIL_PROVIDER: "console" | "smtp";
+    EMAIL_FROM: string;
+    SMTP_HOST?: string | undefined;
+    SMTP_PORT?: string | undefined;
+    SMTP_USER?: string | undefined;
+    SMTP_PASS?: string | undefined;
 }, {
     DATABASE_URL: string;
     REDIS_URL: string;
@@ -29,5 +41,11 @@ export declare const envSchema: z.ZodObject<{
     REFRESH_TOKEN_EXPIRES_IN?: string | undefined;
     SWAGGER_ENABLED?: "true" | "false" | undefined;
     CORS_ORIGIN?: string | undefined;
+    EMAIL_PROVIDER?: "console" | "smtp" | undefined;
+    SMTP_HOST?: string | undefined;
+    SMTP_PORT?: string | undefined;
+    SMTP_USER?: string | undefined;
+    SMTP_PASS?: string | undefined;
+    EMAIL_FROM?: string | undefined;
 }>;
 export type EnvConfig = z.infer<typeof envSchema>;

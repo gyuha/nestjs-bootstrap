@@ -13,5 +13,10 @@ exports.users = (0, pg_core_1.pgTable)('users', {
     status: (0, exports.statusEnum)('status').notNull().default('ACTIVE'),
     createdAt: (0, pg_core_1.timestamp)('created_at').notNull().defaultNow(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').notNull().defaultNow(),
+    emailVerified: (0, pg_core_1.boolean)('email_verified').notNull().default(false),
+    lockoutUntil: (0, pg_core_1.timestamp)('lockout_until'),
+    failedLoginAttempts: (0, pg_core_1.integer)('failed_login_attempts').notNull().default(0),
+    verificationToken: (0, pg_core_1.varchar)('verification_token', { length: 255 }),
+    verificationTokenExpiry: (0, pg_core_1.timestamp)('verification_token_expiry'),
 });
 //# sourceMappingURL=users.schema.js.map

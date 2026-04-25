@@ -34,6 +34,11 @@ let UsersApplicationService = class UsersApplicationService {
             name: dto.name,
             role: dto.role || role_value_object_1.Role.USER,
             status: role_value_object_1.UserStatus.ACTIVE,
+            emailVerified: false,
+            lockoutUntil: null,
+            failedLoginAttempts: 0,
+            verificationToken: null,
+            verificationTokenExpiry: null,
             createdAt: new Date(),
             updatedAt: new Date(),
         };

@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { createHash, } from 'node:crypto';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { AuthResult } from '../domain/entities/auth.entity';
 import type { TokenPair } from '../domain/value-objects/token.value-object';
 import { OAuthProvider } from '../domain/value-objects/oauth-provider.value-object';
@@ -82,6 +82,11 @@ export class AuthApplicationService {
         name: oauthUser.name,
         role: Role.USER,
         status: UserStatus.ACTIVE,
+        emailVerified: true, // OAuth users are pre-verified
+        lockoutUntil: null,
+        failedLoginAttempts: 0,
+        verificationToken: null,
+        verificationTokenExpiry: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -107,7 +112,7 @@ export class AuthApplicationService {
 
   async refreshToken(refreshToken: string): Promise<TokenPair> {
     const tokenHash = this.jwtTokenService.hashToken(refreshToken);
-    const record = await this.tokenRepo.validateRefreshToken(tokenHash);
+    const record = await this._tokenRepo.validateRefreshToken(tokenHash);
 
     if (!record) throw AuthException.invalidRefreshToken();
 
@@ -115,7 +120,7 @@ export class AuthApplicationService {
     if (!user) throw AuthException.invalidRefreshToken();
 
     // Revoke old refresh token
-    await this.tokenRepo.revokeRefreshToken(tokenHash);
+    await this._tokenRepo.revokeRefreshToken(tokenHash);
 
     // Generate new token pair
     const expiresIn = this.env.get('REFRESH_TOKEN_EXPIRES_IN');
@@ -123,7 +128,7 @@ export class AuthApplicationService {
     const newTokenPair = await this.jwtTokenService.generateTokenPair(user.id, user.email, user.role);
 
     // Store new refresh token
-    await this.tokenRepo.storeRefreshToken(
+    await this._tokenRepo.storeRefreshToken(
       this.jwtTokenService.hashToken(newTokenPair.refreshToken),
       user.id,
       record.deviceInfo,
@@ -136,7 +141,7 @@ export class AuthApplicationService {
   private async incrementFailedLoginAttempts(userId: string): Promise<void> {
     await this.db.db
       .update(users)
-      .set({ failedLoginAttempts: users.failedLoginAttempts + 1 })
+      .set({ failedLoginAttempts: sql`${users.failedLoginAttempts} + 1` })
       .where(eq(users.id, userId));
   }
 
@@ -165,7 +170,7 @@ export class AuthApplicationService {
     const expiresIn = this.env.get('REFRESH_TOKEN_EXPIRES_IN');
     const expiresAt = this.calculateExpiresAt(expiresIn);
 
-    await this.tokenRepo.storeRefreshToken(
+    await this._tokenRepo.storeRefreshToken(
       this.jwtTokenService.hashToken(tokenPair.refreshToken),
       userId,
       null,

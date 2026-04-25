@@ -23,6 +23,11 @@ function toUserEntity(result) {
         name: result.name,
         role: result.role,
         status: result.status,
+        emailVerified: result.emailVerified ?? false,
+        lockoutUntil: result.lockoutUntil ?? null,
+        failedLoginAttempts: result.failedLoginAttempts ?? 0,
+        verificationToken: result.verificationToken ?? null,
+        verificationTokenExpiry: result.verificationTokenExpiry ?? null,
         createdAt: result.createdAt,
         updatedAt: result.updatedAt,
     };
@@ -63,6 +68,11 @@ let DrizzleUserRepository = class DrizzleUserRepository {
             name: entity.name,
             role: entity.role,
             status: entity.status,
+            emailVerified: entity.emailVerified,
+            lockoutUntil: entity.lockoutUntil,
+            failedLoginAttempts: entity.failedLoginAttempts,
+            verificationToken: entity.verificationToken,
+            verificationTokenExpiry: entity.verificationTokenExpiry,
         };
         await this.db.db.insert(users_schema_1.users).values(newUser);
     }

@@ -8,18 +8,24 @@ import type { OAuthGoogleService } from '../infrastructure/services/oauth-google
 import type { OAuthKakaoService } from '../infrastructure/services/oauth-kakao.service';
 import type { DrizzleService } from '../../../infrastructure/database/drizzle.service';
 import type { EnvService } from '../../../config/env.service';
+import type { EmailServiceInterface } from '../../../shared/infrastructure/email/email-service.interface';
 export declare class AuthApplicationService {
     private readonly userRepo;
     private readonly jwtTokenService;
-    private readonly tokenRepo;
+    private readonly _tokenRepo;
     private readonly oauthGoogle;
     private readonly oauthKakao;
     private readonly db;
     private readonly env;
-    constructor(userRepo: UserRepository, jwtTokenService: JwtTokenService, tokenRepo: AuthTokenRepositoryInterface, oauthGoogle: OAuthGoogleService, oauthKakao: OAuthKakaoService, db: DrizzleService, env: EnvService);
+    private readonly emailService;
+    constructor(userRepo: UserRepository, jwtTokenService: JwtTokenService, _tokenRepo: AuthTokenRepositoryInterface, oauthGoogle: OAuthGoogleService, oauthKakao: OAuthKakaoService, db: DrizzleService, env: EnvService, emailService: EmailServiceInterface);
     loginWithPassword(email: string, password: string): Promise<AuthResult>;
     loginWithOAuth(provider: OAuthProvider, code: string): Promise<AuthResult>;
     refreshToken(refreshToken: string): Promise<TokenPair>;
+    private incrementFailedLoginAttempts;
+    private lockAccount;
+    private resetFailedLoginAttempts;
+    private hashToken;
     private generateAuthResult;
     private calculateExpiresAt;
 }

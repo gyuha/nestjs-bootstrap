@@ -1,7 +1,6 @@
 import { Global, Module } from "@nestjs/common";
 import { EnvService } from "../../../config/env.service";
 import { ConsoleEmailService } from "./console-email.service";
-import type { EmailServiceInterface } from "./email-service.interface";
 import { SmtpEmailService } from "./smtp-email.service";
 
 const EMAIL_SERVICE = 'EMAIL_SERVICE';

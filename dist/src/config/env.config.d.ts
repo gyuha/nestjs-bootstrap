@@ -1,21 +1,33 @@
 export declare const envConfig: (() => {
-    DATABASE_URL: string;
     NODE_ENV: "development" | "test" | "production";
     PORT: string;
+    DATABASE_URL: string;
     REDIS_URL: string;
     JWT_SECRET: string;
     JWT_EXPIRES_IN: string;
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    EMAIL_PROVIDER: "console" | "smtp";
+    EMAIL_FROM: string;
+    SMTP_HOST?: string | undefined;
+    SMTP_PORT?: string | undefined;
+    SMTP_USER?: string | undefined;
+    SMTP_PASS?: string | undefined;
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
-    DATABASE_URL: string;
     NODE_ENV: "development" | "test" | "production";
     PORT: string;
+    DATABASE_URL: string;
     REDIS_URL: string;
     JWT_SECRET: string;
     JWT_EXPIRES_IN: string;
     REFRESH_TOKEN_EXPIRES_IN: string;
     SWAGGER_ENABLED: "true" | "false";
     CORS_ORIGIN: string;
+    EMAIL_PROVIDER: "console" | "smtp";
+    EMAIL_FROM: string;
+    SMTP_HOST?: string | undefined;
+    SMTP_PORT?: string | undefined;
+    SMTP_USER?: string | undefined;
+    SMTP_PASS?: string | undefined;
 }>;

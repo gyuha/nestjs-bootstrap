@@ -14,6 +14,11 @@ function toUserEntity(result: User): UserEntity {
     name: result.name,
     role: result.role as Role,
     status: result.status as UserStatus,
+    emailVerified: result.emailVerified ?? false,
+    lockoutUntil: result.lockoutUntil ?? null,
+    failedLoginAttempts: result.failedLoginAttempts ?? 0,
+    verificationToken: result.verificationToken ?? null,
+    verificationTokenExpiry: result.verificationTokenExpiry ?? null,
     createdAt: result.createdAt,
     updatedAt: result.updatedAt,
   };
@@ -64,6 +69,11 @@ export class DrizzleUserRepository implements UserRepository {
       name: entity.name,
       role: entity.role,
       status: entity.status,
+      emailVerified: entity.emailVerified,
+      lockoutUntil: entity.lockoutUntil,
+      failedLoginAttempts: entity.failedLoginAttempts,
+      verificationToken: entity.verificationToken,
+      verificationTokenExpiry: entity.verificationTokenExpiry,
     };
     await this.db.db.insert(users).values(newUser);
   }

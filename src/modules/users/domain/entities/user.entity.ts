@@ -9,6 +9,11 @@ export interface UserEntity {
   name: string;
   role: Role;
   status: UserStatus;
+  emailVerified: boolean;
+  lockoutUntil: Date | null;
+  failedLoginAttempts: number;
+  verificationToken: string | null;
+  verificationTokenExpiry: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

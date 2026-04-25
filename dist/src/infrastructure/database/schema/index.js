@@ -14,7 +14,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.magicLinks = void 0;
 __exportStar(require("./users.schema"), exports);
 __exportStar(require("./oauth-accounts.schema"), exports);
 __exportStar(require("./refresh-tokens.schema"), exports);
+__exportStar(require("./password-reset.schema"), exports);
+var magic_links_schema_1 = require("./magic-links.schema");
+Object.defineProperty(exports, "magicLinks", { enumerable: true, get: function () { return magic_links_schema_1.magicLinks; } });
 //# sourceMappingURL=index.js.map
