@@ -1,4 +1,4 @@
-import { ChunkStrategy } from '../value-objects/chunk-strategy.vo';
+import type { ChunkStrategy } from '../value-objects/chunk-strategy.vo';
 
 export interface SearchResult {
   documentId: string;

@@ -12,3 +12,4 @@ export * from './order-items.schema';
 export * from './stock-movements.schema';
 export * from './ai-api-logs.schema';
 export * from './ai-token-usage.schema';
+export * from './rag-chunks.schema';
