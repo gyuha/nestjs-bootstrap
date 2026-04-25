@@ -15,7 +15,18 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiExtraModels, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConflictResponse,
+  ApiExtraModels,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../auth/presentation/jwt-auth.guard";
 import { Roles } from "../../auth/presentation/roles.decorator";
 import { RolesGuard } from "../../auth/presentation/roles.guard";
@@ -66,41 +77,75 @@ export class UsersAdminController {
   private readonly deactivateUser!: DeactivateUser;
 
   @Get()
+  @ApiOperation({ summary: "List users" })
+  @ApiOkResponse({ description: "Returns a paginated list of users." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
   async list(@Query() query: ListUsersQueryDto) {
     return this.run(() => this.listUsers.execute(query));
   }
 
   @Post()
   @ApiBody({ type: CreateUserByAdminDto })
+  @ApiOperation({ summary: "Create a user as an admin" })
+  @ApiOkResponse({ description: "Returns the created user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiConflictResponse({ description: "A user with the email address already exists." })
   async create(@Body() body: CreateUserByAdminDto) {
     return this.run(() => this.createUserByAdmin.execute(body));
   }
 
   @Get(":id")
+  @ApiOperation({ summary: "Get a user by id" })
+  @ApiOkResponse({ description: "Returns the requested user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiNotFoundResponse({ description: "The user does not exist." })
   async getById(@Param("id", ParseUUIDPipe) id: string) {
     return this.run(() => this.getUserById.execute(id));
   }
 
   @Patch(":id")
   @ApiBody({ type: UpdateUserByAdminDto })
+  @ApiOperation({ summary: "Update a user as an admin" })
+  @ApiOkResponse({ description: "Returns the updated user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiNotFoundResponse({ description: "The user does not exist." })
   async update(@Param("id", ParseUUIDPipe) id: string, @Body() body: UpdateUserByAdminDto) {
     return this.run(() => this.updateUserByAdmin.execute(id, body));
   }
 
   @Patch(":id/status")
   @ApiBody({ type: ChangeUserStatusDto })
+  @ApiOperation({ summary: "Change a user's status" })
+  @ApiOkResponse({ description: "Returns the updated user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiNotFoundResponse({ description: "The user does not exist." })
   async updateStatus(@Param("id", ParseUUIDPipe) id: string, @Body() body: ChangeUserStatusDto) {
     return this.run(() => this.changeUserStatus.execute(id, body.status));
   }
 
   @Patch(":id/role")
   @ApiBody({ type: ChangeUserRoleDto })
+  @ApiOperation({ summary: "Change a user's role" })
+  @ApiOkResponse({ description: "Returns the updated user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiNotFoundResponse({ description: "The user does not exist." })
   async updateRole(@Param("id", ParseUUIDPipe) id: string, @Body() body: ChangeUserRoleDto) {
     return this.run(() => this.changeUserRole.execute(id, body.role));
   }
 
   @Delete(":id")
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Deactivate a user" })
+  @ApiOkResponse({ description: "Returns the deactivated user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
+  @ApiForbiddenResponse({ description: "The authenticated user is not an admin." })
+  @ApiNotFoundResponse({ description: "The user does not exist." })
   async deactivate(@Param("id", ParseUUIDPipe) id: string) {
     return this.run(() => this.deactivateUser.execute(id));
   }

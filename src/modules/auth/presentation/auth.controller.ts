@@ -9,7 +9,14 @@ import {
   UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import type { GoogleLoginInput } from "../application/google-login.use-case";
 import { GoogleLogin } from "../application/google-login.use-case";
 import {
@@ -58,6 +65,9 @@ export class AuthController {
 
   @Post("register")
   @ApiBody({ type: RegisterWithPasswordDto })
+  @ApiOperation({ summary: "Register with email and password" })
+  @ApiOkResponse({ description: "Returns an access token, refresh token, and user profile." })
+  @ApiUnauthorizedResponse({ description: "The user is inactive or credentials are invalid." })
   async register(@Body() body: RegisterWithPasswordDto) {
     return this.runAuth(() => this.registerWithPassword.execute(body));
   }
@@ -65,15 +75,23 @@ export class AuthController {
   @Post("login")
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LoginWithPasswordDto })
+  @ApiOperation({ summary: "Log in with email and password" })
+  @ApiOkResponse({ description: "Returns an access token, refresh token, and user profile." })
+  @ApiUnauthorizedResponse({ description: "Credentials are invalid or the user is inactive." })
   async login(@Body() body: LoginWithPasswordDto) {
     return this.runAuth(() => this.loginWithPassword.execute(body));
   }
 
   @Get("google")
+  @ApiOperation({ summary: "Start Google OAuth login" })
+  @ApiOkResponse({ description: "Redirects to Google's OAuth consent flow." })
   @UseGuards(GoogleAuthGuard)
   async google(): Promise<void> {}
 
   @Get("google/callback")
+  @ApiOperation({ summary: "Complete Google OAuth login" })
+  @ApiOkResponse({ description: "Returns an access token, refresh token, and user profile." })
+  @ApiUnauthorizedResponse({ description: "The Google profile could not be authenticated." })
   @UseGuards(GoogleAuthGuard)
   async googleCallback(@CurrentUser() profile: GoogleLoginInput) {
     return this.runAuth(() => this.googleLogin.execute(profile));
@@ -82,6 +100,9 @@ export class AuthController {
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: RefreshSessionDto })
+  @ApiOperation({ summary: "Rotate a refresh token" })
+  @ApiOkResponse({ description: "Returns a new access token and replacement refresh token." })
+  @ApiUnauthorizedResponse({ description: "The refresh token is missing, expired, or revoked." })
   async refresh(@Body() body: RefreshSessionDto) {
     return this.runAuth(() => this.refreshSession.execute(body));
   }
@@ -89,6 +110,8 @@ export class AuthController {
   @Post("logout")
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: LogoutSessionDto })
+  @ApiOperation({ summary: "Revoke a refresh token" })
+  @ApiOkResponse({ description: "Refresh token revoked." })
   async logout(@Body() body: LogoutSessionDto) {
     await this.logoutSession.execute(body);
 
@@ -97,6 +120,9 @@ export class AuthController {
 
   @Get("me")
   @ApiBearerAuth()
+  @ApiOperation({ summary: "Get the authenticated user from a bearer token" })
+  @ApiOkResponse({ description: "Returns the authenticated user profile." })
+  @ApiUnauthorizedResponse({ description: "Bearer token is missing or invalid." })
   @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: AuthenticatedUser) {
     return this.runAuth(() => this.getAuthenticatedUser.execute(user.id));

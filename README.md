@@ -23,6 +23,68 @@ API:
 - Health: `GET http://localhost:3000/api/v1/health`
 - Swagger: `http://localhost:3000/api/docs`
 
+## Authentication and Users
+
+Auth is exposed under `/api/v1/auth`; user profile/admin APIs are exposed under
+`/api/v1/users`.
+
+Auth environment variables:
+
+- `JWT_ACCESS_TOKEN_SECRET`: HMAC secret for access tokens. Must be at least 32 characters.
+- `JWT_ACCESS_TOKEN_EXPIRES_IN`: access token TTL, such as `15m`.
+- `REFRESH_TOKEN_EXPIRES_IN`: refresh token TTL, such as `30d`.
+- `GOOGLE_CLIENT_ID`: Google OAuth client ID.
+- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret.
+- `GOOGLE_CALLBACK_URL`: OAuth callback URL. Locally this is
+  `http://localhost:3000/api/v1/auth/google/callback`.
+
+Password auth:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/register \
+  -H 'content-type: application/json' \
+  -d '{"email":"jane@example.com","password":"correct-horse-battery-staple","displayName":"Jane Example"}'
+
+curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"email":"jane@example.com","password":"correct-horse-battery-staple"}'
+```
+
+Both endpoints return an access token, refresh token, and user profile. Use the access token as a
+bearer token for protected routes:
+
+```bash
+curl http://localhost:3000/api/v1/auth/me \
+  -H "authorization: Bearer $ACCESS_TOKEN"
+```
+
+Refresh and logout:
+
+```bash
+curl -X POST http://localhost:3000/api/v1/auth/refresh \
+  -H 'content-type: application/json' \
+  -d '{"refreshToken":"..."}'
+
+curl -X POST http://localhost:3000/api/v1/auth/logout \
+  -H 'content-type: application/json' \
+  -d '{"refreshToken":"..."}'
+```
+
+Refresh rotates tokens: store the replacement refresh token and discard the previous one. Logout
+revokes the submitted refresh token.
+
+Google OAuth:
+
+1. Create an OAuth 2.0 client in Google Cloud Console.
+2. Add `GOOGLE_CALLBACK_URL` as an authorized redirect URI.
+3. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL` in `.env`.
+4. Start login at `GET /api/v1/auth/google`.
+
+Roles:
+
+- `USER`: can access their own profile through `GET/PATCH /api/v1/users/me`.
+- `ADMIN`: can access user administration routes under `/api/v1/users`.
+
 ## Docker
 
 ```bash
