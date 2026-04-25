@@ -1,5 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AiGatewayController } from './presentation/controllers/ai-gateway.controller';
+import { AiAdminController } from './presentation/controllers/ai-admin.controller';
 import { ChatUseCase } from './application/services/chat-use-case';
 import { EmbedUseCase } from './application/services/embedding-use-case';
 import { OpenAIAdapter } from './infrastructure/adapters/openai.adapter';
@@ -10,7 +11,7 @@ import { AI_GATEWAY_SERVICE } from './domain/services/ai-gateway-service.token';
 
 @Module({
   imports: [MonitoringModule, forwardRef(() => RagModule)],
-  controllers: [AiGatewayController],
+  controllers: [AiGatewayController, AiAdminController],
   providers: [
     ChatUseCase,
     EmbedUseCase,
