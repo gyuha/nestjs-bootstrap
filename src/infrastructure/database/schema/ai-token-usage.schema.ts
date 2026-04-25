@@ -1,4 +1,5 @@
 import { pgTable, uuid, text, timestamp, integer } from 'drizzle-orm/pg-core';
+import { providerEnum } from './ai-api-logs.schema';
 
 export const aiTokenUsage = pgTable('ai_token_usage', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -13,10 +14,10 @@ export const aiTokenUsage = pgTable('ai_token_usage', {
   totalTokens: integer('total_tokens').notNull(),
 
   // Cost tracking
-  estimatedCostUsd: integer('estimated_cost_usd'), // cents
+  estimatedCostCents: integer('estimated_cost_cents'),
 
   // Provider
-  provider: text('provider').notNull(),
+  provider: providerEnum('provider').notNull(),
   model: text('model').notNull(),
 
   createdAt: timestamp('created_at').defaultNow(),

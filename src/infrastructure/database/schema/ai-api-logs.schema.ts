@@ -1,4 +1,6 @@
-import { pgTable, uuid, text, timestamp, integer, jsonb, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, integer, jsonb, boolean, index, pgEnum } from 'drizzle-orm/pg-core';
+
+export const providerEnum = pgEnum('ai_provider', ['openai', 'azure-openai']);
 
 export const aiApiLogs = pgTable('ai_api_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -19,8 +21,7 @@ export const aiApiLogs = pgTable('ai_api_logs', {
   latencyMs: integer('latency_ms').notNull(),
 
   // Provider info
-  provider: text('provider'), // openai, azure-openai
-  model: text('model'),
+  provider: providerEnum('provider'),
 
   // RAG info
   useRag: boolean('use_rag').notNull().default(false),
@@ -31,7 +32,11 @@ export const aiApiLogs = pgTable('ai_api_logs', {
   errorMessage: text('error_message'),
 
   createdAt: timestamp('created_at').defaultNow(),
-});
+}, (table) => ({
+  sessionIdIdx: index('idx_ai_api_logs_session_id').on(table.sessionId),
+  userIdIdx: index('idx_ai_api_logs_user_id').on(table.userId),
+  providerIdx: index('idx_ai_api_logs_provider').on(table.provider),
+}));
 
 export type AiApiLog = typeof aiApiLogs.$inferSelect;
 export type NewAiApiLog = typeof aiApiLogs.$inferInsert;
