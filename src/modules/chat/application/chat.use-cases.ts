@@ -121,16 +121,17 @@ export class SendChatMessage {
     await this.assertSessionWritable(input.sessionId);
 
     const maskedMessage = this.piiMasker.mask(input.message);
-    await this.repository.createMessage({
+    const previousContext = await this.repository.listRecentMessages(
+      input.sessionId,
+      this.options.maxContextMessages,
+    );
+    const userMessage = await this.repository.createMessage({
       sessionId: input.sessionId,
       role: "user",
       content: maskedMessage,
     });
 
-    const [context, retrieval] = await Promise.all([
-      this.repository.listRecentMessages(input.sessionId, this.options.maxContextMessages),
-      this.retrieveKnowledge.execute({ question: maskedMessage }),
-    ]);
+    const retrieval = await this.retrieveKnowledge.execute({ question: maskedMessage });
 
     if (retrieval.lowConfidence) {
       const assistantMessage = await this.repository.createMessage({
@@ -154,7 +155,7 @@ export class SendChatMessage {
 
     const aiResult = await this.aiChatProvider.generateAnswer({
       systemPrompt: CHAT_SUPPORT_SYSTEM_PROMPT,
-      messages: buildPromptMessages(retrieval.results, context),
+      messages: buildPromptMessages(retrieval.results, [...previousContext, userMessage]),
     });
     const assistantMessage = await this.repository.createMessage({
       sessionId: input.sessionId,

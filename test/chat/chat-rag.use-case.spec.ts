@@ -136,11 +136,40 @@ describe("SendChatMessage", () => {
     ).resolves.not.toHaveProperty("sources");
     expect(withoutSources.repository.sources).toHaveLength(1);
   });
+
+  it("includes the current user question even when prior context is disabled", async () => {
+    const source: KnowledgeSearchResult = {
+      sourceType: "document",
+      sourceKey: "refund-policy",
+      content: "Refunds are available within 7 days.",
+      score: 0.9,
+    };
+    const { ai, useCase } = createUseCase({
+      retrieve: async () => ({ lowConfidence: false, results: [source] }),
+      maxContextMessages: 0,
+    });
+
+    await useCase.execute({
+      sessionId: "session-1",
+      message: "Refund?",
+    });
+
+    const promptInput = vi.mocked(ai.generateAnswer).mock.calls[0]?.[0];
+    expect(promptInput?.messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: "user",
+          content: "Refund?",
+        }),
+      ]),
+    );
+  });
 });
 
 function createUseCase(input: {
   retrieve: (question: string) => Promise<RetrieveKnowledgeResult>;
   answer?: () => Promise<Partial<GenerateAnswerResult> & { answer: string }>;
+  maxContextMessages?: number;
 }) {
   const repository = new InMemoryChatRepository();
   const retrieve = {
@@ -154,7 +183,7 @@ function createUseCase(input: {
     })),
   };
   const useCase = new SendChatMessage(repository, retrieve, ai, new BasicPiiMasker(), {
-    maxContextMessages: 8,
+    maxContextMessages: input.maxContextMessages ?? 8,
     chatModel: "gpt-5-mini",
   });
 
