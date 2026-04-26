@@ -3,7 +3,11 @@ import { ConfigService } from "@nestjs/config";
 import { parseDurationMs } from "../../../shared/utils/duration";
 import { toUserResponse } from "../../users/application/user.response";
 import { normalizeEmail, type User } from "../../users/domain/user.entity";
-import { USER_REPOSITORY, type UserRepository, DuplicateUserEmailError } from "../../users/domain/user.repository";
+import {
+  USER_REPOSITORY,
+  type UserRepository,
+  DuplicateUserEmailError,
+} from "../../users/domain/user.repository";
 import {
   AUTH_IDENTITY_REPOSITORY,
   type AuthIdentityRepository,

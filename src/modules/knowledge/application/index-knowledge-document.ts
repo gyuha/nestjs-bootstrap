@@ -40,7 +40,11 @@ export class IndexKnowledgeDocument {
 
       for (const chunk of textChunks) {
         const result = await this.embeddingProvider.embed(chunk.content);
-        chunks.push({ chunkIndex: chunk.chunkIndex, content: chunk.content, embedding: result.embedding });
+        chunks.push({
+          chunkIndex: chunk.chunkIndex,
+          content: chunk.content,
+          embedding: result.embedding,
+        });
       }
 
       await this.repository.replaceChunksAndActivate(input.documentId, chunks);
