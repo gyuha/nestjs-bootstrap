@@ -76,7 +76,7 @@ export class RegisterWithPassword {
       throw new InvalidAuthCredentialsError();
     }
 
-    let user;
+    let user: Awaited<ReturnType<typeof this.users.create>>;
 
     try {
       user = await this.users.create({

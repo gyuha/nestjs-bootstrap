@@ -2,7 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { parseDurationMs } from "../../../shared/utils/duration";
 import { toUserResponse } from "../../users/application/user.response";
-import { normalizeEmail, User } from "../../users/domain/user.entity";
+import { normalizeEmail, type User } from "../../users/domain/user.entity";
 import { USER_REPOSITORY, type UserRepository, DuplicateUserEmailError } from "../../users/domain/user.repository";
 import {
   AUTH_IDENTITY_REPOSITORY,
@@ -67,7 +67,7 @@ export class GoogleLogin {
       return this.createSession(user.id, user.role, toUserResponse(user));
     }
 
-    let existingUser = await this.users.findByEmail(profile.email);
+    const existingUser = await this.users.findByEmail(profile.email);
 
     let user: User;
 
