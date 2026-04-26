@@ -52,12 +52,26 @@ export type ChatRagOptions = {
   chatModel: string | null;
 };
 
+export type ChatSessionOptions = {
+  anonymousSessionTtl: string;
+};
+
 @Injectable()
 export class CreateChatSession {
+  private readonly options: ChatSessionOptions;
+
   constructor(
     private readonly repository: ChatRepository,
     private readonly sessionTokens: SessionTokenService,
-  ) {}
+    optionsOrConfig: ChatSessionOptions | ConfigService = { anonymousSessionTtl: "30d" },
+  ) {
+    this.options =
+      optionsOrConfig instanceof ConfigService
+        ? {
+            anonymousSessionTtl: optionsOrConfig.getOrThrow<string>("chat.anonymousSessionTtl"),
+          }
+        : optionsOrConfig;
+  }
 
   async execute(input: CreateChatSessionUseCaseInput = {}): Promise<ChatSessionResponse> {
     if (input.userId) {
@@ -70,8 +84,12 @@ export class CreateChatSession {
     }
 
     const token = this.sessionTokens.generate();
+    const anonymousTokenExpiresAt = this.sessionTokens.calculateExpiresAt(
+      this.options.anonymousSessionTtl,
+    );
     const session = await this.repository.createSession({
       anonymousTokenHash: token.tokenHash,
+      anonymousTokenExpiresAt,
       metadata: input.metadata,
     });
 

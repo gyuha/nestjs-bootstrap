@@ -28,11 +28,15 @@ export class DrizzleChatRepository implements ChatRepository {
   constructor(private readonly db: Database) {}
 
   async createSession(input: CreateChatSessionInput): Promise<ChatSession> {
+    const anonymousTokenHash = input.anonymousTokenHash ?? null;
     const [row] = await this.db
       .insert(chatSessions)
       .values({
         userId: input.userId ?? null,
-        anonymousTokenHash: input.anonymousTokenHash ?? null,
+        anonymousTokenHash,
+        anonymousTokenExpiresAt: anonymousTokenHash
+          ? (input.anonymousTokenExpiresAt ?? null)
+          : null,
         metadata: input.metadata ?? {},
       })
       .returning();
@@ -153,6 +157,7 @@ export class DrizzleChatRepository implements ChatRepository {
       id: row.id,
       userId: row.userId,
       anonymousTokenHash: row.anonymousTokenHash,
+      anonymousTokenExpiresAt: row.anonymousTokenExpiresAt,
       status: row.status,
       metadata: row.metadata,
       createdAt: row.createdAt,

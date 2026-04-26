@@ -8,6 +8,7 @@ export type ChatSession = {
   id: string;
   userId: string | null;
   anonymousTokenHash: string | null;
+  anonymousTokenExpiresAt: Date | null;
   status: ChatSessionStatus;
   metadata: ChatMetadata;
   createdAt: Date;

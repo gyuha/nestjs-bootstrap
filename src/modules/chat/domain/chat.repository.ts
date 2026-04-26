@@ -34,6 +34,7 @@ export class ChatMessageSourceTargetInvalidError extends Error {
 export type CreateChatSessionInput = {
   userId?: string | null;
   anonymousTokenHash?: string | null;
+  anonymousTokenExpiresAt?: Date | null;
   metadata?: ChatMetadata;
 };
 

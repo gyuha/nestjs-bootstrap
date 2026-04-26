@@ -124,6 +124,13 @@ export class ChatController {
       throw new ForbiddenException("Chat session access denied");
     }
 
+    if (
+      tokenSession.anonymousTokenExpiresAt &&
+      this.sessionTokens.isExpired(tokenSession.anonymousTokenExpiresAt)
+    ) {
+      throw new UnauthorizedException("Chat session token expired");
+    }
+
     return session;
   }
 }

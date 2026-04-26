@@ -93,7 +93,8 @@ indexing is exposed at `POST /api/v1/knowledge/documents` and requires the `ADMI
 Chat clients create sessions under `POST /api/v1/chat/sessions` and send messages to
 `POST /api/v1/chat/sessions/:sessionId/messages`. Authenticated sessions use the bearer token.
 Anonymous sessions return a one-time plain session token; send it back in
-`x-chat-session-token` when posting messages.
+`x-chat-session-token` when posting messages. `CHAT_ANONYMOUS_SESSION_TTL` controls when that
+anonymous session token expires.
 
 Set these environment variables for RAG and OpenAI-backed chat:
 

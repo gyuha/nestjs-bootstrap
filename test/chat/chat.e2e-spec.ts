@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
-import { inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -137,6 +137,20 @@ describe("Chat API", () => {
       .set("x-chat-session-token", "wrong-session-token")
       .send({ message: "What is the refund policy?" })
       .expect(403);
+  });
+
+  it("rejects anonymous chat messages when the session token is expired", async () => {
+    const session = await createAnonymousSession();
+    await db
+      .update(chatSessions)
+      .set({ anonymousTokenExpiresAt: new Date("2020-01-01T00:00:00.000Z") })
+      .where(eq(chatSessions.id, session.id));
+
+    await request(app.getHttpServer())
+      .post(`/api/v1/chat/sessions/${session.id}/messages`)
+      .set("x-chat-session-token", session.sessionToken)
+      .send({ message: "What is the refund policy?" })
+      .expect(401);
   });
 
   async function createAnonymousSession() {

@@ -180,6 +180,7 @@ export const chatSessions = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     anonymousTokenHash: varchar("anonymous_token_hash", { length: 128 }),
+    anonymousTokenExpiresAt: timestamp("anonymous_token_expires_at", { withTimezone: true }),
     status: chatSessionStatus("status").notNull().default("active"),
     metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
     ...timestampColumns(),

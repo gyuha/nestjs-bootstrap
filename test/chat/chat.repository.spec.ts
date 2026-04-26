@@ -58,12 +58,15 @@ describe("DrizzleChatRepository", () => {
   it("creates authenticated and anonymous sessions", async () => {
     const user = await createUser("sessions@example.com");
     const tokenPair = new SessionTokenService().generate();
+    const anonymousTokenExpiresAt = new Date("2026-02-01T00:00:00.000Z");
     const authenticated = await createSession({
       userId: user.id,
+      anonymousTokenExpiresAt,
       metadata: { channel: "account" },
     });
     const anonymous = await createSession({
       anonymousTokenHash: tokenPair.tokenHash,
+      anonymousTokenExpiresAt,
       metadata: { channel: "public" },
     });
 
@@ -71,6 +74,7 @@ describe("DrizzleChatRepository", () => {
       id: expect.any(String),
       userId: user.id,
       anonymousTokenHash: null,
+      anonymousTokenExpiresAt: null,
       status: "active",
       metadata: { channel: "account" },
       createdAt: expect.any(Date),
@@ -80,6 +84,7 @@ describe("DrizzleChatRepository", () => {
       id: expect.any(String),
       userId: null,
       anonymousTokenHash: tokenPair.tokenHash,
+      anonymousTokenExpiresAt,
       status: "active",
       metadata: { channel: "public" },
     });
@@ -94,6 +99,7 @@ describe("DrizzleChatRepository", () => {
       .from(chatSessions)
       .where(eq(chatSessions.id, anonymous.id));
     expect(anonymousRow.anonymousTokenHash).toBe(tokenPair.tokenHash);
+    expect(anonymousRow.anonymousTokenExpiresAt).toEqual(anonymousTokenExpiresAt);
     expect(JSON.stringify(anonymousRow)).not.toContain(tokenPair.plainToken);
   });
 

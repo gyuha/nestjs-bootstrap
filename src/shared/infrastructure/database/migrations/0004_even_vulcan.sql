@@ -1,0 +1,1 @@
+ALTER TABLE "chat_sessions" ADD COLUMN "anonymous_token_expires_at" timestamp with time zone;

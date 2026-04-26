@@ -43,9 +43,13 @@ import { OptionalJwtAuthGuard } from "./presentation/optional-jwt-auth.guard";
     },
     {
       provide: CreateChatSession,
-      inject: [CHAT_REPOSITORY, SessionTokenService],
-      useFactory: (repository: ChatRepository, sessionTokens: SessionTokenService) => {
-        return new CreateChatSession(repository, sessionTokens);
+      inject: [CHAT_REPOSITORY, SessionTokenService, ConfigService],
+      useFactory: (
+        repository: ChatRepository,
+        sessionTokens: SessionTokenService,
+        config: ConfigService,
+      ) => {
+        return new CreateChatSession(repository, sessionTokens, config);
       },
     },
     {
