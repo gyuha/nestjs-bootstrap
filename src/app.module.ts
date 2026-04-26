@@ -5,6 +5,7 @@ import { AppConfigModule } from "./bootstrap/config/config.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
+import { KnowledgeModule } from "./modules/knowledge/knowledge.module";
 import { UsersModule } from "./modules/users/users.module";
 import { DatabaseModule } from "./shared/infrastructure/database/database.module";
 import { RedisModule } from "./shared/infrastructure/redis/redis.module";
@@ -22,6 +23,7 @@ import { RedisModule } from "./shared/infrastructure/redis/redis.module";
     RedisModule,
     AiModule,
     HealthModule,
+    KnowledgeModule,
     UsersModule,
     AuthModule,
   ],
