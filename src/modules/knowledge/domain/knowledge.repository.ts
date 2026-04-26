@@ -46,11 +46,28 @@ export type CreateKnowledgeSyncJobInput = {
   metadata?: KnowledgeMetadata;
 };
 
+export type KnowledgeSearchResult = {
+  sourceType: KnowledgeSourceType;
+  sourceKey: string;
+  content: string;
+  score: number;
+  documentId?: string;
+  chunkId?: string;
+  title?: string;
+  metadata?: KnowledgeMetadata;
+};
+
 export interface KnowledgeRepository {
   createDocument(input: CreateKnowledgeDocumentInput): Promise<KnowledgeDocument>;
+  findDocument(id: string): Promise<KnowledgeDocument | null>;
   listDocuments(input: { page: number; limit: number }): Promise<PageResult<KnowledgeDocument>>;
   markDocumentStatus(id: string, status: KnowledgeDocumentStatus): Promise<KnowledgeDocument>;
   replaceChunks(documentId: string, chunks: CreateKnowledgeChunkInput[]): Promise<KnowledgeChunk[]>;
+  searchChunksByEmbedding(input: {
+    embedding: number[];
+    topK: number;
+    minScore: number;
+  }): Promise<KnowledgeSearchResult[]>;
   createSyncJob(input: CreateKnowledgeSyncJobInput): Promise<KnowledgeSyncJob>;
   completeSyncJob(id: string): Promise<KnowledgeSyncJob>;
   failSyncJob(id: string, errorMessage: string): Promise<KnowledgeSyncJob>;

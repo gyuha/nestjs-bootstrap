@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, gte, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PageResult } from "../../../shared/domain/pagination";
 import {
@@ -12,6 +12,7 @@ import type {
   CreateKnowledgeDocumentInput,
   CreateKnowledgeSyncJobInput,
   KnowledgeRepository,
+  KnowledgeSearchResult,
 } from "../domain/knowledge.repository";
 import {
   KnowledgeDocumentNotFoundError,
@@ -45,6 +46,16 @@ export class DrizzleKnowledgeRepository implements KnowledgeRepository {
       .returning();
 
     return this.toDocumentDomain(row);
+  }
+
+  async findDocument(id: string): Promise<KnowledgeDocument | null> {
+    const [row] = await this.db
+      .select()
+      .from(knowledgeDocuments)
+      .where(eq(knowledgeDocuments.id, id))
+      .limit(1);
+
+    return row ? this.toDocumentDomain(row) : null;
   }
 
   async listDocuments(input: {
@@ -127,6 +138,45 @@ export class DrizzleKnowledgeRepository implements KnowledgeRepository {
         .map((row) => this.toChunkDomain(row))
         .sort((left, right) => left.chunkIndex - right.chunkIndex);
     });
+  }
+
+  async searchChunksByEmbedding(input: {
+    embedding: number[];
+    topK: number;
+    minScore: number;
+  }): Promise<KnowledgeSearchResult[]> {
+    const distance = sql<number>`${knowledgeChunks.embedding} <=> ${JSON.stringify(
+      input.embedding,
+    )}`;
+    const score = sql<number>`1 - (${distance})`;
+
+    const rows = await this.db
+      .select({
+        chunkId: knowledgeChunks.id,
+        documentId: knowledgeDocuments.id,
+        sourceType: knowledgeDocuments.sourceType,
+        sourceKey: knowledgeDocuments.sourceKey,
+        title: knowledgeDocuments.title,
+        content: knowledgeChunks.content,
+        metadata: knowledgeChunks.metadata,
+        score,
+      })
+      .from(knowledgeChunks)
+      .innerJoin(knowledgeDocuments, eq(knowledgeChunks.documentId, knowledgeDocuments.id))
+      .where(and(eq(knowledgeDocuments.status, "active"), gte(score, input.minScore)))
+      .orderBy(distance)
+      .limit(input.topK);
+
+    return rows.map((row) => ({
+      sourceType: row.sourceType,
+      sourceKey: row.sourceKey,
+      content: row.content,
+      score: Number(row.score),
+      documentId: row.documentId,
+      chunkId: row.chunkId,
+      title: row.title,
+      metadata: row.metadata,
+    }));
   }
 
   async createSyncJob(input: CreateKnowledgeSyncJobInput): Promise<KnowledgeSyncJob> {
