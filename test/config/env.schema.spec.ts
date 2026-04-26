@@ -99,6 +99,7 @@ describe("env schema", () => {
     const env = parseEnv({
       ...validEnv,
       OPENAI_API_KEY: "sk-test-key",
+      OPENAI_BASE_URL: "https://openrouter.ai/api/v1",
       OPENAI_CHAT_MODEL: "gpt-5-mini",
       OPENAI_EMBEDDING_MODEL: "text-embedding-3-small",
       RAG_TOP_K: "5",
@@ -108,8 +109,18 @@ describe("env schema", () => {
     });
 
     expect(env.OPENAI_CHAT_MODEL).toBe("gpt-5-mini");
+    expect(env.OPENAI_BASE_URL).toBe("https://openrouter.ai/api/v1");
     expect(env.RAG_TOP_K).toBe(5);
     expect(env.RAG_MIN_SCORE).toBe(0.72);
+  });
+
+  it("rejects invalid openai base urls", () => {
+    expect(() =>
+      parseEnv({
+        ...validEnv,
+        OPENAI_BASE_URL: "not-a-url",
+      }),
+    ).toThrow("Invalid environment");
   });
 
   it("rejects invalid rag retrieval settings", () => {
@@ -242,6 +253,7 @@ describe("env schema", () => {
 
     expect(config.ai).toEqual({
       openAiApiKey: "sk-test-key",
+      openAiBaseUrl: "https://api.openai.com/v1",
       chatModel: "gpt-5-mini",
       embeddingModel: "text-embedding-3-small",
     });

@@ -76,6 +76,7 @@ const rawEnvSchema = z
     GOOGLE_CLIENT_SECRET: nonBlankString,
     GOOGLE_CALLBACK_URL: z.string().url(),
     OPENAI_API_KEY: nonBlankString,
+    OPENAI_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
     OPENAI_CHAT_MODEL: nonBlankString.default("gpt-5-mini"),
     OPENAI_EMBEDDING_MODEL: nonBlankString.default("text-embedding-3-small"),
     RAG_TOP_K: numericEnv(z.coerce.number().int().min(1).max(20)).default(5),

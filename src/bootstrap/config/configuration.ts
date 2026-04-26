@@ -29,6 +29,7 @@ export function configuration() {
     },
     ai: {
       openAiApiKey: env.OPENAI_API_KEY,
+      openAiBaseUrl: env.OPENAI_BASE_URL,
       chatModel: env.OPENAI_CHAT_MODEL,
       embeddingModel: env.OPENAI_EMBEDDING_MODEL,
     },

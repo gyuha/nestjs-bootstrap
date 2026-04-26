@@ -1,6 +1,7 @@
 import type { ConfigService } from "@nestjs/config";
 import { describe, expect, it } from "vitest";
 import {
+  createOpenAiClientOptions,
   OpenAiProvider,
   type OpenAiClient,
   type OpenAiEmbeddingsCreateInput,
@@ -10,6 +11,13 @@ import {
 } from "../../src/modules/ai/infrastructure/openai-ai.provider";
 
 describe("OpenAiProvider", () => {
+  it("builds OpenAI client options from configured credentials and base URL", () => {
+    expect(createOpenAiClientOptions(createConfigService())).toEqual({
+      apiKey: "sk-test",
+      baseURL: "https://openrouter.ai/api/v1",
+    });
+  });
+
   it("generates an answer with the configured model and system prompt", async () => {
     const client = new FakeOpenAiClient({
       responses: {
@@ -122,6 +130,7 @@ function createConfigService(): ConfigService {
     getOrThrow(key: string) {
       const values: Record<string, string> = {
         "ai.openAiApiKey": "sk-test",
+        "ai.openAiBaseUrl": "https://openrouter.ai/api/v1",
         "ai.chatModel": "gpt-test-chat",
         "ai.embeddingModel": "text-embedding-test",
       };

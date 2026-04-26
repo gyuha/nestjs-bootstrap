@@ -55,6 +55,8 @@ export type OpenAiClient = {
   };
 };
 
+export type OpenAiClientOptions = ConstructorParameters<typeof OpenAI>[0];
+
 export class OpenAiProvider implements AiChatProvider, EmbeddingProvider {
   private readonly chatModel: string;
   private readonly embeddingModel: string;
@@ -63,11 +65,7 @@ export class OpenAiProvider implements AiChatProvider, EmbeddingProvider {
   constructor(config: ConfigService, client?: OpenAiClient) {
     this.chatModel = config.getOrThrow<string>("ai.chatModel");
     this.embeddingModel = config.getOrThrow<string>("ai.embeddingModel");
-    this.client =
-      client ??
-      (new OpenAI({
-        apiKey: config.getOrThrow<string>("ai.openAiApiKey"),
-      }) as OpenAiClient);
+    this.client = client ?? (new OpenAI(createOpenAiClientOptions(config)) as OpenAiClient);
   }
 
   async generateAnswer(input: GenerateAnswerInput): Promise<GenerateAnswerResult> {
@@ -98,6 +96,13 @@ export class OpenAiProvider implements AiChatProvider, EmbeddingProvider {
       tokenUsage: mapEmbeddingUsage(response.usage),
     };
   }
+}
+
+export function createOpenAiClientOptions(config: ConfigService): OpenAiClientOptions {
+  return {
+    apiKey: config.getOrThrow<string>("ai.openAiApiKey"),
+    baseURL: config.getOrThrow<string>("ai.openAiBaseUrl"),
+  };
 }
 
 function mapChatUsage(usage: OpenAiResponsesCreateResult["usage"]): AiChatUsage {

@@ -99,12 +99,17 @@ anonymous session token expires.
 Set these environment variables for RAG and OpenAI-backed chat:
 
 - `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`
 - `OPENAI_CHAT_MODEL`
 - `OPENAI_EMBEDDING_MODEL`
 - `RAG_TOP_K`
 - `RAG_MIN_SCORE`
 - `RAG_MAX_CONTEXT_MESSAGES`
 - `CHAT_ANONYMOUS_SESSION_TTL`
+
+To route OpenAI SDK calls through OpenRouter, set `OPENAI_API_KEY` to your OpenRouter key,
+`OPENAI_BASE_URL=https://openrouter.ai/api/v1`, and use OpenRouter model ids such as
+`openai/gpt-5.2` or `openai/text-embedding-3-small`.
 
 Local PostgreSQL uses the `pgvector/pgvector:pg16` image because embeddings are stored in
 PostgreSQL vector columns.

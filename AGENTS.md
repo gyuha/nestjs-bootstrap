@@ -46,3 +46,7 @@ Pull requests should include a short summary, test results, migration or config 
 ## Security & Configuration Tips
 
 Copy `.env.example` to `.env` for local development. Swagger defaults to local/test only unless explicitly enabled. Startup migrations are allowed only in `local` and `test`; production should use `pnpm db:migrate:prod` or a deployment job.
+
+AI calls use the OpenAI SDK with a configurable base URL. Keep `OPENAI_BASE_URL=https://api.openai.com/v1` for OpenAI, or set `OPENAI_BASE_URL=https://openrouter.ai/api/v1` with OpenRouter model ids such as `openai/gpt-5.2` and `openai/text-embedding-3-small`.
+
+If local migrations fail because Drizzle's `drizzle.__drizzle_migrations` table does not match the actual public schema, inspect the target `DATABASE_URL` before editing migrations. Prefer creating a clean local database or fixing the local database state over rewriting committed migration history.
