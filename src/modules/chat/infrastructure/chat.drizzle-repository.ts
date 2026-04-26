@@ -14,6 +14,7 @@ import type {
 } from "../domain/chat.repository";
 import {
   ChatMessageNotFoundError,
+  ChatMessageSourceTargetInvalidError,
   ChatSessionClosedError,
   ChatSessionNotFoundError,
 } from "../domain/chat.repository";
@@ -117,13 +118,17 @@ export class DrizzleChatRepository implements ChatRepository {
 
   async attachSources(messageId: string, sources: CreateChatMessageSourceInput[]): Promise<void> {
     const [message] = await this.db
-      .select({ id: chatMessages.id })
+      .select({ id: chatMessages.id, role: chatMessages.role })
       .from(chatMessages)
       .where(eq(chatMessages.id, messageId))
       .limit(1);
 
     if (!message) {
       throw new ChatMessageNotFoundError(messageId);
+    }
+
+    if (message.role !== "assistant") {
+      throw new ChatMessageSourceTargetInvalidError(messageId);
     }
 
     if (sources.length === 0) {

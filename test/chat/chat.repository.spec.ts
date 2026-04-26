@@ -1,13 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { eq, like } from "drizzle-orm";
+import { eq, inArray, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { SessionTokenService } from "../../src/modules/chat/application/session-token.service";
 import {
+  ChatMessageSourceTargetInvalidError,
   ChatSessionClosedError,
   ChatSessionNotFoundError,
 } from "../../src/modules/chat/domain/chat.repository";
-import { SessionTokenService } from "../../src/modules/chat/application/session-token.service";
 import { DrizzleChatRepository } from "../../src/modules/chat/infrastructure/chat.drizzle-repository";
 import {
   chatMessages,
@@ -27,6 +28,7 @@ describe("DrizzleChatRepository", () => {
   let pool: Pool;
   let db: ReturnType<typeof drizzle<typeof schema>>;
   let repository: DrizzleChatRepository;
+  const createdSessionIds = new Set<string>();
 
   beforeAll(() => {
     if (!databaseUrl?.includes("nestjs_bootstrap_test")) {
@@ -40,13 +42,13 @@ describe("DrizzleChatRepository", () => {
   });
 
   beforeEach(async () => {
-    await db.delete(chatSessions).where(like(chatSessions.anonymousTokenHash, `${tokenPrefix}%`));
+    await cleanupCreatedSessions();
     await db.delete(users).where(like(users.email, `${emailPrefix}%`));
   });
 
   afterAll(async () => {
     if (db) {
-      await db.delete(chatSessions).where(like(chatSessions.anonymousTokenHash, `${tokenPrefix}%`));
+      await cleanupCreatedSessions();
       await db.delete(users).where(like(users.email, `${emailPrefix}%`));
     }
 
@@ -56,11 +58,11 @@ describe("DrizzleChatRepository", () => {
   it("creates authenticated and anonymous sessions", async () => {
     const user = await createUser("sessions@example.com");
     const tokenPair = new SessionTokenService().generate();
-    const authenticated = await repository.createSession({
+    const authenticated = await createSession({
       userId: user.id,
       metadata: { channel: "account" },
     });
-    const anonymous = await repository.createSession({
+    const anonymous = await createSession({
       anonymousTokenHash: tokenPair.tokenHash,
       metadata: { channel: "public" },
     });
@@ -96,7 +98,7 @@ describe("DrizzleChatRepository", () => {
   });
 
   it("appends messages and lists recent messages in chronological order", async () => {
-    const session = await repository.createSession({
+    const session = await createSession({
       anonymousTokenHash: `${tokenPrefix}-messages`,
     });
 
@@ -142,7 +144,7 @@ describe("DrizzleChatRepository", () => {
   });
 
   it("attaches source rows to assistant messages", async () => {
-    const session = await repository.createSession({
+    const session = await createSession({
       anonymousTokenHash: `${tokenPrefix}-sources`,
     });
     const message = await repository.createMessage({
@@ -177,8 +179,43 @@ describe("DrizzleChatRepository", () => {
     });
   });
 
+  it("rejects attaching source rows to non-assistant messages", async () => {
+    const session = await createSession({
+      anonymousTokenHash: `${tokenPrefix}-invalid-source-target`,
+    });
+    const userMessage = await repository.createMessage({
+      sessionId: session.id,
+      role: "user",
+      content: "Can I get a refund?",
+    });
+    const systemMessage = await repository.createMessage({
+      sessionId: session.id,
+      role: "system",
+      content: "Use support policy.",
+    });
+
+    await expect(
+      repository.attachSources(userMessage.id, [
+        {
+          sourceType: "document",
+          score: 0.92,
+          excerpt: "Refunds within 7 days",
+        },
+      ]),
+    ).rejects.toBeInstanceOf(ChatMessageSourceTargetInvalidError);
+    await expect(
+      repository.attachSources(systemMessage.id, [
+        {
+          sourceType: "document",
+          score: 0.92,
+          excerpt: "Refunds within 7 days",
+        },
+      ]),
+    ).rejects.toBeInstanceOf(ChatMessageSourceTargetInvalidError);
+  });
+
   it("rejects appending messages for missing or closed sessions", async () => {
-    const session = await repository.createSession({
+    const session = await createSession({
       anonymousTokenHash: `${tokenPrefix}-closed`,
     });
     await db.update(chatSessions).set({ status: "closed" }).where(eq(chatSessions.id, session.id));
@@ -204,6 +241,56 @@ describe("DrizzleChatRepository", () => {
       .where(eq(chatMessages.sessionId, session.id));
     expect(persistedMessages).toHaveLength(0);
   });
+
+  it("cascades messages and sources when deleting a tracked session", async () => {
+    const session = await createSession({
+      anonymousTokenHash: `${tokenPrefix}-cascade`,
+    });
+    const message = await repository.createMessage({
+      sessionId: session.id,
+      role: "assistant",
+      content: "Refunds are available within 7 days.",
+    });
+    await repository.attachSources(message.id, [
+      {
+        sourceType: "document",
+        score: 0.92,
+        excerpt: "Refunds within 7 days",
+      },
+    ]);
+
+    await db.delete(chatSessions).where(eq(chatSessions.id, session.id));
+    createdSessionIds.delete(session.id);
+
+    const messages = await db
+      .select()
+      .from(chatMessages)
+      .where(eq(chatMessages.sessionId, session.id));
+    const sources = await db
+      .select()
+      .from(chatMessageSources)
+      .where(eq(chatMessageSources.assistantMessageId, message.id));
+    expect(messages).toHaveLength(0);
+    expect(sources).toHaveLength(0);
+  });
+
+  async function createSession(input: Parameters<DrizzleChatRepository["createSession"]>[0]) {
+    const session = await repository.createSession(input);
+    createdSessionIds.add(session.id);
+
+    return session;
+  }
+
+  async function cleanupCreatedSessions() {
+    const sessionIds = [...createdSessionIds];
+
+    if (sessionIds.length === 0) {
+      return;
+    }
+
+    await db.delete(chatSessions).where(inArray(chatSessions.id, sessionIds));
+    createdSessionIds.clear();
+  }
 
   async function createUser(emailSuffix: string) {
     const [user] = await db

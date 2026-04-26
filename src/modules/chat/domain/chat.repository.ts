@@ -24,6 +24,13 @@ export class ChatMessageNotFoundError extends Error {
   }
 }
 
+export class ChatMessageSourceTargetInvalidError extends Error {
+  constructor(id: string) {
+    super(`Chat message cannot have sources attached: ${id}`);
+    this.name = "ChatMessageSourceTargetInvalidError";
+  }
+}
+
 export type CreateChatSessionInput = {
   userId?: string | null;
   anonymousTokenHash?: string | null;
