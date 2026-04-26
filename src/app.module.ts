@@ -4,6 +4,7 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppConfigModule } from "./bootstrap/config/config.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { ChatModule } from "./modules/chat/chat.module";
 import { HealthModule } from "./modules/health/health.module";
 import { KnowledgeModule } from "./modules/knowledge/knowledge.module";
 import { UsersModule } from "./modules/users/users.module";
@@ -24,6 +25,7 @@ import { RedisModule } from "./shared/infrastructure/redis/redis.module";
     AiModule,
     HealthModule,
     KnowledgeModule,
+    ChatModule,
     UsersModule,
     AuthModule,
   ],
