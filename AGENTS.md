@@ -5,8 +5,8 @@
 This is a NestJS modular-monolith bootstrap with DDD-oriented boundaries. Source code lives in `src/`.
 
 - `src/bootstrap/`: app startup concerns such as config, Swagger, validation, security, and logging.
-- `src/shared/`: reusable infrastructure and presentation utilities, including Drizzle/PostgreSQL, Redis, response envelopes, and exception filters.
-- `src/modules/`: feature modules. Current modules: `auth`, `users`, and `health`. Future modules should follow `modules/<domain>/{domain,application,infrastructure,presentation}`.
+- `src/shared/`: reusable infrastructure and presentation utilities, including Drizzle/PostgreSQL with pgvector, Redis, response envelopes, and exception filters.
+- `src/modules/`: feature modules. Current modules: `ai`, `auth`, `chat`, `health`, `knowledge`, and `users`. Future modules should follow `modules/<domain>/{domain,application,infrastructure,presentation}`.
 - `test/`: unit and e2e tests. Shared test setup lives in `test/setup/`.
 - Database schema and migrations live under `src/shared/infrastructure/database/`.
 
@@ -31,7 +31,7 @@ Use pnpm `10.28.2`.
 
 TypeScript is strict and CommonJS-based. Biome enforces formatting with 2-space indentation and 100-character line width. Prefer focused files with one clear responsibility. Use Nest naming patterns such as `*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.provider.ts`, and `*.spec.ts`.
 
-Avoid leaking infrastructure into domain/application code. Domain modules should depend on repository ports, not Drizzle or Redis directly.
+Avoid leaking infrastructure into domain/application code. Domain modules should depend on repository or provider ports, not Drizzle, Redis, or OpenAI directly.
 
 ## Testing Guidelines
 

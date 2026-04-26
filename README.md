@@ -85,6 +85,29 @@ Roles:
 - `USER`: can access their own profile through `GET/PATCH /api/v1/users/me`.
 - `ADMIN`: can access user administration routes under `/api/v1/users`.
 
+## RAG Customer Support
+
+Knowledge admins can create and index support content under `/api/v1/knowledge`; document
+indexing is exposed at `POST /api/v1/knowledge/documents` and requires the `ADMIN` role.
+
+Chat clients create sessions under `POST /api/v1/chat/sessions` and send messages to
+`POST /api/v1/chat/sessions/:sessionId/messages`. Authenticated sessions use the bearer token.
+Anonymous sessions return a one-time plain session token; send it back in
+`x-chat-session-token` when posting messages.
+
+Set these environment variables for RAG and OpenAI-backed chat:
+
+- `OPENAI_API_KEY`
+- `OPENAI_CHAT_MODEL`
+- `OPENAI_EMBEDDING_MODEL`
+- `RAG_TOP_K`
+- `RAG_MIN_SCORE`
+- `RAG_MAX_CONTEXT_MESSAGES`
+- `CHAT_ANONYMOUS_SESSION_TTL`
+
+Local PostgreSQL uses the `pgvector/pgvector:pg16` image because embeddings are stored in
+PostgreSQL vector columns.
+
 ## Docker
 
 ```bash
