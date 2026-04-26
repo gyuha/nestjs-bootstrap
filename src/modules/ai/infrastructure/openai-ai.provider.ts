@@ -7,13 +7,12 @@ import type {
   GenerateAnswerResult,
 } from "../domain/ai-chat.provider";
 import type {
-  EmbedInput,
   EmbeddingProvider,
   EmbeddingResult,
   EmbeddingUsage,
 } from "../domain/embedding.provider";
 
-type OpenAiResponsesCreateInput = {
+export type OpenAiResponsesCreateInput = {
   model: string;
   instructions: string;
   input: Array<{
@@ -22,7 +21,7 @@ type OpenAiResponsesCreateInput = {
   }>;
 };
 
-type OpenAiResponsesCreateResult = {
+export type OpenAiResponsesCreateResult = {
   output_text?: string | null;
   usage?: {
     input_tokens?: number | null;
@@ -31,13 +30,13 @@ type OpenAiResponsesCreateResult = {
   } | null;
 };
 
-type OpenAiEmbeddingsCreateInput = {
+export type OpenAiEmbeddingsCreateInput = {
   model: string;
   input: string;
   encoding_format: "float";
 };
 
-type OpenAiEmbeddingsCreateResult = {
+export type OpenAiEmbeddingsCreateResult = {
   data?: Array<{
     embedding?: number[];
   }>;
@@ -83,20 +82,20 @@ export class OpenAiProvider implements AiChatProvider, EmbeddingProvider {
 
     return {
       answer: response.output_text ?? "",
-      usage: mapChatUsage(response.usage),
+      tokenUsage: mapChatUsage(response.usage),
     };
   }
 
-  async embed(input: EmbedInput): Promise<EmbeddingResult> {
+  async embed(input: string): Promise<EmbeddingResult> {
     const response = await this.client.embeddings.create({
       model: this.embeddingModel,
-      input: input.text,
+      input,
       encoding_format: "float",
     });
 
     return {
       embedding: response.data?.[0]?.embedding ?? [],
-      usage: mapEmbeddingUsage(response.usage),
+      tokenUsage: mapEmbeddingUsage(response.usage),
     };
   }
 }

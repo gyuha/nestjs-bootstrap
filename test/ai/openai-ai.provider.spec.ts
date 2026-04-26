@@ -1,6 +1,13 @@
 import type { ConfigService } from "@nestjs/config";
 import { describe, expect, it } from "vitest";
-import { OpenAiProvider } from "../../src/modules/ai/infrastructure/openai-ai.provider";
+import {
+  OpenAiProvider,
+  type OpenAiClient,
+  type OpenAiEmbeddingsCreateInput,
+  type OpenAiEmbeddingsCreateResult,
+  type OpenAiResponsesCreateInput,
+  type OpenAiResponsesCreateResult,
+} from "../../src/modules/ai/infrastructure/openai-ai.provider";
 
 describe("OpenAiProvider", () => {
   it("generates an answer with the configured model and system prompt", async () => {
@@ -38,7 +45,7 @@ describe("OpenAiProvider", () => {
     ]);
     expect(result).toEqual({
       answer: "Use the billing portal to update your card.",
-      usage: {
+      tokenUsage: {
         inputTokens: 12,
         outputTokens: 9,
         totalTokens: 21,
@@ -58,7 +65,7 @@ describe("OpenAiProvider", () => {
     });
     const provider = new OpenAiProvider(createConfigService(), client);
 
-    const result = await provider.embed({ text: "Reset password instructions" });
+    const result = await provider.embed("Reset password instructions");
 
     expect(client.embeddingsCreateCalls).toEqual([
       {
@@ -69,7 +76,7 @@ describe("OpenAiProvider", () => {
     ]);
     expect(result).toEqual({
       embedding: [0.1, 0.2, 0.3],
-      usage: {
+      tokenUsage: {
         promptTokens: 7,
         totalTokens: 7,
       },
@@ -94,15 +101,15 @@ describe("OpenAiProvider", () => {
       }),
     ).resolves.toEqual({
       answer: "I can help with that.",
-      usage: {
+      tokenUsage: {
         inputTokens: 0,
         outputTokens: 0,
         totalTokens: 0,
       },
     });
-    await expect(provider.embed({ text: "Hello" })).resolves.toEqual({
+    await expect(provider.embed("Hello")).resolves.toEqual({
       embedding: [0.4, 0.5],
-      usage: {
+      tokenUsage: {
         promptTokens: 0,
         totalTokens: 0,
       },
@@ -129,45 +136,36 @@ function createConfigService(): ConfigService {
   } as ConfigService;
 }
 
-type FakeOpenAiResponsesResult = {
-  output_text: string;
-  usage?: {
-    input_tokens?: number;
-    output_tokens?: number;
-    total_tokens?: number;
-  };
-};
-
-type FakeOpenAiEmbeddingsResult = {
-  data: Array<{ embedding: number[] }>;
-  usage?: {
-    prompt_tokens?: number;
-    total_tokens?: number;
-  };
-};
-
-class FakeOpenAiClient {
-  readonly responsesCreateCalls: unknown[] = [];
-  readonly embeddingsCreateCalls: unknown[] = [];
+class FakeOpenAiClient implements OpenAiClient {
+  readonly responsesCreateCalls: OpenAiResponsesCreateInput[] = [];
+  readonly embeddingsCreateCalls: OpenAiEmbeddingsCreateInput[] = [];
 
   readonly responses = {
-    create: async (input: unknown) => {
+    create: async (input: OpenAiResponsesCreateInput): Promise<OpenAiResponsesCreateResult> => {
       this.responsesCreateCalls.push(input);
+      if (!this.results.responses) {
+        throw new Error("Fake OpenAI responses result is not configured");
+      }
+
       return this.results.responses;
     },
   };
 
   readonly embeddings = {
-    create: async (input: unknown) => {
+    create: async (input: OpenAiEmbeddingsCreateInput): Promise<OpenAiEmbeddingsCreateResult> => {
       this.embeddingsCreateCalls.push(input);
+      if (!this.results.embeddings) {
+        throw new Error("Fake OpenAI embeddings result is not configured");
+      }
+
       return this.results.embeddings;
     },
   };
 
   constructor(
     private readonly results: {
-      responses?: FakeOpenAiResponsesResult;
-      embeddings?: FakeOpenAiEmbeddingsResult;
+      responses?: OpenAiResponsesCreateResult;
+      embeddings?: OpenAiEmbeddingsCreateResult;
     },
   ) {}
 }

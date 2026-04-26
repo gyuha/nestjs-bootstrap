@@ -20,7 +20,7 @@ export type GenerateAnswerInput = {
 
 export type GenerateAnswerResult = {
   answer: string;
-  usage: AiChatUsage;
+  tokenUsage: AiChatUsage;
 };
 
 export interface AiChatProvider {

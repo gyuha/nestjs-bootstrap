@@ -5,15 +5,11 @@ export type EmbeddingUsage = {
   totalTokens: number;
 };
 
-export type EmbedInput = {
-  text: string;
-};
-
 export type EmbeddingResult = {
   embedding: number[];
-  usage: EmbeddingUsage;
+  tokenUsage: EmbeddingUsage;
 };
 
 export interface EmbeddingProvider {
-  embed(input: EmbedInput): Promise<EmbeddingResult>;
+  embed(input: string): Promise<EmbeddingResult>;
 }
