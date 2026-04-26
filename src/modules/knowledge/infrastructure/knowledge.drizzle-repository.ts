@@ -24,6 +24,7 @@ import type {
   KnowledgeDocumentStatus,
   KnowledgeSyncJob,
 } from "../domain/knowledge.types";
+import { KnowledgeDocumentSourceAlreadyExistsError } from "../domain/knowledge.repository";
 
 type Database = NodePgDatabase<typeof schema>;
 type KnowledgeDocumentRow = typeof knowledgeDocuments.$inferSelect;
@@ -34,16 +35,7 @@ export class DrizzleKnowledgeRepository implements KnowledgeRepository {
   constructor(private readonly db: Database) {}
 
   async createDocument(input: CreateKnowledgeDocumentInput): Promise<KnowledgeDocument> {
-    const [row] = await this.db
-      .insert(knowledgeDocuments)
-      .values({
-        title: input.title,
-        sourceType: input.sourceType,
-        sourceKey: input.sourceKey,
-        metadata: input.metadata ?? {},
-        createdBy: input.createdBy ?? null,
-      })
-      .returning();
+    const [row] = await this.insertDocument(input);
 
     return this.toDocumentDomain(row);
   }
@@ -227,6 +219,50 @@ export class DrizzleKnowledgeRepository implements KnowledgeRepository {
     }
 
     return this.toSyncJobDomain(row);
+  }
+
+  private async insertDocument(input: CreateKnowledgeDocumentInput) {
+    try {
+      return await this.db
+        .insert(knowledgeDocuments)
+        .values({
+          title: input.title,
+          sourceType: input.sourceType,
+          sourceKey: input.sourceKey,
+          metadata: input.metadata ?? {},
+          createdBy: input.createdBy ?? null,
+        })
+        .returning();
+    } catch (error) {
+      if (this.isDuplicateDocumentSourceError(error)) {
+        throw new KnowledgeDocumentSourceAlreadyExistsError(input.sourceKey);
+      }
+
+      throw error;
+    }
+  }
+
+  private isDuplicateDocumentSourceError(error: unknown): boolean {
+    const cause = this.getErrorCause(error);
+
+    return (
+      cause?.code === "23505" &&
+      cause.constraint === "knowledge_documents_source_type_source_key_unique"
+    );
+  }
+
+  private getErrorCause(error: unknown): { code?: string; constraint?: string } | null {
+    if (!error || typeof error !== "object" || !("cause" in error)) {
+      return null;
+    }
+
+    const cause = error.cause;
+
+    if (!cause || typeof cause !== "object") {
+      return null;
+    }
+
+    return cause;
   }
 
   private toDocumentDomain(row: KnowledgeDocumentRow): KnowledgeDocument {

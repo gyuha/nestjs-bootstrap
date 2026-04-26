@@ -10,6 +10,7 @@ import { applyBootstrap } from "../../src/bootstrap/apply-bootstrap";
 import { AppModule } from "../../src/app.module";
 import { EMBEDDING_PROVIDER } from "../../src/modules/ai/domain/embedding.provider";
 import type { EmbeddingProvider } from "../../src/modules/ai/domain/embedding.provider";
+import { maxKnowledgeDocumentContentLength } from "../../src/modules/knowledge/presentation/knowledge.dto";
 import { DATABASE } from "../../src/shared/infrastructure/database/database.tokens";
 import {
   knowledgeChunks,
@@ -126,6 +127,57 @@ describe("Knowledge Admin API", () => {
         content: "Policy text",
       })
       .expect(403);
+  });
+
+  it("returns 409 when a document source already exists", async () => {
+    const admin = await createUser(db, {
+      email: `${testPrefix}-duplicate-admin@example.com`,
+      displayName: "Duplicate Admin",
+      role: "ADMIN",
+    });
+    const token = await createAccessToken({ userId: admin.id, role: "ADMIN" });
+    const sourceKey = `${testPrefix}-duplicate-source`;
+
+    await request(app.getHttpServer())
+      .post("/api/v1/knowledge/documents")
+      .set("authorization", `Bearer ${token}`)
+      .send({
+        title: "Duplicate Policy",
+        sourceKey,
+        content: "Initial policy text.",
+      })
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/knowledge/documents")
+      .set("authorization", `Bearer ${token}`)
+      .send({
+        title: "Duplicate Policy Updated",
+        sourceKey,
+        content: "Updated policy text.",
+      })
+      .expect(409);
+
+    expect(response.body.message).toContain("Knowledge document source already exists");
+  });
+
+  it("rejects content that exceeds the configured maximum length", async () => {
+    const admin = await createUser(db, {
+      email: `${testPrefix}-validation-admin@example.com`,
+      displayName: "Validation Admin",
+      role: "ADMIN",
+    });
+    const token = await createAccessToken({ userId: admin.id, role: "ADMIN" });
+
+    await request(app.getHttpServer())
+      .post("/api/v1/knowledge/documents")
+      .set("authorization", `Bearer ${token}`)
+      .send({
+        title: "Large Policy",
+        sourceKey: `${testPrefix}-large-policy`,
+        content: "a".repeat(maxKnowledgeDocumentContentLength + 1),
+      })
+      .expect(400);
   });
 });
 

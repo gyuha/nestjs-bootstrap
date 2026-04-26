@@ -1,6 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsObject, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
+export const maxKnowledgeDocumentContentLength = 100_000;
+
 export class CreateKnowledgeDocumentDto {
   @ApiProperty({
     description: "Knowledge document title.",
@@ -28,9 +30,11 @@ export class CreateKnowledgeDocumentDto {
     description: "Plain text content to index.",
     example: "Refunds are available within seven days.",
     minLength: 1,
+    maxLength: maxKnowledgeDocumentContentLength,
   })
   @IsString()
   @MinLength(1)
+  @MaxLength(maxKnowledgeDocumentContentLength)
   content!: string;
 
   @ApiPropertyOptional({

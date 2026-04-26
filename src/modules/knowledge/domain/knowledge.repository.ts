@@ -17,6 +17,13 @@ export class KnowledgeDocumentNotFoundError extends Error {
   }
 }
 
+export class KnowledgeDocumentSourceAlreadyExistsError extends Error {
+  constructor(sourceKey: string) {
+    super(`Knowledge document source already exists: ${sourceKey}`);
+    this.name = "KnowledgeDocumentSourceAlreadyExistsError";
+  }
+}
+
 export class KnowledgeSyncJobNotFoundError extends Error {
   constructor(id: string) {
     super(`Knowledge sync job not found: ${id}`);
