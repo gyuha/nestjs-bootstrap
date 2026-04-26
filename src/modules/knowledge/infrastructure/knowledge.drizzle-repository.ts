@@ -16,6 +16,7 @@ import type {
 } from "../domain/knowledge.repository";
 import {
   KnowledgeDocumentNotFoundError,
+  KnowledgeDocumentSourceAlreadyExistsError,
   KnowledgeSyncJobNotFoundError,
 } from "../domain/knowledge.repository";
 import type {
@@ -24,7 +25,6 @@ import type {
   KnowledgeDocumentStatus,
   KnowledgeSyncJob,
 } from "../domain/knowledge.types";
-import { KnowledgeDocumentSourceAlreadyExistsError } from "../domain/knowledge.repository";
 
 type Database = NodePgDatabase<typeof schema>;
 type KnowledgeDocumentRow = typeof knowledgeDocuments.$inferSelect;
@@ -96,40 +96,58 @@ export class DrizzleKnowledgeRepository implements KnowledgeRepository {
     chunks: CreateKnowledgeChunkInput[],
   ): Promise<KnowledgeChunk[]> {
     return this.db.transaction(async (tx) => {
-      const [document] = await tx
-        .select({ id: knowledgeDocuments.id })
-        .from(knowledgeDocuments)
-        .where(eq(knowledgeDocuments.id, documentId))
-        .limit(1)
-        .for("update");
-
-      if (!document) {
-        throw new KnowledgeDocumentNotFoundError(documentId);
-      }
-
-      await tx.delete(knowledgeChunks).where(eq(knowledgeChunks.documentId, documentId));
-
-      if (chunks.length === 0) {
-        return [];
-      }
-
-      const rows = await tx
-        .insert(knowledgeChunks)
-        .values(
-          chunks.map((chunk) => ({
-            documentId,
-            chunkIndex: chunk.chunkIndex,
-            content: chunk.content,
-            metadata: chunk.metadata ?? {},
-            embedding: chunk.embedding,
-          })),
-        )
-        .returning();
-
-      return rows
-        .map((row) => this.toChunkDomain(row))
-        .sort((left, right) => left.chunkIndex - right.chunkIndex);
+      const rows = await this.replaceChunksInTx(tx, documentId, chunks);
+      return rows.map((row) => this.toChunkDomain(row)).sort((a, b) => a.chunkIndex - b.chunkIndex);
     });
+  }
+
+  async replaceChunksAndActivate(
+    documentId: string,
+    chunks: CreateKnowledgeChunkInput[],
+  ): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      await this.replaceChunksInTx(tx, documentId, chunks);
+      await tx
+        .update(knowledgeDocuments)
+        .set({ status: "active" })
+        .where(eq(knowledgeDocuments.id, documentId));
+    });
+  }
+
+  private async replaceChunksInTx(
+    tx: Parameters<Parameters<typeof this.db.transaction>[0]>[0],
+    documentId: string,
+    chunks: CreateKnowledgeChunkInput[],
+  ) {
+    const [document] = await tx
+      .select({ id: knowledgeDocuments.id })
+      .from(knowledgeDocuments)
+      .where(eq(knowledgeDocuments.id, documentId))
+      .limit(1)
+      .for("update");
+
+    if (!document) {
+      throw new KnowledgeDocumentNotFoundError(documentId);
+    }
+
+    await tx.delete(knowledgeChunks).where(eq(knowledgeChunks.documentId, documentId));
+
+    if (chunks.length === 0) {
+      return [];
+    }
+
+    return tx
+      .insert(knowledgeChunks)
+      .values(
+        chunks.map((chunk) => ({
+          documentId,
+          chunkIndex: chunk.chunkIndex,
+          content: chunk.content,
+          metadata: chunk.metadata ?? {},
+          embedding: chunk.embedding,
+        })),
+      )
+      .returning();
   }
 
   async searchChunksByEmbedding(input: {

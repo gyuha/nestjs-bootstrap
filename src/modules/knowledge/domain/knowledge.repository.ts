@@ -70,6 +70,7 @@ export interface KnowledgeRepository {
   listDocuments(input: { page: number; limit: number }): Promise<PageResult<KnowledgeDocument>>;
   markDocumentStatus(id: string, status: KnowledgeDocumentStatus): Promise<KnowledgeDocument>;
   replaceChunks(documentId: string, chunks: CreateKnowledgeChunkInput[]): Promise<KnowledgeChunk[]>;
+  replaceChunksAndActivate(documentId: string, chunks: CreateKnowledgeChunkInput[]): Promise<void>;
   searchChunksByEmbedding(input: {
     embedding: number[];
     topK: number;

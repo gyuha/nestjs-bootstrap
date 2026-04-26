@@ -11,8 +11,8 @@ import {
 import { CurrentUser } from "../../auth/presentation/current-user.decorator";
 import { JwtAuthGuard } from "../../auth/presentation/jwt-auth.guard";
 import type { AuthenticatedUser } from "../../auth/presentation/request-user";
-import { GetCurrentUser, UpdateCurrentUserProfile } from "../application/users.use-cases";
 import { UserNotFoundError } from "../application/user.errors";
+import { GetCurrentUser, UpdateCurrentUserProfile } from "../application/users.use-cases";
 import { UpdateCurrentUserProfileDto } from "./users.dto";
 
 @ApiTags("users")

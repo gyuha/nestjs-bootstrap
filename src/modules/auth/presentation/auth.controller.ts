@@ -19,8 +19,11 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import type { GoogleLoginInput } from "../application/google-login.use-case";
-import { GoogleLogin } from "../application/google-login.use-case";
+import {
+  InactiveUserAuthError,
+  InvalidAuthCredentialsError,
+  InvalidRefreshTokenError,
+} from "../application/auth.errors";
 import {
   GetAuthenticatedUser,
   LoginWithPassword,
@@ -28,21 +31,18 @@ import {
   RefreshSession,
   RegisterWithPassword,
 } from "../application/auth.use-cases";
-import {
-  InactiveUserAuthError,
-  InvalidAuthCredentialsError,
-  InvalidRefreshTokenError,
-} from "../application/auth.errors";
+import type { GoogleLoginInput } from "../application/google-login.use-case";
+import { GoogleLogin } from "../application/google-login.use-case";
 import { GoogleAuthGuard } from "../infrastructure/google-oauth.strategy";
 import { CurrentUser } from "./current-user.decorator";
-import { JwtAuthGuard } from "./jwt-auth.guard";
-import type { AuthenticatedUser } from "./request-user";
 import {
   LoginWithPasswordDto,
   LogoutSessionDto,
   RefreshSessionDto,
   RegisterWithPasswordDto,
 } from "./dto/auth.dto";
+import { JwtAuthGuard } from "./jwt-auth.guard";
+import type { AuthenticatedUser } from "./request-user";
 
 @ApiTags("auth")
 @Controller({ path: "auth", version: "1" })

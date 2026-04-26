@@ -1,11 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { EMBEDDING_PROVIDER } from "../../ai/domain/embedding.provider";
 import type { EmbeddingProvider } from "../../ai/domain/embedding.provider";
+import { EMBEDDING_PROVIDER } from "../../ai/domain/embedding.provider";
+import type { KnowledgeRepository } from "../domain/knowledge.repository";
 import {
   KNOWLEDGE_REPOSITORY,
   KnowledgeDocumentNotFoundError,
 } from "../domain/knowledge.repository";
-import type { KnowledgeRepository } from "../domain/knowledge.repository";
 import { chunkText } from "./chunk-text";
 
 const defaultChunkingOptions = {
@@ -35,20 +35,15 @@ export class IndexKnowledgeDocument {
     }
 
     try {
-      const chunks = await Promise.all(
-        chunkText(input.content, defaultChunkingOptions).map(async (chunk) => {
-          const result = await this.embeddingProvider.embed(chunk.content);
+      const textChunks = chunkText(input.content, defaultChunkingOptions);
+      const chunks = [];
 
-          return {
-            chunkIndex: chunk.chunkIndex,
-            content: chunk.content,
-            embedding: result.embedding,
-          };
-        }),
-      );
+      for (const chunk of textChunks) {
+        const result = await this.embeddingProvider.embed(chunk.content);
+        chunks.push({ chunkIndex: chunk.chunkIndex, content: chunk.content, embedding: result.embedding });
+      }
 
-      await this.repository.replaceChunks(input.documentId, chunks);
-      await this.repository.markDocumentStatus(input.documentId, "active");
+      await this.repository.replaceChunksAndActivate(input.documentId, chunks);
     } catch (error) {
       await this.repository.markDocumentStatus(input.documentId, "failed");
       throw error;

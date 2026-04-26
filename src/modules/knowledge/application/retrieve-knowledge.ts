@@ -1,11 +1,11 @@
 import { Inject, Injectable, Optional } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { EMBEDDING_PROVIDER } from "../../ai/domain/embedding.provider";
 import type { EmbeddingProvider } from "../../ai/domain/embedding.provider";
-import { KNOWLEDGE_REPOSITORY } from "../domain/knowledge.repository";
+import { EMBEDDING_PROVIDER } from "../../ai/domain/embedding.provider";
 import type { KnowledgeRepository, KnowledgeSearchResult } from "../domain/knowledge.repository";
-import { KNOWLEDGE_SOURCE_PROVIDERS } from "../domain/knowledge-source.provider";
+import { KNOWLEDGE_REPOSITORY } from "../domain/knowledge.repository";
 import type { KnowledgeSourceProvider } from "../domain/knowledge-source.provider";
+import { KNOWLEDGE_SOURCE_PROVIDERS } from "../domain/knowledge-source.provider";
 
 export type RetrieveKnowledgeInput = {
   question: string;

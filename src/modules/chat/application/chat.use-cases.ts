@@ -6,8 +6,6 @@ import type { KnowledgeSearchResult } from "../../knowledge/domain/knowledge.rep
 import type { ChatRepository, CreateChatMessageSourceInput } from "../domain/chat.repository";
 import { ChatSessionClosedError, ChatSessionNotFoundError } from "../domain/chat.repository";
 import type { ChatMessage, ChatMetadata } from "../domain/chat.types";
-import type { SessionTokenService } from "./session-token.service";
-import type { PiiMasker } from "./pii-masker";
 import {
   type ChatAnswerResponse,
   type ChatMessageResponse,
@@ -16,6 +14,8 @@ import {
   toChatSessionResponse,
   toChatSourceResponse,
 } from "./chat.response";
+import type { PiiMasker } from "./pii-masker";
+import type { SessionTokenService } from "./session-token.service";
 
 export const CHAT_SUPPORT_SYSTEM_PROMPT =
   "You are a customer support assistant. Answer only from the provided sources. " +

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { User, type CreateUserInput } from "../../src/modules/users/domain/user.entity";
+import { type CreateUserInput, User } from "../../src/modules/users/domain/user.entity";
 import type { CreateUserRepositoryInput } from "../../src/modules/users/domain/user.repository";
 import type { UserRole, UserStatus } from "../../src/modules/users/domain/user.types";
 import type { users } from "../../src/shared/infrastructure/database/schema";

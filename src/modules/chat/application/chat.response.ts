@@ -1,6 +1,5 @@
-import type { ChatMessage, ChatSession } from "../domain/chat.types";
 import type { KnowledgeSearchResult } from "../../knowledge/domain/knowledge.repository";
-import type { ChatMetadata } from "../domain/chat.types";
+import type { ChatMessage, ChatMetadata, ChatSession } from "../domain/chat.types";
 
 export type ChatSessionResponse = {
   id: string;

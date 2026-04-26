@@ -1,14 +1,14 @@
 import { and, eq, gt, isNull } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { refreshTokens, type schema } from "../../../shared/infrastructure/database/schema";
 import type {
   CreateRefreshTokenRepositoryInput,
   RefreshToken,
-  RefreshTokenRotation,
   RefreshTokenRepository,
+  RefreshTokenRotation,
   RotateRefreshTokenRepositoryInput,
 } from "../domain/refresh-token.repository";
 import { RefreshTokenRotationError } from "../domain/refresh-token.repository";
-import { refreshTokens, type schema } from "../../../shared/infrastructure/database/schema";
 
 type Database = NodePgDatabase<typeof schema>;
 type RefreshTokenRow = typeof refreshTokens.$inferSelect;

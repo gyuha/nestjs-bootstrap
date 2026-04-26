@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  chatMessages,
   chatMessageSources,
+  chatMessages,
   chatSessions,
   knowledgeChunks,
   knowledgeDocuments,

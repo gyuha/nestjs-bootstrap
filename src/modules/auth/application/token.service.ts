@@ -1,6 +1,5 @@
 import type { ConfigService } from "@nestjs/config";
-import type { JwtSignOptions } from "@nestjs/jwt";
-import type { JwtService } from "@nestjs/jwt";
+import type { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import type { UserRole } from "../../users/domain/user.types";
 
 export type AccessTokenInput = {

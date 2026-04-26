@@ -1,10 +1,9 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { Inject, Injectable, UnauthorizedException, type ExecutionContext } from "@nestjs/common";
+import { type ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AuthGuard } from "@nestjs/passport";
-import { PassportStrategy } from "@nestjs/passport";
-import { Strategy, type Profile, type VerifyCallback } from "passport-google-oauth20";
+import { AuthGuard, PassportStrategy } from "@nestjs/passport";
 import type { Request, Response } from "express";
+import { type Profile, Strategy, type VerifyCallback } from "passport-google-oauth20";
 import type { GoogleLoginInput } from "../application/google-login.use-case";
 
 type GoogleJsonProfile = {

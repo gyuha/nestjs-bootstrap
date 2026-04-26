@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq, inArray, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { SessionTokenService } from "../../src/modules/chat/application/session-token.service";
 import {
   ChatMessageSourceTargetInvalidError,
@@ -11,8 +11,8 @@ import {
 } from "../../src/modules/chat/domain/chat.repository";
 import { DrizzleChatRepository } from "../../src/modules/chat/infrastructure/chat.drizzle-repository";
 import {
-  chatMessages,
   chatMessageSources,
+  chatMessages,
   chatSessions,
   schema,
   users,

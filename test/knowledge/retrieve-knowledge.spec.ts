@@ -7,12 +7,12 @@ import type {
   KnowledgeRepository,
   KnowledgeSearchResult,
 } from "../../src/modules/knowledge/domain/knowledge.repository";
-import type { KnowledgeSourceProvider } from "../../src/modules/knowledge/domain/knowledge-source.provider";
 import type {
   KnowledgeDocument,
   KnowledgeDocumentStatus,
   KnowledgeSyncJob,
 } from "../../src/modules/knowledge/domain/knowledge.types";
+import type { KnowledgeSourceProvider } from "../../src/modules/knowledge/domain/knowledge-source.provider";
 
 describe("RetrieveKnowledge", () => {
   it("returns handoff-worthy empty results when all scores are below threshold", async () => {
@@ -101,6 +101,9 @@ function fakeRepositoryWithScores(results: KnowledgeSearchResult[]): KnowledgeRe
       throw new Error("Not implemented");
     },
     replaceChunks: async (_documentId: string, _chunks: CreateKnowledgeChunkInput[]) => {
+      throw new Error("Not implemented");
+    },
+    replaceChunksAndActivate: async (_documentId: string, _chunks: CreateKnowledgeChunkInput[]) => {
       throw new Error("Not implemented");
     },
     searchChunksByEmbedding: async (input) =>

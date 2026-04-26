@@ -1,13 +1,14 @@
-import { and, asc, eq, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, eq, or, type SQL, sql } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { PageResult } from "../../../shared/domain/pagination";
+import { type schema, users } from "../../../shared/infrastructure/database/schema";
 import { normalizeEmail, User } from "../domain/user.entity";
 import type {
   CreateUserRepositoryInput,
   ListUsersFilter,
   UserRepository,
 } from "../domain/user.repository";
-import { users, type schema } from "../../../shared/infrastructure/database/schema";
+import { DuplicateUserEmailError } from "../domain/user.repository";
 
 type Database = NodePgDatabase<typeof schema>;
 type UserRow = typeof users.$inferSelect;
@@ -16,19 +17,33 @@ export class DrizzleUserRepository implements UserRepository {
   constructor(private readonly db: Database) {}
 
   async create(input: CreateUserRepositoryInput): Promise<User> {
-    const [row] = await this.db
-      .insert(users)
-      .values({
-        email: normalizeEmail(input.email),
-        displayName: input.displayName,
-        avatarUrl: input.avatarUrl,
-        bio: input.bio,
-        role: input.role,
-        status: input.status,
-      })
-      .returning();
+    try {
+      const [row] = await this.db
+        .insert(users)
+        .values({
+          email: normalizeEmail(input.email),
+          displayName: input.displayName,
+          avatarUrl: input.avatarUrl,
+          bio: input.bio,
+          role: input.role,
+          status: input.status,
+        })
+        .returning();
 
-    return this.toDomain(row);
+      return this.toDomain(row);
+    } catch (error) {
+      if (this.isDuplicateEmailError(error)) {
+        throw new DuplicateUserEmailError();
+      }
+
+      throw error;
+    }
+  }
+
+  private isDuplicateEmailError(error: unknown): boolean {
+    const cause = this.getErrorCause(error);
+
+    return cause?.code === "23505" && cause.constraint === "users_email_lower_unique";
   }
 
   async findById(id: string): Promise<User | null> {
@@ -118,6 +133,20 @@ export class DrizzleUserRepository implements UserRepository {
 
   private escapeLikePattern(input: string): string {
     return input.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+  }
+
+  private getErrorCause(error: unknown): { code?: string; constraint?: string } | null {
+    if (!error || typeof error !== "object" || !("cause" in error)) {
+      return null;
+    }
+
+    const cause = (error as { cause?: unknown }).cause;
+
+    if (!cause || typeof cause !== "object") {
+      return null;
+    }
+
+    return cause as { code?: string; constraint?: string };
   }
 
   private toDomain(row: UserRow): User {

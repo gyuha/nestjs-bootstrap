@@ -1,11 +1,11 @@
 import {
-  Injectable,
   type CallHandler,
   type ExecutionContext,
+  Injectable,
   type NestInterceptor,
 } from "@nestjs/common";
 import type { Reflector } from "@nestjs/core";
-import { type Observable, map } from "rxjs";
+import { map, type Observable } from "rxjs";
 import type { RequestWithTraceId } from "../../../bootstrap/logging/trace-id.middleware";
 import { SKIP_RESPONSE_ENVELOPE } from "./skip-response-envelope.decorator";
 

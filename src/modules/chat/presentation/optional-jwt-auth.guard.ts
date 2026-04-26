@@ -7,9 +7,9 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
+import type { AuthenticatedRequest } from "../../auth/presentation/request-user";
 import { USER_REPOSITORY, type UserRepository } from "../../users/domain/user.repository";
 import type { UserRole } from "../../users/domain/user.types";
-import type { AuthenticatedRequest } from "../../auth/presentation/request-user";
 
 type JwtAccessTokenPayload = {
   sub?: unknown;

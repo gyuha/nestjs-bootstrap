@@ -136,6 +136,14 @@ class InMemoryKnowledgeRepository implements KnowledgeRepository {
     return storedChunks;
   }
 
+  async replaceChunksAndActivate(
+    documentId: string,
+    chunks: CreateKnowledgeChunkInput[],
+  ): Promise<void> {
+    await this.replaceChunks(documentId, chunks);
+    await this.markDocumentStatus(documentId, "active");
+  }
+
   async searchChunksByEmbedding(): Promise<never> {
     throw new Error("Not implemented");
   }

@@ -1,8 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
-  chatMessages,
   chatMessageSources,
+  chatMessages,
   chatSessions,
   type schema,
 } from "../../../shared/infrastructure/database/schema";

@@ -3,16 +3,16 @@ import type {
   AiChatProvider,
   GenerateAnswerResult,
 } from "../../src/modules/ai/domain/ai-chat.provider";
+import { SendChatMessage } from "../../src/modules/chat/application/chat.use-cases";
+import { BasicPiiMasker } from "../../src/modules/chat/application/pii-masker";
 import type {
   ChatRepository,
   CreateChatMessageInput,
   CreateChatMessageSourceInput,
 } from "../../src/modules/chat/domain/chat.repository";
 import type { ChatMessage, ChatSession } from "../../src/modules/chat/domain/chat.types";
-import type { KnowledgeSearchResult } from "../../src/modules/knowledge/domain/knowledge.repository";
 import type { RetrieveKnowledgeResult } from "../../src/modules/knowledge/application/retrieve-knowledge";
-import { BasicPiiMasker } from "../../src/modules/chat/application/pii-masker";
-import { SendChatMessage } from "../../src/modules/chat/application/chat.use-cases";
+import type { KnowledgeSearchResult } from "../../src/modules/knowledge/domain/knowledge.repository";
 
 describe("SendChatMessage", () => {
   it("returns a handoff response when retrieval confidence is low", async () => {

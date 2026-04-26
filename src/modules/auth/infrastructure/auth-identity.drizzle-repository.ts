@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { authIdentities, type schema } from "../../../shared/infrastructure/database/schema";
 import type {
   AuthIdentityRepository,
   CreateAuthIdentityRepositoryInput,
@@ -7,7 +8,6 @@ import type {
 } from "../domain/auth-identity.repository";
 import { DuplicateAuthIdentityError } from "../domain/auth-identity.repository";
 import type { AuthIdentity, AuthProvider } from "../domain/auth-identity.types";
-import { authIdentities, type schema } from "../../../shared/infrastructure/database/schema";
 
 type Database = NodePgDatabase<typeof schema>;
 type AuthIdentityRow = typeof authIdentities.$inferSelect;

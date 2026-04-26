@@ -26,10 +26,10 @@ import {
 import { CurrentUser } from "../../auth/presentation/current-user.decorator";
 import type { AuthenticatedUser } from "../../auth/presentation/request-user";
 import { CreateChatSession, SendChatMessage } from "../application/chat.use-cases";
-import { CHAT_REPOSITORY } from "../domain/chat.repository";
-import type { ChatRepository } from "../domain/chat.repository";
-import type { ChatSession } from "../domain/chat.types";
 import { SessionTokenService } from "../application/session-token.service";
+import type { ChatRepository } from "../domain/chat.repository";
+import { CHAT_REPOSITORY } from "../domain/chat.repository";
+import type { ChatSession } from "../domain/chat.types";
 import { SendChatMessageDto } from "./chat.dto";
 import { OptionalJwtAuthGuard } from "./optional-jwt-auth.guard";
 

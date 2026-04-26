@@ -1,19 +1,19 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { parseDurationMs } from "../../../shared/utils/duration";
 import { toUserResponse, type UserResponse } from "../../users/application/user.response";
-import { USER_REPOSITORY, type UserRepository } from "../../users/domain/user.repository";
-import { TokenService } from "./token.service";
-import { RefreshTokenService } from "./refresh-token.service";
+import { normalizeEmail } from "../../users/domain/user.entity";
+import { USER_REPOSITORY, type UserRepository, DuplicateUserEmailError } from "../../users/domain/user.repository";
 import {
   AUTH_IDENTITY_REPOSITORY,
-  DuplicateAuthIdentityError,
   type AuthIdentityRepository,
+  DuplicateAuthIdentityError,
 } from "../domain/auth-identity.repository";
 import { PASSWORD_HASHER, type PasswordHasher } from "../domain/password-hasher";
 import {
-  RefreshTokenRotationError,
   REFRESH_TOKEN_REPOSITORY,
   type RefreshTokenRepository,
+  RefreshTokenRotationError,
 } from "../domain/refresh-token.repository";
 import {
   InactiveUserAuthError,
@@ -21,6 +21,8 @@ import {
   InvalidRefreshTokenError,
 } from "./auth.errors";
 import type { AuthSessionResponse } from "./auth.response";
+import { RefreshTokenService } from "./refresh-token.service";
+import { TokenService } from "./token.service";
 
 const passwordProvider = "password";
 
@@ -74,10 +76,21 @@ export class RegisterWithPassword {
       throw new InvalidAuthCredentialsError();
     }
 
-    const user = await this.users.create({
-      email,
-      displayName: input.displayName,
-    });
+    let user;
+
+    try {
+      user = await this.users.create({
+        email,
+        displayName: input.displayName,
+      });
+    } catch (error) {
+      if (error instanceof DuplicateUserEmailError) {
+        throw new InvalidAuthCredentialsError();
+      }
+
+      throw error;
+    }
+
     const passwordHash = await this.passwordHasher.hash(input.password);
 
     try {
@@ -292,32 +305,8 @@ export const authUseCases = [
   GetAuthenticatedUser,
 ];
 
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
 function getRefreshTokenExpiration(config: ConfigService): Date {
   const expiresIn = config.getOrThrow<string>("auth.refreshTokenExpiresIn");
-  const now = Date.now();
 
-  return new Date(now + parseDurationMs(expiresIn));
-}
-
-function parseDurationMs(value: string): number {
-  const match = /^(\d+)([smhd])$/.exec(value.trim());
-
-  if (!match) {
-    throw new Error(`Unsupported refresh token expiration: ${value}`);
-  }
-
-  const amount = Number(match[1]);
-  const unit = match[2];
-  const multipliers = {
-    s: 1_000,
-    m: 60_000,
-    h: 3_600_000,
-    d: 86_400_000,
-  };
-
-  return amount * multipliers[unit as keyof typeof multipliers];
+  return new Date(Date.now() + parseDurationMs(expiresIn));
 }

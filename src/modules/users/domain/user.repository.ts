@@ -4,6 +4,13 @@ import type { UserRole, UserStatus } from "./user.types";
 
 export const USER_REPOSITORY = Symbol("USER_REPOSITORY");
 
+export class DuplicateUserEmailError extends Error {
+  constructor() {
+    super("User with this email already exists");
+    this.name = "DuplicateUserEmailError";
+  }
+}
+
 export type CreateUserRepositoryInput = {
   email: string;
   displayName: string;

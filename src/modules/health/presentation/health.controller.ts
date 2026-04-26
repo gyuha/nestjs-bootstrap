@@ -1,19 +1,19 @@
 import {
+  type CallHandler,
   Controller,
+  type ExecutionContext,
   Get,
   HttpCode,
   HttpStatus,
   Inject,
   Injectable,
-  type CallHandler,
-  type ExecutionContext,
   type NestInterceptor,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import type { Response } from "express";
-import { type Observable, map } from "rxjs";
+import { map, type Observable } from "rxjs";
 import { SkipResponseEnvelope } from "../../../shared/presentation/http/skip-response-envelope.decorator";
 import { HealthService } from "./health.service";
 

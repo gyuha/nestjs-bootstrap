@@ -6,10 +6,10 @@ import { eq, like } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import request from "supertest";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { applyBootstrap } from "../../src/bootstrap/apply-bootstrap";
 import { AppModule } from "../../src/app.module";
-import { EMBEDDING_PROVIDER } from "../../src/modules/ai/domain/embedding.provider";
+import { applyBootstrap } from "../../src/bootstrap/apply-bootstrap";
 import type { EmbeddingProvider } from "../../src/modules/ai/domain/embedding.provider";
+import { EMBEDDING_PROVIDER } from "../../src/modules/ai/domain/embedding.provider";
 import { maxKnowledgeDocumentContentLength } from "../../src/modules/knowledge/presentation/knowledge.dto";
 import { DATABASE } from "../../src/shared/infrastructure/database/database.tokens";
 import {

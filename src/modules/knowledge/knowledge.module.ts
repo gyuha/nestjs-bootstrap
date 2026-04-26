@@ -1,23 +1,23 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { DATABASE } from "../../shared/infrastructure/database/database.tokens";
+import type { schema } from "../../shared/infrastructure/database/schema";
+import { AiModule } from "../ai/ai.module";
+import type { EmbeddingProvider } from "../ai/domain/embedding.provider";
+import { EMBEDDING_PROVIDER } from "../ai/domain/embedding.provider";
 import { JwtAuthGuard } from "../auth/presentation/jwt-auth.guard";
 import { RolesGuard } from "../auth/presentation/roles.guard";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { AiModule } from "../ai/ai.module";
-import { EMBEDDING_PROVIDER } from "../ai/domain/embedding.provider";
-import type { EmbeddingProvider } from "../ai/domain/embedding.provider";
 import { UsersModule } from "../users/users.module";
 import { CreateKnowledgeDocument } from "./application/create-knowledge-document";
 import { IndexKnowledgeDocument } from "./application/index-knowledge-document";
 import { RetrieveKnowledge } from "./application/retrieve-knowledge";
 import { KNOWLEDGE_REPOSITORY } from "./domain/knowledge.repository";
-import { KNOWLEDGE_SOURCE_PROVIDERS } from "./domain/knowledge-source.provider";
 import type { KnowledgeSourceProvider } from "./domain/knowledge-source.provider";
+import { KNOWLEDGE_SOURCE_PROVIDERS } from "./domain/knowledge-source.provider";
 import { DrizzleKnowledgeRepository } from "./infrastructure/knowledge.drizzle-repository";
 import { KnowledgeAdminController } from "./presentation/knowledge-admin.controller";
-import { DATABASE } from "../../shared/infrastructure/database/database.tokens";
-import type { schema } from "../../shared/infrastructure/database/schema";
 
 @Module({
   imports: [AiModule, JwtModule, UsersModule],

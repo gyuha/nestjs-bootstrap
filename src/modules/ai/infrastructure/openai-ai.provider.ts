@@ -91,8 +91,14 @@ export class OpenAiProvider implements AiChatProvider, EmbeddingProvider {
       encoding_format: "float",
     });
 
+    const embedding = response.data?.[0]?.embedding;
+
+    if (!embedding || embedding.length === 0) {
+      throw new Error("OpenAI returned an empty embedding vector");
+    }
+
     return {
-      embedding: response.data?.[0]?.embedding ?? [],
+      embedding,
       tokenUsage: mapEmbeddingUsage(response.usage),
     };
   }

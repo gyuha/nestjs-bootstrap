@@ -2,10 +2,10 @@ import type { ConfigService } from "@nestjs/config";
 import { describe, expect, it } from "vitest";
 import {
   createOpenAiClientOptions,
-  OpenAiProvider,
   type OpenAiClient,
   type OpenAiEmbeddingsCreateInput,
   type OpenAiEmbeddingsCreateResult,
+  OpenAiProvider,
   type OpenAiResponsesCreateInput,
   type OpenAiResponsesCreateResult,
 } from "../../src/modules/ai/infrastructure/openai-ai.provider";

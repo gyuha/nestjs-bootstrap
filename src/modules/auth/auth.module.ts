@@ -1,12 +1,14 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { JwtModule } from "@nestjs/jwt";
-import { JwtService } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { DATABASE } from "../../shared/infrastructure/database/database.tokens";
+import type { schema } from "../../shared/infrastructure/database/schema";
+import { UsersModule } from "../users/users.module";
 import { authUseCases } from "./application/auth.use-cases";
+import { GoogleLogin } from "./application/google-login.use-case";
 import { RefreshTokenService } from "./application/refresh-token.service";
 import { TokenService } from "./application/token.service";
-import { GoogleLogin } from "./application/google-login.use-case";
 import { AUTH_IDENTITY_REPOSITORY } from "./domain/auth-identity.repository";
 import { PASSWORD_HASHER } from "./domain/password-hasher";
 import { REFRESH_TOKEN_REPOSITORY } from "./domain/refresh-token.repository";
@@ -16,9 +18,6 @@ import { GoogleAuthGuard, GoogleOAuthStrategy } from "./infrastructure/google-oa
 import { DrizzleRefreshTokenRepository } from "./infrastructure/refresh-token.drizzle-repository";
 import { AuthController } from "./presentation/auth.controller";
 import { JwtAuthGuard } from "./presentation/jwt-auth.guard";
-import { UsersModule } from "../users/users.module";
-import { DATABASE } from "../../shared/infrastructure/database/database.tokens";
-import type { schema } from "../../shared/infrastructure/database/schema";
 
 @Module({
   imports: [JwtModule, UsersModule],
